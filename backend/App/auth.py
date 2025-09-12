@@ -12,7 +12,7 @@ from .db import db_session as db
 from datetime import datetime, timezone
 from pathlib import Path
 import logging
-from .user_validation import handle_user_input_exist, handle_validate_requirements
+from .User_validation import handle_user_input_exist, handle_validate_requirements
 from .db_interaciton import commit_session, jsonify_template_user
 
 # Formats how the logging should be in the log file

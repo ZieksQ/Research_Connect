@@ -8,7 +8,7 @@ from sqlalchemy import select
 from pathlib import Path
 from sqlalchemy import select
 from .db_interaciton import jsonify_template_user, commit_session
-from .user_validation import handle_post_input_exist, handle_post_requirements, handle_survey_input_exists
+from .User_validation import handle_post_input_exist, handle_post_requirements, handle_survey_input_exists
 import logging
 
 # Formats how the logging should be in the log file

@@ -1,5 +1,10 @@
 from App import db, bcrypt
 
+'''
+    get_ methods are just helper method to convert SQLALCHEMY object to Python dict
+'''
+
+# Creates a table for the Users
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), nullable=False, unique=True)
@@ -21,6 +26,7 @@ class Users(db.Model):
     def set_password(self, password):
         self.__password = bcrypt.generate_password_hash(self.__password, password).decode("utf-8")
 
+# Creates a table for the Posts
 class Posts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
@@ -34,6 +40,7 @@ class Posts(db.Model):
             "user_id" : self.user_id
         }
 
+# Creates a table for the Survey
 class Surveys(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -44,3 +51,14 @@ class Surveys(db.Model):
         return {
             "id" : self.id
         }
+    
+# Creates a table for the Survey to keep track of the revoked tokens
+class RefreshToken(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(36), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    revoked = db.Column(db.Boolean, default=False, nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+
+    def __repr__(self):
+        return f"No. {self.id}"

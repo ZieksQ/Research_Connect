@@ -1,6 +1,6 @@
 from App import db, bcrypt
 
-class User(db.Model):
+class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), nullable=False, unique=True)
     __password = db.Column("password" ,db.String(256), nullable=False)
@@ -34,7 +34,7 @@ class Posts(db.Model):
             "user_id" : self.user_id
         }
 
-class Survey(db.Model):
+class Surveys(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     def __repr__(self):

@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 .env
 log_folder
+=======
+# .env
+>>>>>>> 0e1ed25 (fixing env file)
 # Logs
 logs
 *.log

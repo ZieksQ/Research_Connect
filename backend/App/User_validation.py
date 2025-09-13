@@ -1,4 +1,4 @@
-def validate_user_input_exist(username: str, password: str) -> dict:
+def handle_user_input_exist(username: str, password: str) -> dict:
     """validate user input whether it exist or not
 
     Args:
@@ -24,7 +24,7 @@ def validate_user_input_exist(username: str, password: str) -> dict:
 
     return result
 
-def validate_username_password(username: str, password: str) -> dict:
+def handle_validate_requirements(username: str, password: str) -> dict:
     """validates the user input if it meets the requirements e.g. username must be x char long
 
     Args:
@@ -66,5 +66,54 @@ def validate_username_password(username: str, password: str) -> dict:
             break
     else:
         result["password"]["ok"] = True
+
+    return result
+
+def handle_post_input_exist(title: str, content: str) -> dict:
+    
+    result = {
+        "title" : {"ok" : True, "msg" : None},
+        "content" : {"ok" : True, "msg" : None},
+    }
+
+    if not title:
+        result["title"]["ok"] = False
+        result["title"]["msg"] = "Missing Title"
+
+    if not content:
+        result["title"]["ok"] = False
+        result["title"]["msg"] = "Missing content"
+
+    return result
+
+def handle_post_requirements(title: str, content: str) -> dict:
+    
+    result = {
+        "title" : {"ok": False, "msg": None},
+        "content" : {"ok": False, "msg": None},
+    }
+
+    title_rules = [
+        (lambda title: len(title) >=10, "Title must at least be 10 characters")
+        (lambda title: len(title) <=128, "Title must not exceed 128 characters")
+    ]
+
+    content_rules = {
+        (lambda content: len(content) >= 30), "Title should be atleast 30 characters"
+    }
+
+    for check, msg in title_rules:
+        if not check(title):
+            result["title"]["msg"] = msg
+            break
+    else:
+        result["title"]["ok"] = True
+
+    for check, msg in content_rules:
+        if not check(title):
+            result["content"]["msg"] = msg
+            break
+    else:
+        result["content"]["ok"] = True
 
     return result

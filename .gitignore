@@ -1,4 +1,5 @@
 .env
+log_folder
 # Logs
 logs
 *.log

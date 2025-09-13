@@ -26,4 +26,5 @@ def jsonify_template_user(status: int, ok: bool, message: str | dict):
     Returns:
         json: jsonified dictionary
     """
+    
     return jsonify({ "status": status, "ok": ok, "message": message })

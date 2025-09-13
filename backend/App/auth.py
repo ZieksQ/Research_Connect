@@ -1,4 +1,4 @@
-from flask import Flask, request, current_app, Blueprint
+from flask import request, current_app, Blueprint
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, 
     set_access_cookies, set_refresh_cookies, 
@@ -8,14 +8,17 @@ from flask_jwt_extended import (
 from .model import Users, RefreshToken
 from App import db, jwt
 from datetime import datetime, timezone
+from pathlib import Path
 import logging
-from .user_validation import validate_user_input_exist, validate_username_password
+from .user_validation import handle_user_input_exist, handle_validate_requirements
 from .db_interaciton import commit_session, jsonify_template_user
 
+# Formats how the logging should be in the log file
 logger = logging.getLogger(__name__)
 FORMAT = "%(name)s - %(asctime)s - %(funcName)s - %(lineno)d -  %(levelname)s - %(message)s"
+log_path = Path(__file__).resolve().parent.parent / "log_folder/auth_users.log"
 
-handler = logging.FileHandler("Users.log", mode="a")
+handler = logging.FileHandler(log_path, mode="a")
 formatter = logging.Formatter(FORMAT)
 
 handler.setFormatter(formatter)
@@ -23,12 +26,14 @@ logger.addHandler(handler)
 
 user_auth = Blueprint("user_auth", __name__)
 
+# Callback method to check if the token is revoked
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_payload):
     jti = jwt_payload["jti"]
     token = RefreshToken.query.filter_by(jti=jti).first()
     return token is not None and token.revoked
 
+# Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
 @jwt.unauthorized_loader
 def check_unauthorized_access(err_msg):
     logger.error(err_msg)
@@ -39,11 +44,11 @@ def check_unauthorized_access(err_msg):
 def user_register():
     data = request.get_json()
 
-    username = data.get("username")
-    password = data.get("password")
+    username = data.get("username", "")
+    password = data.get("password", "")
 
-    validate_result = validate_user_input_exist(username, password)
-    validate_user_requirements = validate_username_password(username, password)
+    validate_result = handle_user_input_exist(username, password)
+    validate_user_requirements = handle_validate_requirements(username, password)
 
     if not validate_result["username"]["ok"] or not validate_result["password"]["ok"]:
         logger.error(validate_result)
@@ -73,10 +78,10 @@ def user_register():
 def user_login():
     data = request.get_json()
 
-    username = data.get("username")
-    password = data.get("password")
+    username = data.get("username", "")
+    password = data.get("password", "")
 
-    validate_result = validate_user_input_exist(username, password)
+    validate_result = handle_user_input_exist(username, password)
 
     if not validate_result["username"]["ok"] or not validate_result["password"]["ok"]:
         logger.error(validate_result)
@@ -137,6 +142,8 @@ def logout():
 
     return response, 200
 
+# Route to refresh the access token for more security
+# If the refresh token expires the user needs to log in again
 @user_auth.route("/refresh", methods=["POST"])
 @jwt_required(refresh=True)
 def refresh_access():

@@ -9,7 +9,7 @@ class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), nullable=False, unique=True)
     __password = db.Column("password" ,db.String(256), nullable=False)
-    post = db.relationship("Post", backref="author", lazy=True)
+    post = db.relationship("Posts", backref="author", lazy=True)
 
     def __repr__(self):
         return f"User {self.id}"
@@ -17,19 +17,21 @@ class Users(db.Model):
     def get_user(self):
         return {
             "id" : self.id,
-            "username" : self.username
+            "username" : self.username,
         } 
     
     def check_password(self, password):
         return bcrypt.check_password_hash(self.__password, password)
     
     def set_password(self, password):
-        self.__password = bcrypt.generate_password_hash(self.__password, password).decode("utf-8")
+        self.__password = bcrypt.generate_password_hash(password).decode("utf-8")
 
 # Creates a table for the Posts
 class Posts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    title = db.Column(db.String(128), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
 
     def __repr__(self):
         return f"Post: {self.id}"
@@ -37,7 +39,9 @@ class Posts(db.Model):
     def get_post(self):
         return {
             "id" : self.id,
-            "user_id" : self.user_id
+            "title" : self.title,
+            "content" : self.content,
+            "user_id" : self.user_id,
         }
 
 # Creates a table for the Survey
@@ -47,9 +51,9 @@ class Surveys(db.Model):
     def __repr__(self):
         return f"Survey: {self.id}"
     
-    def get_post(self):
+    def get_survey(self):
         return {
-            "id" : self.id
+            "id" : self.id,
         }
     
 # Creates a table for the Survey to keep track of the revoked tokens

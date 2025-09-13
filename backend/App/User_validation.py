@@ -1,36 +1,51 @@
-import logging
+def validate_user_input_exist(username: str, password: str) -> dict:
+    """validate user input whether it exist or not
 
-logger = logging.getLogger(__name__)
-FORMAT = "%(name)s - %(asctime)s - %(funcName)s - %(lineno)d -  %(levelname)s - %(message)s"
+    Args:
+        username (str): username input
+        password (str): password input
 
-handler = logging.FileHandler("Users.log", mode="a")
-formatter = logging.Formatter(FORMAT)
+    Returns:
+        dict: dictionary containing flag and message for clean reading
+    """
 
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+    result = {
+        "username": {"ok" : True, "msg": None},
+        "password": {"ok" : True, "msg": None},
+    }
 
-def validate_user_input_exist(username: str, password: str):
-    username_ok = bool(username)
-    password_ok = bool(password)
+    if not username:
+        result["username"]["ok"] = False
+        result["username"]["msg"] = "Missing username"
 
-    return username_ok, password_ok
+    if not password:
+        result["password"]["ok"] = False
+        result["password"]["msg"] = "Missing password"
 
-def validate_username(username: str):
-    
-    rules =[
-        (lambda usnm: usnm >= 3 ),  "Username must be at least 4 characters"
-        (lambda usnm: usnm <= 36 ), "Username must not exceed 36 characters"
+    return result
+
+def validate_username_password(username: str, password: str) -> dict:
+    """validates the user input if it meets the requirements e.g. username must be x char long
+
+    Args:
+        username (str): username input
+        password (str): password input
+
+    Returns:
+        dict: dictionary containing flag and message for clean reading
+    """
+
+    result = {
+        "username" : {"ok": False, "msg": None},
+        "password" : {"ok": False, "msg": None},
+    }
+
+    useranme_rules = [
+        (lambda usnm: len(usnm) >= 4,  "Username must be at least 4 characters"),
+        (lambda usnm: len(usnm) <= 36, "Username must not exceed 36 characters"),
     ]
 
-    for check, msg in rules:
-        if not check(username):
-            logger.error(msg)
-            return False, msg
-    
-    return True, None
-
-def validate_password(password: str):
-    rules = [
+    password_rules = [
         (lambda psww: len(psww) >= 8,                   "Password must be at least 8 characters"),
         (lambda psww: len(psww) <= 36,                  "Password must not exceed 36 characters"),
         (lambda psww: any(c.isupper() for c in psww),   "Password must contain at least 1 uppercase letter"),
@@ -38,9 +53,18 @@ def validate_password(password: str):
         (lambda psww: any(c.isdigit() for c in psww),   "Password must contain at least 1 digit"),
     ]
 
-    for check, msg in rules:
-        if not check(password):
-            logger.error(msg)
-            return False, msg
+    for check,msg in useranme_rules:
+        if not check(username):
+            result["username"]["msg"] = msg
+            break
+    else:
+        result["username"]["ok"] = True
 
-    return True, None
+    for check,msg in password_rules:
+        if not check(password):
+            result["password"]["msg"] = msg
+            break
+    else:
+        result["password"]["ok"] = True
+
+    return result

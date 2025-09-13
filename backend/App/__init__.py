@@ -39,22 +39,22 @@ def run_app():
 
     app.config["SECRET_KEY"] = FLASK_SECRET_KEY
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{SQLITE}"       # Location of the database
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False                # Heps improve performance
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{SQLITE}"   # Location of the database
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False            # Heps improve performance
 
-    app.config["JWT_TOKEN_LOCATIONS"] = ["cookies"]                     # Sets the location where the JWT will be sent, default is headers
+    app.config["JWT_TOKEN_LOCATIONS"] = ["cookies"]                 # Sets the location where the JWT will be sent, default is headers
     app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY
-    app.config["JWT_COOKIE_SECURE"] = False                             # Requires the cookie to be send thorugh HTTPS, sets to false since we are using HTTP
-    app.config["JWT_COOKIE_CSRF_PROTECT"] = False                       # If True, requires the frontend to inlucde CSRF Token for every call
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)      # Short lived token to increase security, use to make the users have access to jwt_redquired() API
-    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=3)         # Long llved token to refresh the access token
+    app.config["JWT_COOKIE_SECURE"] = False                         # Requires the cookie to be send thorugh HTTPS, sets to false since we are using HTTP
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = False                   # If True, requires the frontend to inlucde CSRF Token for every call
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)  # Short lived token to increase security, use to make the users have access to jwt_redquired() API
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=3)     # Long llved token to refresh the access token
 
     from .auth import user_auth
 
     app.register_blueprint( user_auth, url_prefix="/user" )
 
     db.init_app(app)
-    CORS(app, supports_credentials=True)                                # Enables CORS and lets you send JWT through cookie
+    CORS(app, supports_credentials=True)                            # Enables CORS and lets you send JWT through cookie
 
     sqlite_database(app)
 

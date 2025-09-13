@@ -9,6 +9,7 @@ from .model import Users, RefreshToken
 from App import db, jwt
 from datetime import datetime, timezone
 import logging
+from User_validation import validate_user_input_exist, validate_username, validate_password
 
 logger = logging.getLogger(__name__)
 FORMAT = "%(name)s - %(asctime)s - %(funcName)s - %(lineno)d -  %(levelname)s - %(message)s"
@@ -40,16 +41,21 @@ def uesr_register():
     username = data.get("username")
     password = data.get("username")
 
-    usnm_valid, usnm_msg = validate_username()
-    pssw_valid, pssw_msg = validate_username()
+    input_valid, input_msg = validate_user_input_exist(username, password)
+    usnm_valid, usnm_msg = validate_username(username)
+    pssw_valid, pssw_msg = validate_password(password)
+
+    if not input_valid:
+        logger.error(input_msg)
+        return jsonify_template(422, False, input_msg), 422
 
     if not usnm_valid:
         logger.error(usnm_msg)
-        return jsonify_template(400, False, usnm_msg), 400
+        return jsonify_template(422, False, usnm_msg), 422
     
     if not pssw_valid:
         logger.error(pssw_msg)
-        return jsonify_template(400, False, pssw_msg), 400
+        return jsonify_template(422, False, pssw_msg), 422
 
     if Users.query.filter_by(username=username).first():
         msg = "Username already exist"
@@ -62,7 +68,10 @@ def uesr_register():
     db.session.add(user)
     success, error = commit_session()
     if not success:
-        pass
+        logger.exception(error)
+        return jsonify_template(500, False, "Database Error"), 500
+    
+    return jsonify_template(200, True, "User registered successful"), 200
 
 def commit_session():
     try:
@@ -74,41 +83,3 @@ def commit_session():
 
 def jsonify_template(status: int, ok: bool, message: str):
     return jsonify({ "status": status, "ok": ok, "message": message })
-
-def validate_username(username: str):
-    if (len(username) < 4):
-        msg = "Usename must be at least 4 characters"
-        logger.error(msg)
-        return False, msg
-    
-    if(len(username) > 36):
-        msg = "Username must not exceed 36 characters"
-        logger.error(msg)
-        return False, msg
-    
-    return True, None
-
-def validate_password(password: str):
-
-    list_bool_checker: list = []
-
-    for i in password:
-        if (i == i.capitalize()):
-            list_bool_checker.append(True)
-
-    if(True not in list_bool_checker):
-        msg = "Password must contain at least 1 Capital letter"
-        logger.error(msg)
-        return False, msg
-
-    if (len(password) < 8):
-        msg = "Password must be at least 8 characters"
-        logger.error(msg)
-        return False, msg
-    
-    if(len(password) > 36):
-        msg = "Username must not exceed 36 characters"
-        logger.error(msg)
-        return False, msg
-
-    return True, None

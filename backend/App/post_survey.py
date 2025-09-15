@@ -1,10 +1,11 @@
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .model import Posts, Users
+from .model import ( Posts, Users, RefreshToken, QuestionType, 
+                     Surveys, Question, Choice, Essay )
 from App import db, jwt
 from pathlib import Path
 from .db_interaciton import jsonify_template_user, commit_session
-from .user_validation import handle_post_input_exist, handle_post_requirements
+from .user_validation import handle_post_input_exist, handle_post_requirements, handle_survey_input_exists
 import logging
 
 # Formats how the logging should be in the log file
@@ -19,6 +20,23 @@ handler.setFormatter(formatter)
 logger.addHandler(handler) 
 
 survey_posting = Blueprint("survey_posting", __name__)
+
+type_map = {
+    "multiple_choice": QuestionType.MULTIPLE_CHOICE,
+    "essay": QuestionType.ESSAY
+}
+
+# Callback method to return as response to expired token
+@jwt.expired_token_loader
+def expired_token_response(jwt_header, jwt_payload):
+    return jsonify_template_user(401, False, "You need to refresh the access token", expiredToken=True), 401
+
+# Callback method to check if the token is revoked
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload):
+    jti = jwt_payload["jti"]
+    token = RefreshToken.query.filter_by(jti=jti).first()
+    return token is not None and token.revoked
 
 # Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
 @jwt.unauthorized_loader
@@ -50,7 +68,7 @@ def get_posts_solo(id):
     post = Posts.query.get_or_404(id)
 
     if not post:
-        return jsonify_template_user(404, False, "Post not found")
+        return jsonify_template_user(404, False, "Post not found"), 404
 
     data = post.get_post()
 
@@ -65,7 +83,7 @@ def send_post():
     user_id = get_jwt_identity()
     user = Users.query.get_or_404(user_id)
 
-    data = request.get_json()
+    data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
     title = data.get("title", "")
     content = data.get("content", "")
@@ -75,11 +93,11 @@ def send_post():
 
     if not post_input_validate["username"]["ok"] or not post_input_validate["password"]["ok"]:
         logger.error(post_input_validate)
-        return jsonify_template_user(400, False, post_input_validate)
+        return jsonify_template_user(400, False, post_input_validate), 400
     
     if not post_requirements["username"]["ok"] or not post_requirements["username"]["ok"]:
         logger.error(post_requirements)
-        return jsonify_template_user(422, False, post_requirements)
+        return jsonify_template_user(422, False, post_requirements), 400
     
     post = Posts(title=title, content=content, user_id=user)
 
@@ -89,4 +107,30 @@ def send_post():
         logger.exception(error)
         return jsonify_template_user(500, False, "Database Error"), 500
     
-    return jsonify_template_user(200, True, f"Post created by {user.id}")
+    return jsonify_template_user(200, True, f"Post created by {user.id}"), 200
+
+@survey_posting.route("/survey/posts", methods=['POST'])
+@jwt_required()
+def send_survey():
+    data: dict = request.get_json(silent=True) or {}
+
+    survey = Surveys()
+
+    for i in data:
+        pass
+
+    for dkey, dvalue in data.items():
+        q_type = type_map.get(dvalue["type"].lower(), "")
+        
+        question = Question(question_text=dkey, q_type=q_type)
+
+        if q_type == QuestionType.MULTIPLE_CHOICE:
+            choice = Choice(question=question, choice_text=dvalue["choice"], choice_answer=dvalue["answer"])
+            question.choices.append(choice)
+        if q_type == QuestionType.ESSAY:
+            essay = Essay(question=question, essay_answer=dvalue["answer"])
+            question.essay.append(essay)
+
+        survey.questions.append(question)
+    
+    db.session.add(survey)

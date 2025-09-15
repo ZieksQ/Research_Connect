@@ -42,7 +42,7 @@ def check_unauthorized_access(err_msg):
 
 @user_auth.route("/register", methods=["POST"])
 def user_register():
-    data = request.get_json()
+    data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
     username = data.get("username", "")
     password = data.get("password", "")
@@ -76,7 +76,7 @@ def user_register():
 
 @user_auth.route("/login", methods=["PSOT"])
 def user_login():
-    data = request.get_json()
+    data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
     username = data.get("username", "")
     password = data.get("password", "")
@@ -88,7 +88,6 @@ def user_login():
         return jsonify_template_user(400, False, validate_result), 400
     
     user = Users.query.filter_by(username=username).first()
-
     if not user:
         msg = "Username does not exist"
         logger.error(msg)
@@ -123,19 +122,22 @@ def user_login():
 @jwt_required(refresh=True)
 def logout():
     jti = get_jwt()["jti"]
-    token = RefreshToken.query.filter_by(jti=jti)
+    token = RefreshToken.query.filter_by(jti=jti).first()
 
-    if not token.revoked:
-        return jsonify_template_user(404, False, "You need to log in again")
+    if not token:
+        return jsonify_template_user(404, False, "I dont even know how you got this error. but you dont have a token"), 404
+    
+    if token.revoked:
+        return jsonify_template_user(404, False, "I dont even know how you got this error. but your JWT has been revoked"), 404
     
     token.revoked = True
 
     success, error = commit_session()
     if not success:
         logger.error(error)
-        return jsonify_template_user(500, False, "Databse error")
+        return jsonify_template_user(500, False, "Database error"), 500
     
-    response = jsonify_template_user(200, True, "Successfylly logged out")
+    response = jsonify_template_user(200, True, "Successfully logged out")
 
     unset_jwt_cookies(response)
     logger.info("User has logged out")

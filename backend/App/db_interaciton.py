@@ -15,16 +15,20 @@ def commit_session() -> tuple[bool, str | None]:
         db.session.rollback()
         return (False, str(e))
 
-def jsonify_template_user(status: int, ok: bool, message: str | dict):
+def jsonify_template_user(status: int, ok: bool, message: str | dict, **extra_flag: dict):
     """Helper method to reduce jsonify typing for each methods 
 
     Args:
         status (int): Http status code
         ok (bool): Boolean flag indicating success
         message (str | dict): Message for the frontend
+        extra_flag (dict): Extra message to send to the frontend, easy flaging e.g. tokenExpired=True
 
     Returns:
         json: jsonified dictionary
     """
     
-    return jsonify({ "status": status, "ok": ok, "message": message })
+    response = { "status": status, "ok": ok, "message": message }
+    response.update(extra_flag)
+
+    return jsonify(response)

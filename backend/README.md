@@ -5,7 +5,7 @@
 ```bash
 virtualenv .venv
 ```
-".venv" can be whatever name you want but .venv is the standardd way
+".venv" can be whatever name you want but .venv is the standard way
 
 #
 
@@ -25,17 +25,17 @@ This installs all the modules within the requirements.txt\
 The requirements.txt is provided by the dev
 #
 
-### 3.1 Optionally You can udate the requirements.txt if you have modified the modules in you flask project
+### 3.1 Optionally you can upadte the requirements.txt if you have modified the modules in you flask project
 ```bash
 pip freeze > requirements.txt
 ```
 
 #
 
-### 4. If hte modules are not loading properly or the imports are showing an error. You need to change interpreters
+### 4. If the modules are not loading properly or the imports are showing an error. You need to change interpreters
 In Vscode(yea since i use vscode).\
 Open the command pallete (ctrl + shift + P)\
 type "interpreter" and you will see "Python: Select Intepreer"\
 Choose the one with the (.venv)\
-This ensures that you interpreter is using the modules that you have installed in your .venv folder
+This ensures that your interpreter is using the modules that you have installed in your .venv folder
 

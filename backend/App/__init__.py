@@ -9,10 +9,9 @@ from dotenv import load_dotenv
 import logging, os
 
 # Used to initialize the stuff i need
-app = Flask(__name__)
 db = SQLAlchemy()
-jwt = JWTManager(app)
-bcrypt = Bcrypt(app)
+jwt = JWTManager()
+bcrypt = Bcrypt()
 
 
 env_path = Path(__file__).resolve().parent.parent / ".env"      # Gets the absolute file path of the .env file
@@ -36,14 +35,17 @@ logging.basicConfig(level=logging.INFO,
                     datefmt=DATEFMT)
 logger = logging.getLogger(__name__)
 
-def run_app():
+def run_app(db_flag=False):
+    db_storage = "test.db" if db_flag else SQLITE
+
+    app = Flask(__name__)
 
     app.config["SECRET_KEY"] = FLASK_SECRET_KEY
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{SQLITE}"   # Location of the database
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_storage}"   # Location of the database
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False            # Heps improve performance
 
-    app.config["JWT_TOKEN_LOCATIONS"] = ["cookies"]                 # Sets the location where the JWT will be sent, default is headers
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]                 # Sets the location where the JWT will be sent, default is headers
     app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY
     app.config["JWT_COOKIE_SECURE"] = False                         # Requires the cookie to be send thorugh HTTPS, sets to false since we are using HTTP
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False                   # If True, requires the frontend to inlucde CSRF Token for every call
@@ -57,6 +59,8 @@ def run_app():
     app.register_blueprint( survey_posting, url_prefix="/survey" )
 
     db.init_app(app)
+    jwt.init_app(app)
+    bcrypt.init_app(app)
     CORS(app, supports_credentials=True)                            # Enables CORS and lets you send JWT through cookie
 
     sqlite_database(app)

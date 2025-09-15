@@ -5,7 +5,7 @@ type_map = {
     "essay": QuestionType.ESSAY
 }
 
-def handle_user_input_exist(username: str, password: str) -> dict:
+def handle_user_input_exist(username: str, password: str) -> tuple[dict, bool]:
     """validate user input whether it exist or not
 
     Args:
@@ -13,8 +13,11 @@ def handle_user_input_exist(username: str, password: str) -> dict:
         password (str): password input
 
     Returns:
-        dict: dictionary containing flag and message for clean reading
+        tuple: (dict, bool)
+            dictionary containing flag and message for clean reading and bool for easy flagging
     """
+
+    extra_flag = []
 
     result = {
         "username": {"ok" : True, "msg": None},
@@ -24,14 +27,16 @@ def handle_user_input_exist(username: str, password: str) -> dict:
     if not username:
         result["username"]["ok"] = False
         result["username"]["msg"] = "Missing username"
+        extra_flag.append(True)
 
     if not password:
         result["password"]["ok"] = False
         result["password"]["msg"] = "Missing password"
+        extra_flag.append(True)
 
-    return result
+    return result, any(extra_flag)
 
-def handle_validate_requirements(username: str, password: str) -> dict:
+def handle_validate_requirements(username: str, password: str) -> tuple[dict, bool]:
     """validates the user input if it meets the requirements e.g. username must be x char long
 
     Args:
@@ -39,13 +44,15 @@ def handle_validate_requirements(username: str, password: str) -> dict:
         password (str): password input
 
     Returns:
-        dict: dictionary containing flag and message for clean reading
+        tuple: (dict, bool)
+            dictionary containing flag and message for clean reading and bool for easy flagging
     """
 
     result = {
         "username" : {"ok": False, "msg": None},
         "password" : {"ok": False, "msg": None},
     }
+    extra_flag = []
 
     useranme_rules = [
         (lambda usnm: len(usnm) >= 4,  "Username must be at least 4 characters"),
@@ -63,6 +70,7 @@ def handle_validate_requirements(username: str, password: str) -> dict:
     for check,msg in useranme_rules:
         if not check(username):
             result["username"]["msg"] = msg
+            extra_flag.append(True)
             break
     else:
         result["username"]["ok"] = True
@@ -70,11 +78,12 @@ def handle_validate_requirements(username: str, password: str) -> dict:
     for check,msg in password_rules:
         if not check(password):
             result["password"]["msg"] = msg
+            extra_flag.append(True)
             break
     else:
         result["password"]["ok"] = True
 
-    return result
+    return result, any(extra_flag)
 
 def handle_post_input_exist(title: str, content: str) -> dict:
     """validate post input whether it exist or not

@@ -47,14 +47,14 @@ def user_register():
     username = data.get("username", "")
     password = data.get("password", "")
 
-    validate_result = handle_user_input_exist(username, password)
-    validate_user_requirements = handle_validate_requirements(username, password)
+    validate_result, exists_flag = handle_user_input_exist(username, password)
+    validate_user_requirements, req_flag = handle_validate_requirements(username, password)
 
-    if not validate_result["username"]["ok"] or not validate_result["password"]["ok"]:
+    if exists_flag:
         logger.error(validate_result)
         return jsonify_template_user(400, False, validate_result ), 400
     
-    if not validate_user_requirements["username"]["ok"] or not validate_user_requirements["password"]["ok"]:
+    if req_flag:
         logger.error(validate_user_requirements)
         return jsonify_template_user(422, False, validate_user_requirements), 422
 
@@ -71,19 +71,20 @@ def user_register():
     if not success:
         logger.exception(error)
         return jsonify_template_user(500, False, "Database Error"), 500
+    logger.info("Registered successfully")        
     
     return jsonify_template_user(200, True, "User registered successful"), 200
 
-@user_auth.route("/login", methods=["PSOT"])
+@user_auth.route("/login", methods=["POST"])
 def user_login():
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
     username = data.get("username", "")
     password = data.get("password", "")
 
-    validate_result = handle_user_input_exist(username, password)
+    validate_result, exists_flag = handle_user_input_exist(username, password)
 
-    if not validate_result["username"]["ok"] or not validate_result["password"]["ok"]:
+    if exists_flag:
         logger.error(validate_result)
         return jsonify_template_user(400, False, validate_result), 400
     

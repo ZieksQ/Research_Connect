@@ -1,5 +1,7 @@
-from flask import Flask, request
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
@@ -23,6 +25,10 @@ SQLITE = os.getenv("SQLITEDB")
 FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY")
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 
+db_path = f"sqlite:///{SQLITE}"
+engine = create_engine(str(db_path), echo=True)
+Session = sessionmaker(bind=engine)
+session = Session()
 
 # Formats how the logging should be in the log file
 FORMAT = "%(filename)s - %(asctime)s - %(levelname)s - %(message)s"
@@ -36,13 +42,13 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger(__name__)
 
 def run_app(db_flag=False):
-    db_storage = "test.db" if db_flag else SQLITE
-
     app = Flask(__name__)
+
+    db_loc = "test.db" if db_flag else SQLITE
 
     app.config["SECRET_KEY"] = FLASK_SECRET_KEY
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_storage}"   # Location of the database
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_loc}"   # Location of the database
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False            # Heps improve performance
 
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]                 # Sets the location where the JWT will be sent, default is headers
@@ -51,6 +57,7 @@ def run_app(db_flag=False):
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False                   # If True, requires the frontend to inlucde CSRF Token for every call
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)  # Short lived token to increase security, use to make the users have access to jwt_redquired() API
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=3)     # Long llved token to refresh the access token
+    app.config["JWT_REFRESH_COOKIE_NAME"] = "refresh_token_cookie"
 
     from .auth import user_auth
     from .post_survey import survey_posting
@@ -63,7 +70,7 @@ def run_app(db_flag=False):
     bcrypt.init_app(app)
     CORS(app, supports_credentials=True)                            # Enables CORS and lets you send JWT through cookie
 
-    sqlite_database(app)
+    Base.metadata.create_all(engine)
 
     # Automatically closses DB sessions
     @app.teardown_appcontext
@@ -72,11 +79,14 @@ def run_app(db_flag=False):
 
     return app
 
-# Create a SQLITE database
-def sqlite_database(app):
-     db_path = Path(app.instance_path) / SQLITE
+# # Create a SQLITE database
+# def sqlite_database(app):
+#      db_path = Path(app.instance_path) / SQLITE
 
-     if not db_path.exists():
-        with app.app_context():
-            db.create_all()
-            logger.info("Database has been created")
+#      if not db_path.exists():
+#         with app.app_context():
+#             db.create_all()
+#             logger.info("Database has been created")
+
+class Base(DeclarativeBase):
+    pass

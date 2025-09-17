@@ -2,8 +2,10 @@ from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .model import ( Posts, Users, RefreshToken, QuestionType, 
                      Surveys, Question, Choice, Essay )
-from App import db, jwt
+from App import session as db, jwt
+from sqlalchemy import select
 from pathlib import Path
+from sqlalchemy import select
 from .db_interaciton import jsonify_template_user, commit_session
 from .user_validation import handle_post_input_exist, handle_post_requirements, handle_survey_input_exists
 import logging
@@ -35,7 +37,10 @@ def expired_token_response(jwt_header, jwt_payload):
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_payload):
     jti = jwt_payload["jti"]
-    token = RefreshToken.query.filter_by(jti=jti).first()
+
+    stmt = select(RefreshToken).where(RefreshToken.jti == jti)
+    token = db.execute(stmt).scalar_one_or_none()  
+
     return token is not None and token.revoked
 
 # Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
@@ -53,7 +58,9 @@ def get_posts():
 
     order = Posts.id.asc() if sort == "asc" else Posts.id.desc()
 
-    posts = Posts.query.order_by(order).all()
+    # posts = Posts.query.order_by(order).all()
+    stmt = select(Posts).order_by(order)
+    posts = db.execute(stmt).scalars().all()
 
     data = [post.get_post() for post in posts]
 
@@ -61,11 +68,12 @@ def get_posts():
 
     return jsonify_template_user(200, True, data), 200
 
-@survey_posting.route("/posts/get/<int:id>", methods=["GET"])
+@survey_posting.route("/post/get/<int:id>", methods=["GET"])
 @jwt_required()
 def get_posts_solo(id):
 
-    post = Posts.query.get_or_404(id)
+    # post = Posts.query.get_or_404(id)
+    post = db.get(Posts, id)
 
     if not post:
         return jsonify_template_user(404, False, "Post not found"), 404
@@ -76,36 +84,39 @@ def get_posts_solo(id):
 
     return jsonify_template_user(200, True, data), 200
 
-@survey_posting.route("/posts/send", methods=["POST"])
-@jwt_required
+@survey_posting.route("/post/send", methods=["POST"])
+@jwt_required()
 def send_post():
 
     user_id = get_jwt_identity()
-    user = Users.query.get_or_404(user_id)
+    # user = Users.query.get_or_404(user_id)
+    user = db.get(Users, user_id)
 
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
     title = data.get("title", "")
     content = data.get("content", "")
 
-    post_input_validate = handle_post_input_exist(title, content)
-    post_requirements = handle_post_requirements(title, content)
+    post_input_validate, exist_flag = handle_post_input_exist(title, content)
+    post_requirements, req_flag = handle_post_requirements(title, content)
 
-    if not post_input_validate["username"]["ok"] or not post_input_validate["password"]["ok"]:
+    if exist_flag:
         logger.error(post_input_validate)
         return jsonify_template_user(400, False, post_input_validate), 400
     
-    if not post_requirements["username"]["ok"] or not post_requirements["username"]["ok"]:
+    if req_flag:
         logger.error(post_requirements)
-        return jsonify_template_user(422, False, post_requirements), 400
+        return jsonify_template_user(422, False, post_requirements), 422
     
-    post = Posts(title=title, content=content, user_id=user)
+    post = Posts(title=title, content=content, user_id=user.id)
 
-    db.session.add(post)
+    db.add(post)
     success, error = commit_session()
     if not success:
         logger.exception(error)
         return jsonify_template_user(500, False, "Database Error"), 500
+    
+    logger.info(f"{user.username} posted")
     
     return jsonify_template_user(200, True, f"Post created by {user.id}"), 200
 
@@ -133,4 +144,4 @@ def send_survey():
 
         survey.questions.append(question)
     
-    db.session.add(survey)
+    db.add(survey)

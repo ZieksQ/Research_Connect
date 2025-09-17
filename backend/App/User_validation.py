@@ -13,16 +13,15 @@ def handle_user_input_exist(username: str, password: str) -> tuple[dict, bool]:
         password (str): password input
 
     Returns:
-        tuple: (dict, bool)
+        tuple (dict, bool):
             dictionary containing flag and message for clean reading and bool for easy flagging
     """
-
-    extra_flag = []
 
     result = {
         "username": {"ok" : True, "msg": None},
         "password": {"ok" : True, "msg": None},
     }
+    extra_flag = []
 
     if not username:
         result["username"]["ok"] = False
@@ -44,7 +43,7 @@ def handle_validate_requirements(username: str, password: str) -> tuple[dict, bo
         password (str): password input
 
     Returns:
-        tuple: (dict, bool)
+        tuple (dict, bool):
             dictionary containing flag and message for clean reading and bool for easy flagging
     """
 
@@ -85,7 +84,7 @@ def handle_validate_requirements(username: str, password: str) -> tuple[dict, bo
 
     return result, any(extra_flag)
 
-def handle_post_input_exist(title: str, content: str) -> dict:
+def handle_post_input_exist(title: str, content: str) -> tuple[dict, bool]:
     """validate post input whether it exist or not
 
     Args:
@@ -93,25 +92,29 @@ def handle_post_input_exist(title: str, content: str) -> dict:
         content (str): content input
 
     Returns:
-        dict: dictionary containing flag and message for clean reading
+        tuple (dict, bool):
+            dictionary containing flag and message for clean reading and bool for easy flagging
     """
     
     result = {
         "title" : {"ok" : True, "msg" : None},
         "content" : {"ok" : True, "msg" : None},
     }
+    extra_flag = []
 
     if not title:
         result["title"]["ok"] = False
         result["title"]["msg"] = "Missing Title"
+        extra_flag.append(True)
 
     if not content:
-        result["title"]["ok"] = False
-        result["title"]["msg"] = "Missing content"
+        result["content"]["ok"] = False
+        result["content"]["msg"] = "Missing content"
+        extra_flag.append(True)
 
-    return result
+    return result, any(extra_flag)
 
-def handle_post_requirements(title: str, content: str) -> dict:
+def handle_post_requirements(title: str, content: str) -> tuple[dict, bool]:
     """validates the user input if it meets the requirements e.g. username must be x char long
 
     Args:
@@ -119,13 +122,15 @@ def handle_post_requirements(title: str, content: str) -> dict:
         content (str): content input
 
     Returns:
-        dict: dictionary containing flag and message for clean reading
+        tuple (dict, bool):
+            dictionary containing flag and message for clean reading and bool for easy flagging
     """
     
     result = {
         "title" : {"ok": False, "msg": None},
         "content" : {"ok": False, "msg": None},
     }
+    extra_flag = []
 
     title_rules = [
         (lambda title: len(title) >=10, "Title must at least be 10 characters"),
@@ -139,6 +144,7 @@ def handle_post_requirements(title: str, content: str) -> dict:
     for check, msg in title_rules:
         if not check(title):
             result["title"]["msg"] = msg
+            extra_flag.append(True)
             break
     else:
         result["title"]["ok"] = True
@@ -146,11 +152,12 @@ def handle_post_requirements(title: str, content: str) -> dict:
     for check, msg in content_rules:
         if not check(content):
             result["content"]["msg"] = msg
+            extra_flag.append(True)
             break
     else:
         result["content"]["ok"] = True
 
-    return result
+    return result, any(extra_flag)
 
 def handle_survey_input_exists(svy_questions: dict) -> tuple[bool, list]:
     """Method to check if each input in the dict of questionnaire exists.

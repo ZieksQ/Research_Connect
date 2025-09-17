@@ -1,4 +1,6 @@
 from flask import request, current_app, Blueprint
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, 
     set_access_cookies, set_refresh_cookies, 
@@ -6,7 +8,7 @@ from flask_jwt_extended import (
     get_jwt_identity, jwt_required, get_jwt
 )
 from .model import Users, RefreshToken
-from App import db, jwt
+from App import session as db, jwt
 from datetime import datetime, timezone
 from pathlib import Path
 import logging
@@ -30,7 +32,11 @@ user_auth = Blueprint("user_auth", __name__)
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_payload):
     jti = jwt_payload["jti"]
-    token = RefreshToken.query.filter_by(jti=jti).first()
+
+    stmt = select(RefreshToken).where(RefreshToken.jti == jti)
+
+    token = db.execute(stmt).scalar_one_or_none()  
+
     return token is not None and token.revoked
 
 # Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
@@ -58,7 +64,8 @@ def user_register():
         logger.error(validate_user_requirements)
         return jsonify_template_user(422, False, validate_user_requirements), 422
 
-    if Users.query.filter_by(username=username).first():
+    stmt = select(Users).where(Users.username == username)
+    if db.scalars(stmt).first():
         msg = "Username already exist"
         logger.error(msg)
         return jsonify_template_user(409, False, msg), 409
@@ -66,7 +73,7 @@ def user_register():
     user = Users(username=username)
     user.set_password(password)
 
-    db.session.add(user)
+    db.add(user)
     success, error = commit_session()
     if not success:
         logger.exception(error)
@@ -88,11 +95,17 @@ def user_login():
         logger.error(validate_result)
         return jsonify_template_user(400, False, validate_result), 400
     
-    user = Users.query.filter_by(username=username).first()
+    stmt = select(Users).where(Users.username == username)
+    user = db.scalars(stmt).first()
     if not user:
         msg = "Username does not exist"
         logger.error(msg)
-        return jsonify_template_user(400, False, msg), 400
+        return jsonify_template_user(404, False, msg), 404
+    
+    if not user.check_password(password):
+        msg = "Incorrect password"
+        logger.error(msg)
+        return jsonify_template_user(401, False, msg), 401
     
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))
@@ -101,9 +114,9 @@ def user_login():
     jti = refresh_token_decoded.get("jti")
 
     expires = datetime.now(timezone.utc) + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
-    current_refresh_token = RefreshToken(jti=jti, user_id=user.id, expires_at=expires)
+    current_refresh_token = RefreshToken(jti=jti, user=user, expires_at=expires)
 
-    db.session.add(current_refresh_token)
+    db.add(current_refresh_token)
 
     success, error = commit_session()
     if not success:
@@ -123,7 +136,8 @@ def user_login():
 @jwt_required(refresh=True)
 def logout():
     jti = get_jwt()["jti"]
-    token = RefreshToken.query.filter_by(jti=jti).first()
+    stmt = select(RefreshToken).where(RefreshToken.jti == jti)
+    token = db.execute(stmt).scalar_one_or_none()
 
     if not token:
         return jsonify_template_user(404, False, "I dont even know how you got this error. but you dont have a token"), 404
@@ -151,7 +165,8 @@ def logout():
 @jwt_required(refresh=True)
 def refresh_access():
     jti = get_jwt()["jti"]
-    token = RefreshToken.query.filter_by(jti=jti, revoked=False).first()
+    stmt = select(RefreshToken).where(RefreshToken.jti == jti, RefreshToken.revoked == False)
+    token = db.scalars(stmt).first()
 
     if not token:
         return jsonify_template_user(404, False, "You need to log in again"), 404

@@ -1,157 +1,126 @@
-from App import db, bcrypt
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Integer, ForeignKey, Text, Boolean, DateTime, Enum, JSON
+from datetime import datetime
+from App import bcrypt, Base
 import enum
 
-'''
-    get_ methods are just helper method to convert SQLALCHEMY object to Python dict
-'''
+# -----------------------------
+# User, Posts, RefreshToken
+# -----------------------------
 
-# Creates a table for the Users
-class Users(db.Model):
+class Users(Base):
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(32), nullable=False, unique=True)
-    __password = db.Column("password" ,db.String(256), nullable=False)
-    post = db.relationship("Posts", backref="author", lazy=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String(32), nullable=False, unique=True)
+    _password: Mapped[str] = mapped_column(String(256), nullable=False)
+
+    post: Mapped[list["Posts"]] = relationship(back_populates="user")
+    refresh_token: Mapped["RefreshToken"] = relationship(back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"User {self.id}"
-    
+
     def get_user(self):
         return {
-            "id" : self.id,
-            "username" : self.username,
-        } 
-    
-    def check_password(self, password):
-        return bcrypt.check_password_hash(self.__password, password)
-    
-    def set_password(self, password):
-        self.__password = bcrypt.generate_password_hash(password).decode("utf-8")
+            "id": self.id,
+            "username": self.username,
+        }
 
-# Creates a table for the Posts
-class Posts(db.Model):
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self._password, password)
+
+    def set_password(self, password):
+        self._password = bcrypt.generate_password_hash(password).decode("utf-8")
+
+
+class Posts(Base):
     __tablename__ = "users_posts"
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(128), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String(128), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+
+    user: Mapped[Users] = relationship(back_populates="post")
 
     def __repr__(self):
         return f"Post: {self.id}"
-    
+
     def get_post(self):
         return {
-            "id" : self.id,
-            "title" : self.title,
-            "content" : self.content,
-            "user_id" : self.user_id,
+            "id": self.id,
+            "title": self.title,
+            "content": self.content,
+            "user_id": self.user_id,
         }
 
-# Creates a table for the Survey to keep track of the revoked tokens
-class RefreshToken(db.Model):
-    __tablename__ = "users_refreshtoken"
-    id = db.Column(db.Integer, primary_key=True)
-    jti = db.Column(db.String(64), unique=True, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    revoked = db.Column(db.Boolean, default=False, nullable=False)
-    expires_at = db.Column(db.DateTime, nullable=False)
+
+class RefreshToken(Base):
+    __tablename__ = "user_refreshtoken"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    jti: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
+    revoked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+    user: Mapped["Users"] = relationship(back_populates="refresh_token")
 
     def __repr__(self):
         return f"No. {self.id}"
 
-'''
-Wala pa to, para to sa survey questions di pa gagamitin
-tetesting ko muna
-'''
 
-# Enum for question type
+# -----------------------------
+# Survey Models
+# -----------------------------
+
 class QuestionType(enum.Enum):
     MULTIPLE_CHOICE = "multiple_choice"
     ESSAY = "essay"
 
-# Creates a table for the Survey
-class Surveys(db.Model):
-    __tablename__ = "svy_surveys"
-    id = db.Column(db.Integer, primary_key=True)
 
-    questions = db.relationship("Question", back_populates="survey", 
-                                cascade="all, delete-orphan")
+class Surveys(Base):
+    __tablename__ = "svy_surveys"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    questions: Mapped[list["Question"]] = relationship(back_populates="survey", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"Survey: {self.id}"
 
-# Question table
-class Question(db.Model):
+
+class Question(Base):
     __tablename__ = "svy_questions"
 
-    id = db.Column(db.Integer, primary_key=True)
-    question_text = db.Column(db.Text, nullable=False)                          # Allows long questions
-    q_type = db.Column(db.Enum(QuestionType), nullable=False)
-    survey_id = db.Column(db.Integer, db.ForeignKey("svy_surveys.id"), nullable=False)
-    
-    survey = db.relationship("Surveys", back_populates="questions")
-    
-    choices = db.relationship("Choice", back_populates="question", 
-                              cascade="all, delete-orphan")              # back_populate to automatically link both tables
-    essay = db.relationship("Essay", back_populates="question", 
-                            cascade="all, delete-orphan", uselist=False)  # uselist=False to prevent having multiple essay in it, I want a one to one relationship
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    question_text: Mapped[str] = mapped_column(Text, nullable=False)
+    q_type: Mapped[QuestionType] = mapped_column(Enum(QuestionType), nullable=False)
+    survey_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_surveys.id"), nullable=False)
 
-# Choice table (only for multiple-choice questions)
-class Choice(db.Model):
+    survey: Mapped["Surveys"] = relationship(back_populates="questions")
+
+    choices: Mapped[list["Choice"]] = relationship(back_populates="question", cascade="all, delete-orphan")
+    essay: Mapped["Essay"] = relationship(back_populates="question", uselist=False, cascade="all, delete-orphan")
+
+
+class Choice(Base):
     __tablename__ = "svy_choices"
 
-    id = db.Column(db.Integer, primary_key=True)
-    question_id = db.Column(db.Integer, db.ForeignKey("svy_questions.id"))
-    choice_text = db.Column(db.JSON, nullable=False)
-    choice_answer = db.Column(db.String(64), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    question_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_questions.id"), nullable=False)
+    choice_text: Mapped[list[str]] = mapped_column(JSON, nullable=False)  # list of options
+    choice_answer: Mapped[str] = mapped_column(String(64), nullable=False)
 
-    question = db.relationship("Question", back_populates="choices")            # Helpful for automatically inserting the foreignKey, usually its question_id=question.id
+    question: Mapped["Question"] = relationship(back_populates="choices")
 
-# Essay table to store answer for questions that requirees use input and not multiple choice e.g. essay
-class Essay(db.Model):
+
+class Essay(Base):
     __tablename__ = "svy_essays"
 
-    id = db.Column(db.Integer, primary_key=True)
-    question_id = db.Column(db.Integer, db.ForeignKey("svy_questions.id"))
-    essay_answer = db.Column(db.Text, nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    question_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_questions.id"), nullable=False)
+    essay_answer: Mapped[str] = mapped_column(Text, nullable=False)
 
-    question = db.relationship("Question", back_populates="essay")
-
-'''
-Usage
-----------------------------------------------------------------------------------------------------
-
-with app.app_context():
-    # Multiple choice question
-    q1 = Question(question_text="What is your favorite color?", type=QuestionType.MULTIPLE_CHOICE)
-    q1.choices = [
-        Choice(choice_text="Red"),
-        Choice(choice_text="Blue"),
-        Choice(choice_text="Green"),
-        Choice(choice_text="Yellow")
-    ]
-    db.session.add(q1)
-
-    # Essay question
-    q2 = Question(question_text="Explain why you like programming.", type=QuestionType.ESSAY)
-    db.session.add(q2)
-
-    db.session.commit()
-'''
-
-'''
-Can do this
--------------------------------------------------------------------------
-type_map = {
-    "multiple_choice": QuestionType.MULTIPLE_CHOICE,
-    "essay": QuestionType.ESSAY
-}
-
-q_type = type_map.get(data["type"].lower())  # normalize to lowercase
-if not q_type:
-    return {"error": "Invalid question type"}, 400
-
-q = Question(question_text=data["question_text"], type=q_type)
-
-'''
+    question: Mapped["Question"] = relationship(back_populates="essay")

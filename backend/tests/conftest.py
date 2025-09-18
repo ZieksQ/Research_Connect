@@ -31,7 +31,6 @@ def session(setup_db):
     transaction = connection.begin()
     session = SessionLocal(bind=connection)
 
-
     db_session.configure(bind=connection)
 
     yield session

@@ -1,6 +1,1 @@
 @import "tailwindcss";
-@layer base {
-  .item {
-    @apply p-2 mx-5 bg-red-500;
-  }
-}

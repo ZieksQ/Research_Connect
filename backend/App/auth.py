@@ -1,6 +1,5 @@
 from flask import request, current_app, Blueprint
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, 
     set_access_cookies, set_refresh_cookies, 
@@ -8,7 +7,8 @@ from flask_jwt_extended import (
     get_jwt_identity, jwt_required, get_jwt
 )
 from .model import Users, RefreshToken
-from App import session as db, jwt
+from App import jwt
+from .db import db_session as db
 from datetime import datetime, timezone
 from pathlib import Path
 import logging

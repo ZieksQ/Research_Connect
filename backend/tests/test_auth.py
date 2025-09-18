@@ -1,5 +1,5 @@
 import pytest
-from App import session as db
+# from App.db import db_session as db
 
 # @pytest.mark.skip()
 @pytest.mark.parametrize("user_data, expected, status", [
@@ -66,14 +66,11 @@ def test_login(client, user_data, expected, status):
 
     dataLog = responseLog.get_json()
     
-    msg = "Success" if dataLog.get("ok") == expected else "Failed" 
-
     assert dataLog.get("ok") == expected
     assert dataLog.get("status") == status
-    print(f"Flag: {msg}")
 
 # @pytest.mark.skip()
-def test_logout(client, refresh_token):
+def test_logout(client, refresh_token, session):
     token_str, token = refresh_token
     client.set_cookie("refresh_token_cookie", token_str, domain="localhost")
 
@@ -83,7 +80,7 @@ def test_logout(client, refresh_token):
     assert response.json["ok"] == True
     assert "Successfully logged out" in response.json["message"]
 
-    db.refresh(token)
+    session.refresh(token)
     assert token.revoked == True
 
 # @pytest.mark.skip()

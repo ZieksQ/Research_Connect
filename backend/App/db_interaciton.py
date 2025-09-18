@@ -1,5 +1,5 @@
 from flask import jsonify
-from App import session as db
+from .db import db_session as db
 
 def commit_session() -> tuple[bool, str | None]:
     """Helper method to reduce try-except for database commit.

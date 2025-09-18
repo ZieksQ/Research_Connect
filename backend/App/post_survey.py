@@ -2,7 +2,8 @@ from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .model import ( Posts, Users, RefreshToken, QuestionType, 
                      Surveys, Question, Choice, Essay )
-from App import session as db, jwt
+from App import jwt
+from .db import db_session as db
 from sqlalchemy import select
 from pathlib import Path
 from sqlalchemy import select

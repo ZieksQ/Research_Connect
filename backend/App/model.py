@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Integer, ForeignKey, Text, Boolean, DateTime, Enum, JSON
 from datetime import datetime
-from App import bcrypt, Base
+from App import bcrypt
+from .db import Base
 import enum
 
 # -----------------------------

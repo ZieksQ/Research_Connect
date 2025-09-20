@@ -3,7 +3,7 @@ import HomePage from "./pages/HomePage.jsx";
 import PostCard from "./components/PostCard.jsx";
 import SamplePostCard from "./components/Sample.jsx";
 
-export default function App() {
+function App() {
   return (
     <>
       <HomePage />

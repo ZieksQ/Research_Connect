@@ -1,8 +1,7 @@
 import pytest
 from App import run_app
-from App.model import Users, RefreshToken
+from App.model import Users, RefreshToken, Posts
 from App.db import SessionLocal, db_session, Base, engine
-from App.db_interaciton import commit_session  # If you have a custom commit function
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
 from datetime import datetime, timezone
 
@@ -48,6 +47,16 @@ def test_user(session):
     return user
 
 @pytest.fixture(scope="function")
+def test_post(session, test_user):
+    post = Posts(title="Testing my title", 
+                 content="Fast, simple, and reliable, Fast, simple, and reliable",
+                 user=test_user)
+    session.add(post)
+    session.flush()
+
+    return post
+
+@pytest.fixture(scope="function")
 def access_cookie(test_user, app):
     with app.app_context():
         token = create_access_token(identity=str(test_user.id))
@@ -65,7 +74,6 @@ def refresh_token(test_user, app, session):
         session.flush()
 
         return token_str, token
-
 
     
 # @pytest.fixture

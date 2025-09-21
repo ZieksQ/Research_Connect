@@ -172,6 +172,9 @@ def handle_survey_input_exists(svy_questions: dict) -> tuple[list, bool]:
     qflag = []
     each_qcheck = []
 
+    if not svy_questions:
+        return ["Survey Empty", True]
+
     for qcounter, (qkey, qvalue) in enumerate(svy_questions.items(), start=1):
         result = {}
         each_qdata = []
@@ -220,9 +223,6 @@ def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
     type_rules=[
         (lambda qtype: qtype in type_map, "Wrong question type, please choose within multiple_choice and essay"),
     ]
-    choice_rules=[
-        (lambda choice: len(choice) > 1, "Placeholder")
-    ]
 
     qflag = []
     qcheck = [] 
@@ -245,14 +245,9 @@ def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
                 break
 
         if q_type == QuestionType.MULTIPLE_CHOICE:
-            for check, msg in choice_rules:
-                c_flag = {}
-                for c_counter,qchoice in enumerate(qvalue.get("choice"), start=1):
-                    if not check(qchoice):
-                        c_flag[f"Choice {c_counter}"] = msg
-                        q_each_flag.append(True)
-                result["choice"] = c_flag
-                break
+            if qvalue.get("answer") not in qvalue.get("choice"):
+                result["answer"] = "The answer is not within the choices"
+                q_each_flag.append(True)
 
         if result:
             qflag.append({f"Question {qcounter}" : result})

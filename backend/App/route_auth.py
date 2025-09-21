@@ -1,4 +1,9 @@
 from flask import request, current_app, Blueprint
+from App import jwt
+from datetime import datetime, timezone
+from pathlib import Path
+from .model import Users, RefreshToken
+from .database import db_session as db
 from sqlalchemy import select
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, 
@@ -6,11 +11,6 @@ from flask_jwt_extended import (
     unset_jwt_cookies, decode_token,
     get_jwt_identity, jwt_required, get_jwt
 )
-from .model import Users, RefreshToken
-from App import jwt
-from .db import db_session as db
-from datetime import datetime, timezone
-from pathlib import Path
 from .User_validation import handle_user_input_exist, handle_validate_requirements
 from .db_interaction import commit_session, jsonify_template_user
 import logging
@@ -54,18 +54,17 @@ def user_register():
     password = data.get("password", "")
 
     validate_result, exists_flag = handle_user_input_exist(username, password)
-    validate_user_requirements, req_flag = handle_validate_requirements(username, password)
-
     if exists_flag:
         logger.error(validate_result)
         return jsonify_template_user(400, False, validate_result ), 400
     
+    validate_user_requirements, req_flag = handle_validate_requirements(username, password)
     if req_flag:
         logger.error(validate_user_requirements)
         return jsonify_template_user(422, False, validate_user_requirements), 422
 
     stmt = select(Users).where(Users.username == username)
-    if db.scalars(stmt).first():
+    if db.execute(stmt).scalar_one_or_none():
         msg = "Username already exist"
         logger.error(msg)
         return jsonify_template_user(409, False, msg), 409
@@ -96,7 +95,7 @@ def user_login():
         return jsonify_template_user(400, False, validate_result), 400
     
     stmt = select(Users).where(Users.username == username)
-    user = db.scalars(stmt).first()
+    user = db.execute(stmt).scalar_one_or_none()
     if not user:
         msg = "Username does not exist"
         logger.error(msg)
@@ -166,7 +165,7 @@ def logout():
 def refresh_access():
     jti = get_jwt()["jti"]
     stmt = select(RefreshToken).where(RefreshToken.jti == jti, RefreshToken.revoked == False)
-    token = db.scalars(stmt).first()
+    token = db.execute(stmt).scalar_one_or_none()
 
     if not token:
         return jsonify_template_user(404, False, "You need to log in again"), 404

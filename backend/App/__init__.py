@@ -1,5 +1,5 @@
 from flask import Flask
-from .db import db_session
+from .database import db_session
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
@@ -32,8 +32,8 @@ def run_app():
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)  # Short lived token to increase security, use to make the users have access to jwt_redquired() API
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=3)  
 
-    from .auth import user_auth
-    from .post_survey import survey_posting
+    from .route_auth import user_auth
+    from .route_post_survey import survey_posting
 
     app.register_blueprint( user_auth, url_prefix="/user" )         # Registers each route for different file for more organized project
     app.register_blueprint( survey_posting, url_prefix="/survey" )
@@ -59,7 +59,7 @@ def logging_set_up():
                         filemode="w",
                         format=FORMAT,
                         datefmt=DATEFMT)
-    logger = logging.getLogger(__name__)
+    logging.getLogger(__name__)
 
 # # Create a SQLITE database
 # def sqlite_database(app):

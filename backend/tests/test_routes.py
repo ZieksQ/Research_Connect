@@ -5,7 +5,7 @@ use query_string=params if yuur route accepts query parameters
 params is a dict
 '''
 
-@pytest.mark.skip()
+# @pytest.mark.skip()
 def test_get_posts(client, access_cookie):
     client.set_cookie("access_token_cookie", access_cookie, domain="localhost")
 
@@ -17,7 +17,7 @@ def test_get_posts(client, access_cookie):
     assert data.get("ok") == True
     
 
-@pytest.mark.skip()
+# @pytest.mark.skip()
 def test_get_posts_solo(client, access_cookie, test_post):
     client.set_cookie("access_token_cookie", access_cookie, domain="localhost")
 
@@ -28,7 +28,7 @@ def test_get_posts_solo(client, access_cookie, test_post):
     assert data.get("status") == 200
     assert data.get("ok") == True
 
-@pytest.mark.skip()
+# @pytest.mark.skip()
 @pytest.mark.parametrize("post_data, expexted, status", [
     # ✅ Correct data
     ({"title": "Testing my title", "content": "Fast, simple, and reliable, Fast, simple, and reliable" }, True, 200),
@@ -61,19 +61,88 @@ def test_send_post(client, access_cookie, test_user, post_data, expexted, status
         assert data.get("message") == f"Post created by {test_user.id}"
 
 
-# @pytest.mark.skip(reason="Route incomplete")
+# @pytest.mark.skip(reason="Route not finished")
 @pytest.mark.parametrize("survey_data, expected, status",[
-    ({  "questionNo.2": {
-    "question": "Which language is primarily used for Android app development?",
-    "type": "multiple_choice",
-    "choice": ["Kotlin", "Swift", "JavaScript"],
-    "answer": "Kotlin"
+    # ✅ Correct input
+    ({  
+        "questionNo.2": {
+            "question": "Which language is primarily used for Android app development?",
+            "type": "multiple_choice",
+            "choice": ["Kotlin", "Swift", "JavaScript"],
+            "answer": "Kotlin"
   },
-  "questionNo.3": {
-    "question": "Explain the importance of data structures in computer science.",
-    "type": "essay",
-    "answer": "Data structures are essential for organizing, managing, and storing data efficiently. They allow faster access and modification of data, optimize memory usage, and provide the foundation for developing efficient algorithms."
+        "questionNo.3": {
+            "question": "Explain the importance of data structures in computer science.",
+            "type": "essay",
+            "answer": "Data structures are essential for organizing, managing, and storing data efficiently. They allow faster access and modification of data, optimize memory usage, and provide the foundation for developing efficient algorithms."
   }}, True, 200),
+
+    # ❌ Empty question text
+    ({
+        "questionNo.1": {
+            "question": "",
+            "type": "essay",
+            "answer": "Some answer"
+        }
+    }, False, 400),
+
+    # ❌ Invalid type
+    ({
+        "questionNo.1": {
+            "question": "What is 2 + 2?",
+            "type": "short_answer",  # not allowed
+            "answer": "4"
+        }
+    }, False, 422),
+
+    # ❌ Empty choice list for multiple_choice
+    ({
+        "questionNo.1": {
+            "question": "Pick a color",
+            "type": "multiple_choice",
+            "choice": [],
+            "answer": "Red"
+        }
+    }, False, 400),
+
+    # ❌ Multiple_choice without 'choice' key
+    ({
+        "questionNo.1": {
+            "question": "Pick a fruit",
+            "type": "multiple_choice",
+            "answer": "Apple"
+        }
+    }, False, 400),
+
+    # ❌ Answer not in provided choices
+    ({
+        "questionNo.1": {
+            "question": "Pick a number",
+            "type": "multiple_choice",
+            "choice": ["One", "Two", "Three"],
+            "answer": "Four"
+        }
+    }, False, 422),
+
+    # ❌ Missing question field
+    ({
+        "questionNo.1": {
+            "type": "essay",
+            "answer": "Some explanation"
+        }
+    }, False, 400),
+
+    # ❌ Entire survey empty
+    ({}, False, 400),
+
+    # ❌ Question key wrong format
+    ({
+        "Q1": {   # should be questionNo.N
+            "question": "What is Python?",
+            "type": "essay",
+            "answer": "A programming language"
+        }
+    }, True, 200),
 ])
 def test_send_survey(client, access_cookie,survey_data, expected, status):
     client.set_cookie("access_token_cookie", access_cookie, domain="localhost")
@@ -83,4 +152,3 @@ def test_send_survey(client, access_cookie,survey_data, expected, status):
 
     assert data.get("status") == status
     assert data.get("ok") == expected
-    

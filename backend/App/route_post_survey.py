@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from App import jwt
-from .db import db_session as db
+from .database import db_session as db
 from sqlalchemy import select
 from pathlib import Path
 from sqlalchemy import select
@@ -33,7 +33,7 @@ type_map = {
 # Callback method to return as response to expired token
 @jwt.expired_token_loader
 def expired_token_response(jwt_header, jwt_payload):
-    return jsonify_template_user(401, False, "You need to refresh the access token", {"Expired Token" : True}), 401
+    return jsonify_template_user(401, False, "You need to refresh the access token", token={"Expired Token" : True}), 401
 
 # Callback method to check if the token is revoked
 @jwt.token_in_blocklist_loader
@@ -102,12 +102,11 @@ def send_post():
     content = data.get("content", "")
 
     post_input_validate, exist_flag = handle_post_input_exist(title, content)
-    post_requirements, req_flag = handle_post_requirements(title, content)
-
     if exist_flag:
         logger.error(post_input_validate)
         return jsonify_template_user(400, False, post_input_validate), 400
     
+    post_requirements, req_flag = handle_post_requirements(title, content)
     if req_flag:
         logger.error(post_requirements)
         return jsonify_template_user(422, False, post_requirements), 422
@@ -130,15 +129,14 @@ def send_survey():
     data: dict = request.get_json(silent=True) or {}
 
     svy_exists_msg, svy_exists_flag = handle_survey_input_exists(data)
-    svy_req_msg, svy_req_flag = handle_survey_input_requirements(data)
-
     if svy_exists_flag:
         logger.error("Survey does not exists")
-        return jsonify_template_user(400, False, "Survey does not exists", {"survey": svy_exists_msg}), 400
+        return jsonify_template_user(400, False, "Survey does not exists", survey={"survey": svy_exists_msg}), 400
     
+    svy_req_msg, svy_req_flag = handle_survey_input_requirements(data)
     if svy_req_flag:
         logger.error(svy_req_msg)
-        return jsonify_template_user(422, False, "You must meet the requirements for the survey", {"survey" :svy_req_msg}), 422
+        return jsonify_template_user(422, False, "You must meet the requirements for the survey", survey={"survey": svy_exists_msg}), 422
 
     survey = Surveys()
 

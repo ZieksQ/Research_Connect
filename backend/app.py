@@ -1,5 +1,5 @@
 from App import run_app
-from App.db import Base, engine
+from App.database import Base, engine
 
 app = run_app()
 

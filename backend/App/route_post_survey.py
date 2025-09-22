@@ -97,8 +97,8 @@ def send_post():
         return jsonify_template_user(401, False, "You must log in first in order to post here"), 401
 
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
-    title = data.get("title", "")
 
+    title = data.get("title", "")
     content = data.get("content", "")
 
     post_input_validate, exist_flag = handle_post_input_exist(title, content)
@@ -130,8 +130,9 @@ def send_survey():
 
     svy_exists_msg, svy_exists_flag = handle_survey_input_exists(data)
     if svy_exists_flag:
-        logger.error("Survey does not exists")
-        return jsonify_template_user(400, False, "Survey does not exists", survey={"survey": svy_exists_msg}), 400
+        msg = "Survey is missing data"
+        logger.error(msg)
+        return jsonify_template_user(400, False, msg, survey={"survey": svy_exists_msg}), 400
     
     svy_req_msg, svy_req_flag = handle_survey_input_requirements(data)
     if svy_req_flag:

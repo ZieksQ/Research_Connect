@@ -10,7 +10,6 @@ import logging, os
 
 jwt = JWTManager()
 bcrypt = Bcrypt()
-
 env_path = Path(__file__).resolve().parent.parent / ".env"      # Gets the absolute file path of the .env file
 load_dotenv(dotenv_path=env_path)                               # Loads the .env file using the its path
 

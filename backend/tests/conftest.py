@@ -32,7 +32,7 @@ def session(setup_db):
 
     db_session.configure(bind=connection)
 
-    yield session
+    yield session   
 
     session.close()
     transaction.rollback()

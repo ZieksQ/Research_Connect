@@ -173,7 +173,7 @@ def handle_survey_input_exists(svy_questions: dict) -> tuple[list, bool]:
     each_qcheck = []
 
     if not svy_questions:
-        return ["Survey Empty", True]
+        return ["Survey Empty"], True
 
     for qcounter, (qkey, qvalue) in enumerate(svy_questions.items(), start=1):
         result = {}

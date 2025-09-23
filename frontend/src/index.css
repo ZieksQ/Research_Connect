@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 @import "tailwindcss";
 
 @theme {
@@ -93,6 +92,3 @@
     @apply rounded-lg 
   }
 }
-=======
-@import "tailwindcss";
->>>>>>> 6bcf7f1 (Added .env.example. Final configuration to frontend)

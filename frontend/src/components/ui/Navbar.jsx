@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { navbarLinks } from "../../static/navbarMenuLinks";
-import NavbarLinksMenu from "./NavbarLinksMenu";
+import { navbarLinks } from "../../static/navbarMenuLinks.js";
+import HambergerMenu from "./HamburgerMenu.jsx";
+import SearchBar from "./SearchBar.jsx";
+import AddButton from "./AddButton.jsx";
 
 const Navbar = () => {
   const [isMenuShown, setIsMenuShown] = useState(false);
@@ -16,10 +18,8 @@ const Navbar = () => {
 
   return (
     <nav className="flex h-14 items-center justify-between bg-[#E0E0E0] px-4">
-
       {/* Logo */}
       <div className="flex items-center gap-4">
-
         {/* Hamburger Menu */}
         <button onClick={handleOpenMenu}>
           {isMenuShown ? (
@@ -43,8 +43,8 @@ const Navbar = () => {
               <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" />
             </svg>
           )}
-          
-          <NavbarLinksMenu
+
+          <HambergerMenu
             handleOpenMenu={handleOpenMenu}
             isMenuShown={isMenuShown}
           />
@@ -67,16 +67,12 @@ const Navbar = () => {
 
       <div className="flex items-center gap-x-4 lg:w-[40%]">
         {/* Search Bar */}
-        <form action="#" onSubmit={handleOnSubmit} className="hidden lg:flex mr-auto">
-          <input
-            type="text"
-            id="search"
-            placeholder="Search"
-            onChange={handleOnChange}
-            className="bg-white px-2 py-1 ring-1 ring-black outline-0 rounded-2xl"
-          />
-          <input type="submit" value={search} />
-        </form>
+        <SearchBar
+          handleOnSubmit={handleOnSubmit}
+          handleOnChange={handleOnChange}
+          search={search}
+        />
+        <AddButton />
 
         <svg
           xmlns="http://www.w3.org/2000/svg"

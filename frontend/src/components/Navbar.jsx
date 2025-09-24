@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { navbarLinks } from "../../static/navbarMenuLinks.js";
-import HambergerMenu from "./HamburgerMenu.jsx";
-import SearchBar from "./SearchBar.jsx";
-import AddButton from "./AddButton.jsx";
+import HambergerMenu from "./ui/HamburgerMenu.jsx";
+import SearchBar from "./ui/SearchBar.jsx";
+import AddButton from "./ui/AddButton.jsx";
+import { hamburgerMenuLinks } from "../static/hamburgerMenuLinks.js";
 
 const Navbar = () => {
   const [isMenuShown, setIsMenuShown] = useState(false);
@@ -17,11 +17,16 @@ const Navbar = () => {
   const handleOnSubmit = () => {};
 
   return (
-    <nav className="flex h-14 items-center justify-between bg-[#E0E0E0] px-4">
-      {/* Logo */}
+    <nav className="navbar bg-[#E0E0E0] z-[99]">
+
+      {/* ----------------- Left Side of Navbar -----------------*/}
+
       <div className="flex items-center gap-4">
         {/* Hamburger Menu */}
         <button onClick={handleOpenMenu}>
+          {/* if isMenuShown is FALSE it will show HAMBURGER MENU ICON 
+              if isMenuShown is TRUE it will show CLOSE ICON */}
+
           {isMenuShown ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -44,11 +49,15 @@ const Navbar = () => {
             </svg>
           )}
 
+          {/* This is Menus inside the Hamburger Menu */}
           <HambergerMenu
             handleOpenMenu={handleOpenMenu}
             isMenuShown={isMenuShown}
+            MenuList={hamburgerMenuLinks}
           />
         </button>
+
+        {/* Logo */}
         <a href="#">
           <svg
             width="76"
@@ -65,29 +74,38 @@ const Navbar = () => {
         </a>
       </div>
 
-      <div className="flex items-center gap-x-4 lg:w-[40%]">
-        {/* Search Bar */}
-        <SearchBar
-          handleOnSubmit={handleOnSubmit}
-          handleOnChange={handleOnChange}
-          search={search}
-        />
+      {/* ----------------- Middle Side of Navbar -----------------*/}
+
+
+      {/* Search Bar */}
+      <SearchBar
+        handleOnSubmit={handleOnSubmit}
+        handleOnChange={handleOnChange}
+        search={search}
+      />
+
+      {/* ----------------- Right Side of Navbar -----------------*/}
+
+      <div className="flex items-center gap-x-2">
         <AddButton />
 
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 640 640"
-          className="size-8 rounded-full p-1 hover:bg-gray-300 active:bg-gray-400 lg:hidden"
-        >
-          <path d="M480 272C480 317.9 465.1 360.3 440 394.7L566.6 521.4C579.1 533.9 579.1 554.2 566.6 566.7C554.1 579.2 533.8 579.2 521.3 566.7L394.7 440C360.3 465.1 317.9 480 272 480C157.1 480 64 386.9 64 272C64 157.1 157.1 64 272 64C386.9 64 480 157.1 480 272zM272 416C351.5 416 416 351.5 416 272C416 192.5 351.5 128 272 128C192.5 128 128 192.5 128 272C128 351.5 192.5 416 272 416z" />
-        </svg>
+        {/* Search Mobile Button */}
+        <button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 640 640"
+            className="size-8 rounded-full p-1 active:bg-gray-400 lg:hidden"
+          >
+            <path d="M480 272C480 317.9 465.1 360.3 440 394.7L566.6 521.4C579.1 533.9 579.1 554.2 566.6 566.7C554.1 579.2 533.8 579.2 521.3 566.7L394.7 440C360.3 465.1 317.9 480 272 480C157.1 480 64 386.9 64 272C64 157.1 157.1 64 272 64C386.9 64 480 157.1 480 272zM272 416C351.5 416 416 351.5 416 272C416 192.5 351.5 128 272 128C192.5 128 128 192.5 128 272C128 351.5 192.5 416 272 416z" />
+          </svg>
+        </button>
 
         {/* Profile Button */}
-        <a href="#" className="flex items-center gap-2 rounded-md p-2">
+        <a href="#" className="icon-rounded border-ring">
           <img
             src="https://i.pinimg.com/236x/87/6f/df/876fdfae94fb47cfdb1c6c1dbc1d3cd0.jpg"
             alt="profile picture"
-            className="size-10 rounded-full hover:brightness-[80%] active:brightness-[70%]"
+            className="icon-rounded cursor-opacity"
           />
         </a>
       </div>

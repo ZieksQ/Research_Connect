@@ -1,7 +1,61 @@
 @import "tailwindcss";
 
-@layer base{
-    a {
-        @apply cursor-pointer;
-    }
+@layer base {
+  a {
+    cursor: pointer; /* Add cursor for every anchor some doesn't have idk why */
+  }
+  button {
+    cursor: pointer; /* Also adds cursor for every button cuz it doesn't have and it's sucks */
+  }
+}
+
+@layer components {
+  /* Rounded Icon Mostly for Profile */
+  .icon-rounded {
+    @apply size-10 rounded-full;
+  }
+  /* Input field such as Search Bar */
+  .input-field {
+    @apply rounded-lg px-2 py-1 ring-2 ring-black;
+  }
+  /* Border using ring*/
+  .border-ring {
+    @apply ring-2 ring-black;
+  }
+  /* -------------------------------------- */
+  /*                Padding                 */
+  /* -------------------------------------- */
+  .padding-sm {
+    @apply px-2 py-1;
+  }
+  .padding-md {
+    @apply px-4 py-2;
+  }
+  .padding-lg {
+    @apply px-6 py-4;
+  }
+  .cursor-opacity {
+    @apply hover:brightness-[80%] active:brightness-[70%];
+  }
+  .cursor-bg {
+    @apply hover:bg-gray-400 active:bg-gray-600;
+  }
+}
+
+@layer utilities {
+  /* Common Icon Size */
+  .icon-size {
+    @apply size-4;
+  }
+  /* For Drop down menu */
+  /* Specify the location ex. top-15 left right bottom etc. */
+  /* This will only set the height, width and column */
+  .drop-down-menu {
+    @apply absolute flex h-auto w-[20dvh] flex-col lg:w-[30dvh];
+  }
+  /* Exclusive For Navbar 
+     Add Color Manually  */
+  .navbar {
+    @apply flex h-14 items-center justify-between px-4;
+  }
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import Navbar from '../components/ui/Navbar.jsx'
+import Navbar from '../components/Navbar.jsx'
 
 const HomePage = () => {
   return (

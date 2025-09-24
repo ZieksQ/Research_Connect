@@ -5,14 +5,14 @@ const SearchBar = ({ handleOnSubmit, handleOnChange, search }) => {
     <form
       action="#"
       onSubmit={handleOnSubmit}
-      className="mr-auto hidden lg:flex"
+      className=" hidden lg:flex"
     >
       <input
         type="text"
         id="search"
         placeholder="Search"
         onChange={handleOnChange}
-        className="rounded-2xl bg-white px-2 py-1 ring-1 ring-black outline-0"
+        className="input-field w-[50vh]"
       />
       <input type="submit" value={search} />
     </form>

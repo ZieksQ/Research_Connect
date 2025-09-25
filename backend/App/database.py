@@ -28,7 +28,9 @@ logging_set_up()
 
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
+
 SQLITE = os.getenv("SQLITEDB")
+db_path = Path(__file__).resolve().parent.parent / f"instance/{SQLITE}"
 
 SPBS_PASSWORD = os.getenv("SPBS_PASSWORD")
 SPBS_PORT = os.getenv("SPBS_PORT")
@@ -44,11 +46,16 @@ SPBSDR_USER = os.getenv("SPBSDR_USER")
 
 PSSW_PARSED = quote_plus(SPBS_PASSWORD)  
 
-TESTING = True
-IPV4 = True
+TESTING = True  # Used for unit testing
+SQLDB = True    # For wanting to switch to a real DB instead of memory 
+IPV4 = True     # Used if Wifi is IPv4 Compatible
 
 if TESTING == True:
-    DATABASE_URL = "sqlite:///:memory:"
+    if SQLDB:
+        DATABASE_URL = f"sqlite:///{db_path}"
+    else: 
+        DATABASE_URL = "sqlite:///:memory:"
+
 else:
     if IPV4 == True:
         # IPv4 Compatible

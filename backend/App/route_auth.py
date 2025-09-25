@@ -8,7 +8,7 @@ from sqlalchemy import select
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, 
     set_access_cookies, set_refresh_cookies, 
-    unset_jwt_cookies, decode_token,
+    unset_jwt_cookies, get_jti,
     get_jwt_identity, jwt_required, get_jwt
 )
 from .User_validation import handle_user_input_exist, handle_validate_requirements
@@ -109,8 +109,7 @@ def user_login():
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))
 
-    refresh_token_decoded = decode_token(refresh_token)
-    jti = refresh_token_decoded.get("jti")
+    jti = get_jti(refresh_token)
 
     expires = datetime.now(timezone.utc) + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
     current_refresh_token = RefreshToken(jti=jti, user=user, expires_at=expires)

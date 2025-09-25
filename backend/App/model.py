@@ -18,7 +18,7 @@ class Users(Base):
     __password: Mapped[str] = mapped_column("password" ,String(256), nullable=False)
 
     post: Mapped[list["Posts"]] = relationship(back_populates="user")
-    refresh_token: Mapped["RefreshToken"] = relationship(back_populates="user", uselist=False, cascade="all, delete-orphan")
+    refresh_token: Mapped[list["RefreshToken"]] = relationship(back_populates="user", uselist=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"User {self.id}"
@@ -33,7 +33,7 @@ class Users(Base):
         return bcrypt.check_password_hash(self.__password, password)
 
     def set_password(self, password):
-        self.__password = bcrypt.generate_password_hash(password).decode("utf-8")
+        self.__password = bcrypt.generate_password_hash(password).decode()
 
 
 class Posts(Base):

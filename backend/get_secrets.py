@@ -1,6 +1,6 @@
 import secrets
 
-print("\t\nCopy the Secrets:")
+print("\nCopy the Secrets:")
 print("----------------------------------------------------------------\n")
 print(secrets.token_hex(32))
 print("\n----------------------------------------------------------------\n")

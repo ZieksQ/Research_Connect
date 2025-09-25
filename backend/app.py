@@ -1,9 +1,12 @@
 from App import run_app
-from App.db import Base, engine
+from App.database import Base, engine
 
+RESET = True
 app = run_app()
 
 if __name__ == "__main__":
+    if RESET:
+        Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     HOST = "127.0.0.1"
     PORT = 5000

@@ -1,14 +1,14 @@
 from flask import Blueprint, request
+from App import jwt
+from .database import db_session as db
+from pathlib import Path
+from sqlalchemy import select
+from .db_interaction import jsonify_template_user, commit_session
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .model import ( Posts, Users, RefreshToken, QuestionType, 
                      Surveys, Question, Choice, Essay )
-from App import jwt
-from .db import db_session as db
-from sqlalchemy import select
-from pathlib import Path
-from sqlalchemy import select
-from .db_interaciton import jsonify_template_user, commit_session
-from .User_validation import handle_post_input_exist, handle_post_requirements, handle_survey_input_exists
+from .User_validation import (handle_post_input_exist, handle_post_requirements, 
+                              handle_survey_input_exists, handle_survey_input_requirements)
 import logging
 
 # Formats how the logging should be in the log file
@@ -32,7 +32,7 @@ type_map = {
 # Callback method to return as response to expired token
 @jwt.expired_token_loader
 def expired_token_response(jwt_header, jwt_payload):
-    return jsonify_template_user(401, False, "You need to refresh the access token", expiredToken=True), 401
+    return jsonify_template_user(401, False, "You need to refresh the access token", token={"Expired Token" : True}), 401
 
 # Callback method to check if the token is revoked
 @jwt.token_in_blocklist_loader
@@ -40,7 +40,7 @@ def check_if_token_revoked(jwt_header, jwt_payload):
     jti = jwt_payload["jti"]
 
     stmt = select(RefreshToken).where(RefreshToken.jti == jti)
-    token = db.execute(stmt).scalar_one_or_none()  
+    token = db.execute(stmt).scalars().first()  
 
     return token is not None and token.revoked
 
@@ -54,6 +54,13 @@ def check_unauthorized_access(err_msg):
 @survey_posting.route("/post/get", methods=["GET"])
 @jwt_required()
 def get_posts():
+
+    user_id = get_jwt_identity()
+    user = db.get(Users, user_id)
+
+    if not user:
+        logger.error("Someone tried to post wihtout signing in")
+        return jsonify_template_user(401, False, "You must log in first in order to post here"), 401
 
     sort = request.args.get("sort", "asc")
 
@@ -73,7 +80,13 @@ def get_posts():
 @jwt_required()
 def get_posts_solo(id):
 
-    # post = Posts.query.get_or_404(id)
+    user_id = get_jwt_identity()
+    user = db.get(Users, user_id)
+
+    if not user:
+        logger.error("Someone tried to post wihtout signing in")
+        return jsonify_template_user(401, False, "You must log in first in order to post here"), 401
+
     post = db.get(Posts, id)
 
     if not post:
@@ -90,8 +103,11 @@ def get_posts_solo(id):
 def send_post():
 
     user_id = get_jwt_identity()
-    # user = Users.query.get_or_404(user_id)
     user = db.get(Users, user_id)
+
+    if not user:
+        logger.error("Someone tried to post wihtout signing in")
+        return jsonify_template_user(401, False, "You must log in first in order to post here"), 401
 
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
@@ -99,17 +115,16 @@ def send_post():
     content = data.get("content", "")
 
     post_input_validate, exist_flag = handle_post_input_exist(title, content)
-    post_requirements, req_flag = handle_post_requirements(title, content)
-
     if exist_flag:
         logger.error(post_input_validate)
         return jsonify_template_user(400, False, post_input_validate), 400
     
+    post_requirements, req_flag = handle_post_requirements(title, content)
     if req_flag:
         logger.error(post_requirements)
         return jsonify_template_user(422, False, post_requirements), 422
     
-    post = Posts(title=title, content=content, user_id=user.id)
+    post = Posts(title=title, content=content, user=user)
 
     db.add(post)
     success, error = commit_session()
@@ -121,28 +136,56 @@ def send_post():
     
     return jsonify_template_user(200, True, f"Post created by {user.id}"), 200
 
-@survey_posting.route("/survey/posts", methods=['POST'])
+@survey_posting.route("/post/questionnaire", methods=['POST'])
 @jwt_required()
 def send_survey():
+
+    user_id = get_jwt_identity()
+    user = db.get(Users, user_id)
+
+    if not user:
+        logger.error("Someone tried to post wihtout signing in")
+        return jsonify_template_user(401, False, "You must log in first in order to post here"), 401
+
     data: dict = request.get_json(silent=True) or {}
+
+    svy_exists_msg, svy_exists_flag = handle_survey_input_exists(data)
+    if svy_exists_flag:
+        msg = "Survey is missing data"
+        logger.error(msg)
+        return jsonify_template_user(400, False, msg, survey={"survey": svy_exists_msg}), 400
+    
+    svy_req_msg, svy_req_flag = handle_survey_input_requirements(data)
+    if svy_req_flag:
+        logger.error(svy_req_msg)
+        return jsonify_template_user(422, False, "You must meet the requirements for the survey", survey={"survey": svy_exists_msg}), 422
 
     survey = Surveys()
 
-    for i in data:
-        pass
-
-    for dkey, dvalue in data.items():
+    for _, dvalue in data.items():
         q_type = type_map.get(dvalue["type"].lower(), "")
         
-        question = Question(question_text=dkey, q_type=q_type)
+        question = Question(question_text=dvalue["question"], q_type=q_type)
 
         if q_type == QuestionType.MULTIPLE_CHOICE:
             choice = Choice(question=question, choice_text=dvalue["choice"], choice_answer=dvalue["answer"])
-            question.choices.append(choice)
+            question.choices = choice
         if q_type == QuestionType.ESSAY:
             essay = Essay(question=question, essay_answer=dvalue["answer"])
-            question.essay.append(essay)
+            question.essay = essay
 
         survey.questions.append(question)
     
     db.add(survey)
+
+    success, error = commit_session()
+    if not success:
+        logger.exception(error)
+        return jsonify_template_user(500, False, "Database error"), 500
+    
+
+    logger.info("Succesfully added survey")
+
+    return jsonify_template_user(200, True, "Survey posted successfully"), 200
+
+    

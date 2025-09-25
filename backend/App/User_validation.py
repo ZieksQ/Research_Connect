@@ -159,7 +159,7 @@ def handle_post_requirements(title: str, content: str) -> tuple[dict, bool]:
 
     return result, any(extra_flag)
 
-def handle_survey_input_exists(svy_questions: dict) -> tuple[bool, list]:
+def handle_survey_input_exists(svy_questions: dict) -> tuple[list, bool]:
     """Method to check if each input in the dict of questionnaire exists.
 
     Args:
@@ -172,6 +172,9 @@ def handle_survey_input_exists(svy_questions: dict) -> tuple[bool, list]:
     qflag = []
     each_qcheck = []
 
+    if not svy_questions:
+        return ["Survey Empty"], True
+
     for qcounter, (qkey, qvalue) in enumerate(svy_questions.items(), start=1):
         result = {}
         each_qdata = []
@@ -181,8 +184,8 @@ def handle_survey_input_exists(svy_questions: dict) -> tuple[bool, list]:
             result[f"Question{qcounter}"] = False
             each_qdata.append(True)
 
-        if not qvalue.get("questionNum"):
-            result["questionNum"] = False
+        if not qvalue.get("question"):
+            result["question"] = False
             each_qdata.append(True)
 
         if not qvalue.get("type"):
@@ -193,19 +196,65 @@ def handle_survey_input_exists(svy_questions: dict) -> tuple[bool, list]:
             if not qvalue.get("choice"):
                 result["choice"] = False
                 each_qdata.append(True)
-
-        if not qvalue.get("answer"):
-            result["answer"] = False
-            each_qdata.append(True)
+            if not qvalue.get("answer"):
+                result["answer"] = False
+                each_qdata.append(True)
 
         if result:
-            qflag.append({f"Question {qcounter}": result})
+            qflag.append({f"Question {qcounter + 1}": result})
 
         each_qcheck.append(any(each_qdata))
-        qcounter +=1
 
-    return any(each_qcheck), qflag
+    return qflag, any(each_qcheck)
 
+def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
+    """validate each survey questionnaire so each data meets the desired output
+
+    Args:
+        svy_question (dict): The questionnaire
+
+    Returns:
+        tuple (list, bool): list to know whihc question was wrong and an easy flag to verify it
+    """
+    
+    question_rules=[
+        (lambda question: len(question) >= 10, "Question must be at least 10 characters long"),
+    ]
+    type_rules=[
+        (lambda qtype: qtype in type_map, "Wrong question type, please choose within multiple_choice and essay"),
+    ]
+
+    qflag = []
+    qcheck = [] 
+
+    for qcounter, (_, qvalue) in enumerate(svy_question.items(), start=1):
+        q_type = type_map.get(qvalue.get("type", "").lower(), "")
+        result = {}
+        q_each_flag = []
+
+        for check, msg in question_rules:
+            if not check(qvalue.get("question")):
+                result["question"] = msg
+                q_each_flag.append(True)
+                break
+
+        for check, msg in type_rules:
+            if not check(qvalue.get("type")):
+                result["type"] = msg
+                q_each_flag.append(True)
+                break
+
+        if q_type == QuestionType.MULTIPLE_CHOICE:
+            if qvalue.get("answer") not in qvalue.get("choice"):
+                result["answer"] = "The answer is not within the choices"
+                q_each_flag.append(True)
+
+        if result:
+            qflag.append({f"Question {qcounter}" : result})
+
+        qcheck.append(any(q_each_flag))
+
+    return qflag, any(qcheck)
 
 '''
 Decided to review it and the badwords from the txt file contains words that are not actually bad and may hinder users from effectively using the app itself

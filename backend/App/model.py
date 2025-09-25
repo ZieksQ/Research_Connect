@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Integer, ForeignKey, Text, Boolean, DateTime, Enum, JSON
 from datetime import datetime
 from App import bcrypt
-from .db import Base
+from .database import Base
+from sqlalchemy import ( String, Integer, ForeignKey, Text, 
+                        Boolean, DateTime, Enum, JSON )
 import enum
 
 # -----------------------------
@@ -14,10 +15,10 @@ class Users(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(32), nullable=False, unique=True)
-    _password: Mapped[str] = mapped_column(String(256), nullable=False)
+    __password: Mapped[str] = mapped_column("password" ,String(256), nullable=False)
 
     post: Mapped[list["Posts"]] = relationship(back_populates="user")
-    refresh_token: Mapped["RefreshToken"] = relationship(back_populates="user", cascade="all, delete-orphan")
+    refresh_token: Mapped[list["RefreshToken"]] = relationship(back_populates="user", uselist=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"User {self.id}"
@@ -29,10 +30,10 @@ class Users(Base):
         }
 
     def check_password(self, password):
-        return bcrypt.check_password_hash(self._password, password)
+        return bcrypt.check_password_hash(self.__password, password)
 
     def set_password(self, password):
-        self._password = bcrypt.generate_password_hash(password).decode("utf-8")
+        self.__password = bcrypt.generate_password_hash(password).decode()
 
 
 class Posts(Base):
@@ -102,7 +103,7 @@ class Question(Base):
 
     survey: Mapped["Surveys"] = relationship(back_populates="questions")
 
-    choices: Mapped[list["Choice"]] = relationship(back_populates="question", cascade="all, delete-orphan")
+    choices: Mapped["Choice"] = relationship(back_populates="question",uselist=False, cascade="all, delete-orphan")
     essay: Mapped["Essay"] = relationship(back_populates="question", uselist=False, cascade="all, delete-orphan")
 
 

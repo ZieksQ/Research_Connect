@@ -1,8 +1,7 @@
 import pytest
 from App import run_app
-from App.model import Users, RefreshToken
-from App.db import SessionLocal, db_session, Base, engine
-from App.db_interaciton import commit_session  # If you have a custom commit function
+from App.model import Users, RefreshToken, Posts
+from App.database import SessionLocal, db_session, Base, engine
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
 from datetime import datetime, timezone
 
@@ -33,7 +32,7 @@ def session(setup_db):
 
     db_session.configure(bind=connection)
 
-    yield session
+    yield session   
 
     session.close()
     transaction.rollback()
@@ -48,24 +47,31 @@ def test_user(session):
     return user
 
 @pytest.fixture(scope="function")
-def access_cookie(test_user, app):
-    with app.app_context():
-        token = create_access_token(identity=str(test_user.id))
-        return token
+def test_post(session, test_user):
+    post = Posts(title="Testing my title", 
+                 content="Fast, simple, and reliable, Fast, simple, and reliable",
+                 user=test_user)
+    session.add(post)
+    session.flush()
+
+    yield post
+
+@pytest.fixture(scope="function")
+def access_cookie(test_user):
+    token = create_access_token(identity=str(test_user.id))
+    yield token
 
 @pytest.fixture(scope="function")
 def refresh_token(test_user, app, session):
-    with app.app_context():
-        token_str = create_refresh_token(identity=str(test_user.id))
-        jti = decode_token(token_str).get("jti")
-        expires = datetime.now(timezone.utc) + app.config["JWT_REFRESH_TOKEN_EXPIRES"]
+    token_str = create_refresh_token(identity=str(test_user.id))
+    jti = decode_token(token_str).get("jti")
+    expires = datetime.now(timezone.utc) + app.config["JWT_REFRESH_TOKEN_EXPIRES"]
 
-        token = RefreshToken(jti=jti, user=test_user, expires_at=expires)
-        session.add(token)
-        session.flush()
+    token = RefreshToken(jti=jti, user=test_user, expires_at=expires)
+    session.add(token)
+    session.flush()
 
-        return token_str, token
-
+    yield token_str, token
 
     
 # @pytest.fixture

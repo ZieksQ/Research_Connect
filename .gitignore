@@ -1,12 +1,5 @@
-<<<<<<< HEAD
-.env
-log_folder
-=======
-# .env
->>>>>>> 0e1ed25 (fixing env file)
-=======
-# .env
->>>>>>> a758d20 (fixing env file)
+client_credentials.json
+
 # Logs
 logs
 *.log

@@ -1,10 +1,9 @@
-import React from "react";
+import OauthTest from "./oauthTest";
 
-const App = () => {
+export default function App() {
   return (
-    <div>
-    </div>
-  );
-};
-
-export default App;
+    <>
+    <h1>Hello World</h1>
+    </>
+  )
+}

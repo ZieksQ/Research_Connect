@@ -1,16 +1,15 @@
 from flask import Blueprint, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from App import jwt
 from .database import db_session as db
-from sqlalchemy import select
 from pathlib import Path
 from sqlalchemy import select
 from .db_interaction import jsonify_template_user, commit_session
-import logging
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from .model import ( Posts, Users, RefreshToken, QuestionType, 
                      Surveys, Question, Choice, Essay )
 from .User_validation import (handle_post_input_exist, handle_post_requirements, 
                               handle_survey_input_exists, handle_survey_input_requirements)
+import logging
 
 # Formats how the logging should be in the log file
 logger = logging.getLogger(__name__)
@@ -56,6 +55,13 @@ def check_unauthorized_access(err_msg):
 @jwt_required()
 def get_posts():
 
+    user_id = get_jwt_identity()
+    user = db.get(Users, user_id)
+
+    if not user:
+        logger.error("Someone tried to post wihtout signing in")
+        return jsonify_template_user(401, False, "You must log in first in order to post here"), 401
+
     sort = request.args.get("sort", "asc")
 
     order = Posts.id.asc() if sort == "asc" else Posts.id.desc()
@@ -73,6 +79,13 @@ def get_posts():
 @survey_posting.route("/post/get/<int:id>", methods=["GET"])
 @jwt_required()
 def get_posts_solo(id):
+
+    user_id = get_jwt_identity()
+    user = db.get(Users, user_id)
+
+    if not user:
+        logger.error("Someone tried to post wihtout signing in")
+        return jsonify_template_user(401, False, "You must log in first in order to post here"), 401
 
     post = db.get(Posts, id)
 
@@ -126,6 +139,14 @@ def send_post():
 @survey_posting.route("/post/questionnaire", methods=['POST'])
 @jwt_required()
 def send_survey():
+
+    user_id = get_jwt_identity()
+    user = db.get(Users, user_id)
+
+    if not user:
+        logger.error("Someone tried to post wihtout signing in")
+        return jsonify_template_user(401, False, "You must log in first in order to post here"), 401
+
     data: dict = request.get_json(silent=True) or {}
 
     svy_exists_msg, svy_exists_flag = handle_survey_input_exists(data)
@@ -141,10 +162,10 @@ def send_survey():
 
     survey = Surveys()
 
-    for dkey, dvalue in data.items():
+    for _, dvalue in data.items():
         q_type = type_map.get(dvalue["type"].lower(), "")
         
-        question = Question(question_text=dkey, q_type=q_type)
+        question = Question(question_text=dvalue["question"], q_type=q_type)
 
         if q_type == QuestionType.MULTIPLE_CHOICE:
             choice = Choice(question=question, choice_text=dvalue["choice"], choice_answer=dvalue["answer"])

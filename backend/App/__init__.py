@@ -59,30 +59,3 @@ def logging_set_up():
                         format=FORMAT,
                         datefmt=DATEFMT)
     logging.getLogger(__name__)
-
-# # Create a SQLITE database
-# def sqlite_database(app):
-#      db_path = Path(app.instance_path) / SQLITE
-
-#      if not db_path.exists():
-#         with app.app_context():
-#             db.create_all()
-#             logger.info("Database has been created")
-
-# class Base(DeclarativeBase):
-#     pass
-
-    # app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_loc}"   # Location of the database
-    # app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False            # Heps improve performance
-
-    # app.config["JWT_TOKEN_LOCATION"] = ["cookies"]                 # Sets the location where the JWT will be sent, default is headers
-    # app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY
-    # app.config["JWT_COOKIE_SECURE"] = False                         # Requires the cookie to be send thorugh HTTPS, sets to false since we are using HTTP
-    # app.config["JWT_COOKIE_CJWT_ACCESS_TOKENSRF_PROTECT"] = False                   # If True, requires the frontend to inlucde CSRF Token for every call
-    # app.config["_EXPIRES"] = timedelta(minutes=15)  # Short lived token to increase security, use to make the users have access to jwt_redquired() API
-    # app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=3)     # Long llved token to refresh the access token
-
-# db_path = f"sqlite:///{SQLITE}"
-# engine = create_engine(str(db_path), echo=True)
-# Session = sessionmaker(bind=engine)
-# session = Session()

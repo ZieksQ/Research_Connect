@@ -31,6 +31,7 @@
   .border-ring {
     @apply ring-2 ring-black;
   }
+
   /* -------------------------------------- */
   /*                Padding                 */
   /* -------------------------------------- */
@@ -43,6 +44,21 @@
   .padding-lg {
     @apply px-6 py-4;
   }
+  /* Padding with Larger Height */
+  .padding-h-sm {
+    @apply px-1 py-2;
+  }
+  .padding-h-md {
+    @apply px-2 py-4;
+  }
+  .padding-h-lg {
+    @apply px-4 py-6;
+  }
+  /* -------------------------------------- */
+  /*                Margin                  */
+  /* -------------------------------------- */
+  
+
   /* -------------------------------------- */
   /*                Cursor                  */
   /* -------------------------------------- */
@@ -69,5 +85,10 @@
      Add Color Manually  */
   .navbar {
     @apply flex h-14 items-center justify-between px-4;
+  }
+  /* For Post Cards Design */
+  /* Change rounded depends on how rounded corners you want it to be */
+  .card {
+    @apply rounded-lg 
   }
 }

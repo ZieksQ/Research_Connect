@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #151515;
+  --color-shade-primary: #474747;
+  --color-secondary: #6D6D6D;
+  --color-background: #EEEEEE;
+  --color-secondary-background: #E0E0E0;
+  --color-accent-100: #5057E9;
+}
+
 @layer base {
   a {
     cursor: pointer; /* Add cursor for every anchor some doesn't have idk why */
@@ -34,6 +43,9 @@
   .padding-lg {
     @apply px-6 py-4;
   }
+  /* -------------------------------------- */
+  /*                Cursor                  */
+  /* -------------------------------------- */
   .cursor-opacity {
     @apply hover:brightness-[80%] active:brightness-[70%];
   }

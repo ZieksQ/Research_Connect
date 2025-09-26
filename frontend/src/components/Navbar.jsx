@@ -17,7 +17,7 @@ const Navbar = () => {
   const handleOnSubmit = () => {};
 
   return (
-    <nav className="navbar bg-[#E0E0E0] z-[99]">
+    <nav className="navbar bg-secondary-background z-[99]">
 
       {/* ----------------- Left Side of Navbar -----------------*/}
 

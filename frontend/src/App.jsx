@@ -1,9 +1,16 @@
-import OauthTest from "./oauthTest";
+import React from "react";
+import HomePage from "./pages/HomePage.jsx";
+import PostCard from "./components/PostCard.jsx";
+import SamplePostCard from "./components/Sample.jsx";
 
-export default function App() {
+const App = () => {
   return (
     <>
-    <h1>Hello World</h1>
+      <HomePage />
+      <PostCard />
+      <SamplePostCard />
     </>
-  )
-}
+  );
+};
+
+export default App;

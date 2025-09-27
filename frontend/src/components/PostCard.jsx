@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import PrimaryButton from "./button/PrimaryButton.jsx";
 
 // Card Component for Survery Post's
 const PostCard = () => {
@@ -18,13 +19,13 @@ const PostCard = () => {
   }, [expanded]);
 
   return (
-    <div className="padding-h-lg m-4 rounded-lg shadow-sm/10">
-      {/* Title and Expand/Compress Button */}
+    <div className="padding-h-lg card mx-4">
+      {/* ========== Title and Expand/Compress Button ============ */}
       <header className="flex justify-between">
-        <h3 className="text-lg font-bold">Hello World!</h3>
+        <h3 className="text-lg font-bold">Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque ab laborum incidunt explicabo animi deserunt ullam tempore nobis amet voluptas!</h3>
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-accent-100"
+          className="text-accent-100 self-start"
         >
           {expanded ? (
             <span className="flex items-center gap-1">
@@ -75,14 +76,13 @@ const PostCard = () => {
       </div>
 
       {/* Time, Target and Take Survey Button */}
-      <div className="mt-2 grid grid-cols-6 items-center">
-        {" "}
-        {/* grid cols 6 idk why if it works it works */}
-        <p className="col-span-1">🕒 6:06PM</p>
-        <p className="col-span-2">🎯 All Students</p>
-        <button className="bg-accent-100 col-span-3 w-[25%] place-self-end rounded-lg py-1 text-white shadow-sm/10">
-          Take Survey
-        </button>
+      <div className="mt-2 flex items-center justify-between gap-1 text-sm">
+        <p className="">🕒 6:06PM</p>
+        <p className="mr-auto">🎯 All Students</p>
+        <PrimaryButton
+          Text={"Take Survey"}
+          Style="w-[35%] max-w-[20vh] min-w-[12vh]"
+        />
       </div>
     </div>
   );

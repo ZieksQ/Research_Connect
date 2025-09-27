@@ -1,12 +1,17 @@
 @import "tailwindcss";
 
+body {
+  background-color: #eeeeee;
+  scroll-behavior: smooth;
+}
+
 @theme {
   --color-primary: #151515;
   --color-shade-primary: #474747;
-  --color-secondary: #6D6D6D;
-  --color-background: #EEEEEE;
-  --color-secondary-background: #E0E0E0;
-  --color-accent-100: #5057E9;
+  --color-secondary: #6d6d6d;
+  --color-background: #eeeeee;
+  --color-secondary-background: #e0e0e0;
+  --color-accent-100: #5057e9;
 }
 
 @layer base {
@@ -57,7 +62,6 @@
   /* -------------------------------------- */
   /*                Margin                  */
   /* -------------------------------------- */
-  
 
   /* -------------------------------------- */
   /*                Cursor                  */
@@ -84,11 +88,16 @@
   /* Exclusive For Navbar 
      Add Color Manually  */
   .navbar {
-    @apply flex h-14 items-center justify-between px-4;
+    @apply sticky top-0 flex h-14 items-center justify-between px-4;
   }
   /* For Post Cards Design */
   /* Change rounded depends on how rounded corners you want it to be */
   .card {
-    @apply rounded-lg 
+    @apply rounded-lg bg-white shadow-sm/10;
+  }
+  /* For Centering Sections */
+  /* mx-auto to center, max-w set max width of container per screen sizes */
+  .container-center {
+    @apply md:mx-auto md:max-w-xl lg:max-w-2xl;
   }
 }

@@ -23,12 +23,12 @@ const Navbar = () => {
 
       <div className="flex items-center gap-4">
         {/* Hamburger Menu */}
-        <button onClick={handleOpenMenu}>
+       <button onClick={handleOpenMenu}>
           {/* if isMenuShown is FALSE it will show HAMBURGER MENU ICON 
               if isMenuShown is TRUE it will show CLOSE ICON */}
 
           {isMenuShown ? (
-            <svg
+            <svg 
               xmlns="http://www.w3.org/2000/svg"
               height="24px"
               viewBox="0 -960 960 960"
@@ -49,13 +49,13 @@ const Navbar = () => {
             </svg>
           )}
 
+        </button>
           {/* This is Menus inside the Hamburger Menu */}
           <HambergerMenu
             handleOpenMenu={handleOpenMenu}
             isMenuShown={isMenuShown}
             MenuList={hamburgerMenuLinks}
           />
-        </button>
 
         {/* Logo */}
         <a href="#">

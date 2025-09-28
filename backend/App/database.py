@@ -29,30 +29,30 @@ logging_set_up()
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-SQLITE = os.getenv("SQLITEDB")
-db_path = Path(__file__).resolve().parent.parent / f"instance/{SQLITE}"
+SQLITE = os.environ.get("SQLITEDB")
+DB_PATH = Path(__file__).resolve().parent.parent / f"instance/{SQLITE}"
 
-SPBS_PASSWORD = os.getenv("SPBS_PASSWORD")
-SPBS_PORT = os.getenv("SPBS_PORT")
-SPBS_DATABASE = os.getenv("SPBS_DATABASE")
+SPBS_PASSWORD = os.environ.get("SPBS_PASSWORD")
+SPBS_PORT = os.environ.get("SPBS_PORT")
+SPBS_DATABASE = os.environ.get("SPBS_DATABASE")
+PSSW_PARSED = quote_plus(SPBS_PASSWORD)
 
 # IPv4 
-SPBSV4_HOST = os.getenv("SPBSV4_HOST")
-SPBSV4_USER  = os.getenv("SPBSV4_USER")
+SPBSV4_HOST = os.environ.get("SPBSV4_HOST")
+SPBSV4_USER  = os.environ.get("SPBSV4_USER")
 
 # Direct Connection
-SPBSDR_HOST = os.getenv("SPBSDR_HOST")
-SPBSDR_USER = os.getenv("SPBSDR_USER")
+SPBSDR_HOST = os.environ.get("SPBSDR_HOST")
+SPBSDR_USER = os.environ.get("SPBSDR_USER")
 
-PSSW_PARSED = quote_plus(SPBS_PASSWORD)  
 
 TESTING = True  # Used for unit testing
 SQLDB = True    # For wanting to switch to a real DB instead of memory 
-IPV4 = True     # Used if Wifi is IPv4 Compatible
+IPV4 = True     # True if you need IPv4 compatibility, however if not set it to false as it is recommended by Supabase
 
 if TESTING == True:
     if SQLDB:
-        DATABASE_URL = f"sqlite:///{db_path}"
+        DATABASE_URL = f"sqlite:///{DB_PATH}"
     else: 
         DATABASE_URL = "sqlite:///:memory:"
 
@@ -64,12 +64,14 @@ else:
         # Not IPv4 Compatible, Direct Connection
         DATABASE_URL = f"postgresql://{SPBSDR_USER}:{PSSW_PARSED}@{SPBSDR_HOST}:{SPBS_PORT}/{SPBS_DATABASE}"
 
+# Set ups the database connection
 engine = create_engine(
     DATABASE_URL,
     echo=False,
     future=True 
 )
 
+# Makes it possible to connect to the database
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
@@ -77,7 +79,9 @@ SessionLocal = sessionmaker(
     future=True
 )
 
+# Puts all the session intoi a global one so i cant use app teardown
 db_session = scoped_session(SessionLocal)
 
+# Class for all my table database to inherit form
 class Base(DeclarativeBase):
     pass

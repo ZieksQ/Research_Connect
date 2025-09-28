@@ -1,55 +1,24 @@
 from flask import Blueprint, request
-from App import jwt
-from .database import db_session as db
-from pathlib import Path
 from sqlalchemy import select
-from .db_interaction import jsonify_template_user, commit_session
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .model import ( Posts, Users, RefreshToken, QuestionType, 
+from .database import db_session as db
+from .helper_db_interaction import jsonify_template_user, commit_session, logger_setup
+from .model import ( Posts, Users, QuestionType, 
                      Surveys, Question, Choice, Essay )
-from .User_validation import (handle_post_input_exist, handle_post_requirements, 
+from .helper_user_validation import (handle_post_input_exist, handle_post_requirements, 
                               handle_survey_input_exists, handle_survey_input_requirements)
-import logging
 
-# Formats how the logging should be in the log file
-logger = logging.getLogger(__name__)
-FORMAT = "%(name)s - %(asctime)s - %(funcName)s - %(lineno)d -  %(levelname)s - %(message)s"
-log_path = Path(__file__).resolve().parent.parent / "log_folder/post_survey.log"
 
-handler = logging.FileHandler(log_path, mode="a")
-formatter = logging.Formatter(FORMAT)
-
-handler.setFormatter(formatter)
-logger.addHandler(handler) 
-
+# Sets up the logger from my helper file
+logger = logger_setup(__name__, "post_survey.log")
+# Set up a route for each file so it is more organized
 survey_posting = Blueprint("survey_posting", __name__)
 
+# So i can store Enum to ng DB
 type_map = {
     "multiple_choice": QuestionType.MULTIPLE_CHOICE,
     "essay": QuestionType.ESSAY
 }
-
-# Callback method to return as response to expired token
-@jwt.expired_token_loader
-def expired_token_response(jwt_header, jwt_payload):
-    return jsonify_template_user(401, False, "You need to refresh the access token", token={"Expired Token" : True}), 401
-
-# Callback method to check if the token is revoked
-@jwt.token_in_blocklist_loader
-def check_if_token_revoked(jwt_header, jwt_payload):
-    jti = jwt_payload["jti"]
-
-    stmt = select(RefreshToken).where(RefreshToken.jti == jti)
-    token = db.execute(stmt).scalars().first()  
-
-    return token is not None and token.revoked
-
-# Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
-@jwt.unauthorized_loader
-def check_unauthorized_access(err_msg):
-    logger.error(err_msg)
-
-    return jsonify_template_user(401, False, "You need to log in to access this"), 401
 
 @survey_posting.route("/post/get", methods=["GET"])
 @jwt_required()
@@ -57,12 +26,11 @@ def get_posts():
 
     user_id = get_jwt_identity()
     user = db.get(Users, user_id)
+    sort = request.args.get("sort", "asc")
 
     if not user:
         logger.error("Someone tried to post wihtout signing in")
         return jsonify_template_user(401, False, "You must log in first in order to post here"), 401
-
-    sort = request.args.get("sort", "asc")
 
     order = Posts.id.asc() if sort == "asc" else Posts.id.desc()
 
@@ -182,7 +150,6 @@ def send_survey():
     if not success:
         logger.exception(error)
         return jsonify_template_user(500, False, "Database error"), 500
-    
 
     logger.info("Succesfully added survey")
 

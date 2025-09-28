@@ -1,5 +1,7 @@
 from .model import QuestionType
+import os
 
+# Dict to get the data of Enum
 type_map = {
     "multiple_choice": QuestionType.MULTIPLE_CHOICE,
     "essay": QuestionType.ESSAY
@@ -138,7 +140,7 @@ def handle_post_requirements(title: str, content: str) -> tuple[dict, bool]:
     ]
 
     content_rules = [
-        (lambda content: len(content) >= 30, "Title should be atleast 30 characters"),
+        (lambda content: len(content) >= 30, "Content should be atleast 30 characters"),
     ]
 
     for check, msg in title_rules:
@@ -255,6 +257,40 @@ def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
         qcheck.append(any(q_each_flag))
 
     return qflag, any(qcheck)
+
+def handle_profile_pic(file) -> tuple[list[str], bool]:
+    """Helper method to validate the profile pic sent
+
+    Args:
+        file (_type_): the file
+
+    Returns:
+        tuple (list[str], bool): List of messages and a flag
+    """
+    
+    result: list[str] = []
+    flag: list[bool] = []
+    allowed_extensions = ( "jpg", "jpeg", "png" )
+
+    if not file:
+        result.append("File does not exist, please upload a file.")
+        flag.append(False)
+
+    filename = file.filename
+    if not filename:
+        result.append("No filename provided.")
+        flag.append(False)
+
+    # Extract extension safely
+    _, ext = os.path.splitext(filename)
+    ext = ext.lower().lstrip(".")
+
+    if ext not in allowed_extensions:
+        result.append(f"Invalid file extension: .{ext}. Allowed: {', '.join(allowed_extensions)}")
+        flag.append(False)
+
+    return result, any(flag)
+
 
 '''
 Decided to review it and the badwords from the txt file contains words that are not actually bad and may hinder users from effectively using the app itself

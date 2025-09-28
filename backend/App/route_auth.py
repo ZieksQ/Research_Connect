@@ -1,50 +1,22 @@
 from flask import request, current_app, Blueprint
-from App import jwt
 from datetime import datetime, timezone
-from pathlib import Path
+from sqlalchemy import select
 from .model import Users, RefreshToken
 from .database import db_session as db
-from sqlalchemy import select
+from .helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic
+from .helper_db_interaction import commit_session, jsonify_template_user, logger_setup, supabase_client
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, 
     set_access_cookies, set_refresh_cookies, 
     unset_jwt_cookies, get_jti,
     get_jwt_identity, jwt_required, get_jwt
 )
-from .User_validation import handle_user_input_exist, handle_validate_requirements
-from .db_interaction import commit_session, jsonify_template_user
-import logging
+import uuid
 
-# Formats how the logging should be in the log file
-logger = logging.getLogger(__name__)
-FORMAT = "%(name)s - %(asctime)s - %(funcName)s - %(lineno)d -  %(levelname)s - %(message)s"
-log_path = Path(__file__).resolve().parent.parent / "log_folder/auth_users.log"
-
-handler = logging.FileHandler(log_path, mode="a")
-formatter = logging.Formatter(FORMAT)
-
-handler.setFormatter(formatter)
-logger.addHandler(handler) 
-
+# Sets up the logger from my helper file
+logger = logger_setup(__name__, "auth_users.log")
+# Set up a route for each file so it is more organized
 user_auth = Blueprint("user_auth", __name__)
-
-# Callback method to check if the token is revoked
-@jwt.token_in_blocklist_loader
-def check_if_token_revoked(jwt_header, jwt_payload):
-    jti = jwt_payload["jti"]
-
-    stmt = select(RefreshToken).where(RefreshToken.jti == jti)
-
-    token = db.execute(stmt).scalar_one_or_none()  
-
-    return token is not None and token.revoked
-
-# Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
-@jwt.unauthorized_loader
-def check_unauthorized_access(err_msg):
-    logger.error(err_msg)
-
-    return jsonify_template_user(401, False, "You need to log in to access this"), 401
 
 @user_auth.route("/register", methods=["POST"])
 def user_register():
@@ -81,6 +53,7 @@ def user_register():
     
     return jsonify_template_user(200, True, "User registered successful"), 200
 
+
 @user_auth.route("/login", methods=["POST"])
 def user_login():
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
@@ -89,7 +62,6 @@ def user_login():
     password = data.get("password", "")
 
     validate_result, exists_flag = handle_user_input_exist(username, password)
-
     if exists_flag:
         logger.error(validate_result)
         return jsonify_template_user(400, False, validate_result), 400
@@ -129,7 +101,40 @@ def user_login():
     logger.info("Login Succesful")
 
     return response, 200
+
+
+@user_auth.route("/user/profile_upload", methods=["POST"])
+@jwt_required()
+def profile_upload():
+    profile_pic = request.files.get("profile_pic")
+    profile_msg, profile_flag = handle_profile_pic(profile_pic)
+
+    user_id = get_jwt_identity()
+
+    if profile_flag:
+        logger.error(profile_msg)
+        return jsonify_template_user(400, False, profile_msg), 400
     
+    filename = f"{uuid.uuid4()}_{profile_pic.filename}"
+
+    resp = supabase_client.storage.from_("profile_pic").upload(path=filename, file=profile_pic)
+    if resp.get("error"):
+        return jsonify_template_user(500, False, resp["error"]["message"]), 500
+    
+    user = db.get(Users, user_id)
+    public_url = supabase_client.storage.from_("profile_pic").get_public_url(path=filename)
+    user.profile_pic_url = public_url
+
+    success, error = commit_session()
+    if not success:
+        logger.exception(error)
+        return jsonify_template_user(500, False, "Database Error"), 500
+    
+    logger.info("User has uploaded a profile picture")
+
+    return jsonify_template_user(200, True, "Upload successful"), 200
+
+
 @user_auth.route("/logout", methods=["POST"])
 @jwt_required(refresh=True)
 def logout():
@@ -156,6 +161,7 @@ def logout():
     logger.info("User has logged out")
 
     return response, 200
+
 
 # Route to refresh the access token for more security
 # If the refresh token expires the user needs to log in again

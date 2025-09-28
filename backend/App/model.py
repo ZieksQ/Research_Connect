@@ -7,7 +7,7 @@ from sqlalchemy import ( String, Integer, ForeignKey, Text,
 import enum
 
 # -----------------------------
-# User, Posts, RefreshToken
+# User, Posts, RefreshToken, Oauth
 # -----------------------------
 
 class Users(Base):
@@ -16,8 +16,9 @@ class Users(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(32), nullable=False, unique=True)
     __password: Mapped[str] = mapped_column("password" ,String(256), nullable=False)
+    profile_pic_url: Mapped[str] = mapped_column(String(512), nullable=True)
 
-    post: Mapped[list["Posts"]] = relationship(back_populates="user")
+    post: Mapped[list["Posts"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     refresh_token: Mapped[list["RefreshToken"]] = relationship(back_populates="user", uselist=True, cascade="all, delete-orphan")
 
     def __repr__(self):
@@ -35,6 +36,17 @@ class Users(Base):
     def set_password(self, password):
         self.__password = bcrypt.generate_password_hash(password).decode()
 
+class Oauth_Users(Base):
+    __tablename__ = "users_oauth"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    provider: Mapped[str] = mapped_column(String(128), nullable=False)
+    username: Mapped[str] = mapped_column(String(256), nullable=False)
+    provider_user_id: Mapped[str] = mapped_column(String(512), nullable=False)
+    picture: Mapped[str] = mapped_column(String(512), nullable=False)
+
+    post: Mapped[list["Posts"]] = relationship(back_populates="user_oauth", cascade="all, delete-orphan")
+    refresh_token: Mapped[list["RefreshToken"]] = relationship(back_populates="user_oauth", uselist=True, cascade="all, delete-orphan")
 
 class Posts(Base):
     __tablename__ = "users_posts"
@@ -42,9 +54,12 @@ class Posts(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(128), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
 
-    user: Mapped[Users] = relationship(back_populates="post")
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
+    user_oauth_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_oauth.id"), nullable=True)
+
+    user: Mapped["Users"] = relationship(back_populates="post")
+    user_oauth: Mapped["Oauth_Users"] = relationship(back_populates="post")
 
     def __repr__(self):
         return f"Post: {self.id}"
@@ -63,11 +78,14 @@ class RefreshToken(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     jti: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
     revoked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
+    user_oauth_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_oauth.id"), nullable=True)
+
     user: Mapped["Users"] = relationship(back_populates="refresh_token")
+    user_oauth: Mapped["Oauth_Users"] = relationship(back_populates="refresh_token")
 
     def __repr__(self):
         return f"No. {self.id}"
@@ -99,6 +117,7 @@ class Question(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     question_text: Mapped[str] = mapped_column(Text, nullable=False)
     q_type: Mapped[QuestionType] = mapped_column(Enum(QuestionType), nullable=False)
+
     survey_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_surveys.id"), nullable=False)
 
     survey: Mapped["Surveys"] = relationship(back_populates="questions")
@@ -111,9 +130,10 @@ class Choice(Base):
     __tablename__ = "svy_choices"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    question_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_questions.id"), nullable=False)
     choice_text: Mapped[list[str]] = mapped_column(JSON, nullable=False)  # list of options
     choice_answer: Mapped[str] = mapped_column(String(64), nullable=False)
+
+    question_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_questions.id"), nullable=False)
 
     question: Mapped["Question"] = relationship(back_populates="choices")
 
@@ -122,7 +142,8 @@ class Essay(Base):
     __tablename__ = "svy_essays"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    question_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_questions.id"), nullable=False)
     essay_answer: Mapped[str] = mapped_column(Text, nullable=False)
+
+    question_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_questions.id"), nullable=False)
 
     question: Mapped["Question"] = relationship(back_populates="essay")

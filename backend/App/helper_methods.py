@@ -1,16 +1,7 @@
 from flask import jsonify
-from supabase import create_client
 from pathlib import Path
-from pathlib import Path
-from dotenv import load_dotenv
 from .database import db_session as db
-import logging, os
-
-env_path = Path(__file__).resolve().parent.parent / ".env"      # Gets the absolute file path of the .env file
-load_dotenv(dotenv_path=env_path)
-
-SPBS_PROJECT_URL = os.environ.get("SPBS_PROJECT_URL")
-SPBS_SERVICE_ROLE_KEY = os.environ.get("SPBS_SERVICE_ROLE_KEY")
+import logging
 
 def commit_session() -> tuple[bool, str | None]:
     """Helper method to reduce try-except for database commit.
@@ -47,23 +38,24 @@ def jsonify_template_user(status: int, ok: bool, message: str | dict, **extra_fl
 def logger_setup(name: str, filename: str, mode: str = "a"):
     """Helper method to set up global logging
 
-    Args:
+    Args:{}
         name (str): dunder name
         filename (str): NAME_OF_FILE.log
+        mode (str, optional): file mode. Defaults to "a".
 
     Returns:
         logging: Logger object
     """
+
     logger = logging.getLogger(name)
     FORMAT = "%(name)s - %(asctime)s - %(funcName)s - %(lineno)d -  %(levelname)s - %(message)s"
+    DATEFMT = "%Y-%m-%d %H:%M:%S"
     log_path = Path(__file__).resolve().parent.parent / f"log_folder/{filename}"
 
-    handler = logging.FileHandler(log_path, mode=mode)
-    formatter = logging.Formatter(FORMAT)
+    handler = logging.FileHandler(filename=log_path, mode=mode)
+    formatter = logging.Formatter(fmt=FORMAT, datefmt=DATEFMT)
 
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
     return logger
-
-supabase_client = create_client(SPBS_PROJECT_URL, SPBS_SERVICE_ROLE_KEY)

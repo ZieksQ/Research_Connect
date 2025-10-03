@@ -1,6 +1,6 @@
 from App import jwt
 from sqlalchemy import select
-from .helper_db_interaction import jsonify_template_user, logger_setup
+from .helper_methods import jsonify_template_user, logger_setup
 from .database import db_session as db
 from .model import RefreshToken
 

@@ -1,9 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, scoped_session
 from pathlib import Path
-from dotenv import load_dotenv
 from urllib.parse import quote_plus
-import os, logging
+from .env_config import ( SQLITE, SPBS_PASSWORD, SPBS_PORT, SPBS_DATABASE,
+                         SPBSV4_HOST, SPBSV4_USER, SPBSDR_USER, SPBSDR_HOST )
+import logging
 
 def logging_set_up():
     FORMAT = "%(name)s - %(asctime)s - %(funcName)s - %(lineno)d - %(levelname)s - %(message)s"
@@ -26,25 +27,8 @@ def logging_set_up():
 
 logging_set_up()
 
-env_path = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(dotenv_path=env_path)
-
-SQLITE = os.environ.get("SQLITEDB")
 DB_PATH = Path(__file__).resolve().parent.parent / f"instance/{SQLITE}"
-
-SPBS_PASSWORD = os.environ.get("SPBS_PASSWORD")
-SPBS_PORT = os.environ.get("SPBS_PORT")
-SPBS_DATABASE = os.environ.get("SPBS_DATABASE")
 PSSW_PARSED = quote_plus(SPBS_PASSWORD)
-
-# IPv4 
-SPBSV4_HOST = os.environ.get("SPBSV4_HOST")
-SPBSV4_USER  = os.environ.get("SPBSV4_USER")
-
-# Direct Connection
-SPBSDR_HOST = os.environ.get("SPBSDR_HOST")
-SPBSDR_USER = os.environ.get("SPBSDR_USER")
-
 
 TESTING = True  # Used for unit testing
 SQLDB = True    # For wanting to switch to a real DB instead of memory 
@@ -79,7 +63,7 @@ SessionLocal = sessionmaker(
     future=True
 )
 
-# Puts all the session intoi a global one so i cant use app teardown
+# Puts all the session into a global one so i cant use app teardown
 db_session = scoped_session(SessionLocal)
 
 # Class for all my table database to inherit form

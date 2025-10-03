@@ -1,10 +1,11 @@
+from App import supabase_client
 from flask import request, current_app, Blueprint
 from datetime import datetime, timezone
-from sqlalchemy import select
+from sqlalchemy import select, and_, or_
 from .model import Users, RefreshToken
 from .database import db_session as db
 from .helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic
-from .helper_db_interaction import commit_session, jsonify_template_user, logger_setup, supabase_client
+from .helper_methods import ( commit_session, jsonify_template_user, logger_setup )
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, 
     set_access_cookies, set_refresh_cookies, 
@@ -84,7 +85,7 @@ def user_login():
     jti = get_jti(refresh_token)
 
     expires = datetime.now(timezone.utc) + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
-    current_refresh_token = RefreshToken(jti=jti, user=user, expires_at=expires)
+    current_refresh_token = RefreshToken(jti=jti, user_token=user, expires_at=expires)
 
     db.add(current_refresh_token)
 
@@ -117,11 +118,14 @@ def profile_upload():
     
     filename = f"{uuid.uuid4()}_{profile_pic.filename}"
 
-    resp = supabase_client.storage.from_("profile_pic").upload(path=filename, file=profile_pic)
+    resp = supabase_client.storage.from_("profile_pic").upload(path=filename, file=profile_pic.read(), 
+                                                               file_options={"content-type": profile_pic.content_type})
+    
     if resp.get("error"):
+        logger.error(resp["error"]["message"])
         return jsonify_template_user(500, False, resp["error"]["message"]), 500
     
-    user = db.get(Users, user_id)
+    user = db.get(Users, int(user_id))
     public_url = supabase_client.storage.from_("profile_pic").get_public_url(path=filename)
     user.profile_pic_url = public_url
 
@@ -169,7 +173,7 @@ def logout():
 @jwt_required(refresh=True)
 def refresh_access():
     jti = get_jwt()["jti"]
-    stmt = select(RefreshToken).where(RefreshToken.jti == jti, RefreshToken.revoked == False)
+    stmt = select(RefreshToken).where(and_(RefreshToken.jti == jti, RefreshToken.revoked == False))
     token = db.execute(stmt).scalar_one_or_none()
 
     if not token:

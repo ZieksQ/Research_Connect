@@ -1,18 +1,13 @@
 from flask import jsonify, redirect, make_response, url_for, Blueprint
-from flask_jwt_extended import create_access_token, set_access_cookies, jwt_required, get_jwt_identity, unset_jwt_cookies
-from dotenv import load_dotenv
-from pathlib import Path
 from App import oauth
+from sqlalchemy import select, and_
 from .database import db_session as db
 from .model import Oauth_Users
-from .helper_db_interaction import commit_session, logger_setup
-import os
+from .helper_methods import commit_session, logger_setup
+from .env_config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+from flask_jwt_extended import ( create_access_token, set_access_cookies, 
+                                jwt_required, get_jwt_identity, unset_jwt_cookies )
 
-env_path = Path(__file__).resolve().parent.parent / ".env"      # Gets the absolute file path of the .env file
-load_dotenv(dotenv_path=env_path)  
-
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 
 google = oauth.register(
     name="google",
@@ -43,21 +38,26 @@ def authorize():
     # user_info = google.get("userinfo").json()
     user_info = google.userinfo()
 
-    user = Oauth_Users(provider="google", username=user_info["name"], 
-                       provider_user_id=user_info["sub"], picture=user_info["picture"])
+    stmt = select(Oauth_Users).where(and_(Oauth_Users.provider == "google", Oauth_Users.provider_user_id == user_info["sub"]))
+    user = db.execute(stmt).scalar_one_or_none()
+    if not user:
+        user = Oauth_Users(provider="google", username=user_info["name"], email=user_info["email"],
+                        provider_user_id=user_info["sub"], profile_pic_url=user_info["picture"])
+        db.add(user)
+        success, error = commit_session()
+        if not success:
+            logger.error(error)
+            return redirect("http://localhost:5173?msg=Database_error")
+        logger.info("User added to the database")
 
-    access_token = create_access_token(identity=f"{user.provider}_{user.provider_user_id}")
+    access_token = create_access_token(identity=str(user.id))
 
-    db.add(user)
-    success, error = commit_session()
-    if not success:
-        logger.error(error)
-        return redirect("http://localhost:5173?message=Database_error")
-
-    # to pass data to the response you need to type a query parameter
-    resp = make_response(redirect("http://localhost:5173?message=Login_successful"))
+    # to pass data to the response you need to type a query params
+    resp = make_response(redirect("http://localhost:5173?msg=Login_successful"))
     set_access_cookies(resp, access_token)
-    
+
+    logger.info("User successfully logged in as google")
+
     return resp
 
 @oauth_me.route("/protected")

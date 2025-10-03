@@ -3,23 +3,16 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
 from datetime import timedelta
-from pathlib import Path
-from dotenv import load_dotenv
 from authlib.integrations.flask_client import OAuth
+from supabase import create_client
 from .database import db_session
-from .helper_db_interaction import logger_setup
-import logging, os
+from .helper_methods import logger_setup
+from .env_config import ( FLASK_SECRET_KEY, JWT_SECRET_KEY,
+                         SPBS_PROJECT_URL, SPBS_SERVICE_ROLE_KEY )
 
 jwt = JWTManager()
 bcrypt = Bcrypt()
 oauth = OAuth()
-
-env_path = Path(__file__).resolve().parent.parent / ".env"      # Gets the absolute file path of the .env file
-load_dotenv(dotenv_path=env_path)                               # Loads the .env file using the its path
-
-# Getting the secrets from the .env file
-FLASK_SECRET_KEY = os.environ.get("FLASK_SECRET_KEY")
-JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
 
 def run_app():
     app = Flask(__name__)
@@ -34,7 +27,7 @@ def run_app():
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False                   # If True, requires the frontend to inlucde CSRF Token for every call
     app.config["JWT_COOKIE_SAMESITE"] = "Lax"                       # To allow cookies to be send on cross origins, use Lax for dev, use None for production
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)  # Short lived token to increase security, use to make the users have access to jwt_redquired() API
-    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=3)  
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=3)
 
     from .route_auth import user_auth
     from .route_post_survey import survey_posting
@@ -56,6 +49,12 @@ def run_app():
 
     return app
 
+# To connect to supabase to host my users profile pic
+supabase_client = create_client(SPBS_PROJECT_URL, SPBS_SERVICE_ROLE_KEY)
+default_profile_pic = "https://siqejctaztvawzceuhrw.supabase.co/storage/v1/object/public/profile_pic/Jane_Silksong.jpg"
+
+
+'''
 def logging_set_up():
     # Formats how the logging should be in the log file
     FORMAT = "%(filename)s - %(asctime)s - %(levelname)s - %(message)s"
@@ -67,3 +66,4 @@ def logging_set_up():
                         format=FORMAT,
                         datefmt=DATEFMT)
     logging.getLogger(__name__)
+'''

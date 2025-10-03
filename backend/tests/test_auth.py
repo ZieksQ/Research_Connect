@@ -1,7 +1,7 @@
 import pytest
 # from App.db import db_session as db
 
-@pytest.mark.skip()
+# @pytest.mark.skip()
 @pytest.mark.parametrize("user_data, expected, status", [
     ({"username": "Alice", "password": "Secret123"}, True, 200),      # ✅ valid (meets all requirements)
 

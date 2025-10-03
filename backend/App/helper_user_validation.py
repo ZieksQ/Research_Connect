@@ -203,7 +203,7 @@ def handle_survey_input_exists(svy_questions: dict) -> tuple[list, bool]:
                 each_qdata.append(True)
 
         if result:
-            qflag.append({f"Question {qcounter + 1}": result})
+            qflag.append({f"Question {qcounter}": result})
 
         each_qcheck.append(any(each_qdata))
 
@@ -258,7 +258,7 @@ def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
 
     return qflag, any(qcheck)
 
-def handle_profile_pic(file) -> tuple[list[str], bool]:
+def handle_profile_pic(file) -> tuple[str | None, bool]:
     """Helper method to validate the profile pic sent
 
     Args:
@@ -268,28 +268,23 @@ def handle_profile_pic(file) -> tuple[list[str], bool]:
         tuple (list[str], bool): List of messages and a flag
     """
     
-    result: list[str] = []
-    flag: list[bool] = []
     allowed_extensions = ( "jpg", "jpeg", "png" )
 
     if not file:
-        result.append("File does not exist, please upload a file.")
-        flag.append(False)
+        return "File does not exist, please upload a file.", True
 
     filename = file.filename
     if not filename:
-        result.append("No filename provided.")
-        flag.append(False)
+        return "No filename provided.", True
 
     # Extract extension safely
     _, ext = os.path.splitext(filename)
     ext = ext.lower().lstrip(".")
 
     if ext not in allowed_extensions:
-        result.append(f"Invalid file extension: .{ext}. Allowed: {', '.join(allowed_extensions)}")
-        flag.append(False)
+        return f"Invalid file extension: .{ext}. Allowed: {', '.join(allowed_extensions)}", True
 
-    return result, any(flag)
+    return None, False
 
 
 '''

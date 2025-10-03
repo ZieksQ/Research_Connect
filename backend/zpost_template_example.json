@@ -1,0 +1,29 @@
+{
+  "title": "AI and Human Interaction",
+  "content": "This post explores how humans engage with AI...",
+  
+  "survey": {
+    "questionNo.1": {
+      "question": "What is the capital of France?",
+      "type": "multiple_choice",
+      "choice": ["Paris", "London", "Berlin"],
+      "answer": "Paris"
+    },
+    "questionNo.2": {
+      "question": "Which language is primarily used for Android app development?",
+      "type": "multiple_choice",
+      "choice": ["Kotlin", "Swift", "JavaScript"],
+      "answer": "Kotlin"
+    },
+    "questionNo.3": {
+      "question": "Explain the importance of data structures in computer science.",
+      "type": "essay",
+      "answer": "Data structures are essential for organizing, managing, and storing data efficiently. They allow faster access and modification of data, optimize memory usage, and provide the foundation for developing efficient algorithms."
+    },
+    "questionNo.4": {
+      "question": "Describe a real-world scenario where machine learning can be applied.",
+      "type": "essay",
+      "answer": "One real-world application of machine learning is fraud detection in banking. By analyzing transaction patterns, ML models can detect unusual behavior and flag potentially fraudulent activities in real time."
+    }
+  }
+}

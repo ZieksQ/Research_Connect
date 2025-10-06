@@ -1,7 +1,9 @@
 @import "tailwindcss";
+@plugin "daisyui" {
+  theme: light --default;
+}
 
 body {
-  background-color: #eeeeee;
   scroll-behavior: smooth;
 }
 
@@ -72,6 +74,13 @@ body {
   .cursor-bg {
     @apply hover:bg-gray-400 active:bg-gray-600;
   }
+
+  /* -------------------------------------- */
+  /*                Animations              */
+  /* -------------------------------------- */
+  .scale-transition {
+    @apply transition duration-200 ease-in-out hover:scale-101 hover:shadow-md;
+  }
 }
 
 @layer utilities {
@@ -92,7 +101,7 @@ body {
   }
   /* For Post Cards Design */
   /* Change rounded depends on how rounded corners you want it to be */
-  .card {
+  .card-s {
     @apply rounded-lg bg-white shadow-sm/10;
   }
   /* For Centering Sections */

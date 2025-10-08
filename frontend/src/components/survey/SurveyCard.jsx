@@ -1,33 +1,42 @@
 import React, { useRef } from "react";
-import RadioButton from "../button/RadioButton";
+import RadioButton from "../button/RadioButton.jsx";
 
-// This Component is for Individual Cards in Survey
-// TODO: Add Conditional Rendering for each Type of Questionaire
-const SurveyCard = ({Title, Name, Options}) => {
+const SurveyCard = ({ data, value, onChange }) => {
+  const { id, name, title, type, options } = data; // ✅ include name
   const formRef = useRef(null);
 
   const clearRadios = (e) => {
-    e.preventDefault() // Prevents to reload the page when submit
-
-    const radios = formRef.current.querySelectorAll('input[type="radio"]'); // Selects input radio type
-    radios.forEach((r) => (r.checked = false)); // unchecks radio buttons
+    e.preventDefault();
+    const radios = formRef.current.querySelectorAll('input[type="radio"]');
+    radios.forEach((r) => (r.checked = false));
+    onChange(name, ""); // ✅ also clear the stored answer
   };
 
   return (
     <div className="bg-base-100 flex h-auto w-full flex-col space-y-4 rounded-sm px-4 py-6 shadow">
-      {/* ------------ TITLE -------------- */}
       <div>
-        <h3 className="text-xl font-bold">{Title}</h3>
+        <h3 className="text-xl font-bold">{title}</h3>
       </div>
-      {/* ------------ BUTTONS -------------- */}
-      {/* Conditional Rendering for each quentionaire type */}
-      
+
       <div ref={formRef} className="flex flex-col space-y-2">
-        {Options.map((e, index) => (
-          <RadioButton key={index} Name={Name} Id={e.id} Label={e.Label} />
+        {options?.map((opt, index) => (
+          <RadioButton
+            key={index}
+            name={name} // ✅ use question name here
+            id={`${id}-${index}`}
+            value={opt}
+            label={opt}
+            checked={value === opt}
+            onChange={() => onChange(name, opt)} // ✅ safe callback
+          />
         ))}
       </div>
-      <button onClick={clearRadios} className="btn btn-error w-[25%] ml-auto">
+
+      <button
+        onClick={clearRadios}
+        type="button"
+        className="btn btn-error ml-auto w-[25%]"
+      >
         Clear
       </button>
     </div>

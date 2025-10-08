@@ -81,6 +81,10 @@ body {
   .scale-transition {
     @apply transition duration-200 ease-in-out hover:scale-101 hover:shadow-md;
   }
+
+  .content-position-center {
+    @apply top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2;
+  }
 }
 
 @layer utilities {

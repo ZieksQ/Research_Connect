@@ -10,3 +10,20 @@ export const surveyData = [
         ]
     },
 ]
+
+export const formData = [
+  {
+    id: 1,
+    name: "storage",
+    title: "Which storage do you prefer?",
+    type: "radio",
+    options: ["HDD", "SSD", "NVMe"],
+  },
+  {
+    id: 2,
+    name: "os",
+    title: "Which operating system do you use?",
+    type: "radio",
+    options: ["Windows", "macOS", "Linux"],
+  },
+];

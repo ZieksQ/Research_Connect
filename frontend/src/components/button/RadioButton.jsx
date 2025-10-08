@@ -1,20 +1,21 @@
 import React from "react";
 
-// Reusable components for radio buttons in forms
-const RadioButton = ({ Name, Id, Label }) => {
+const RadioButton = ({ name, id, label, value, checked, onChange }) => {
   return (
     <label
-      htmlFor={Id}
+      htmlFor={id}
       className="scale-transition hover:bg-neutral-content active:bg-primary-content flex cursor-pointer items-center rounded-md border-1 p-2 shadow"
     >
       <input
         type="radio"
-        name={Name}
-        id={Id}
-        value={Id}
-        className="radio radio-sm hover:radio-neutra-content mr-2"
+        name={name}
+        id={id}
+        value={value}
+        onChange={onChange}
+        checked={checked}
+        className="radio radio-sm mr-2"
       />
-      {Label}
+      {label}
     </label>
   );
 };

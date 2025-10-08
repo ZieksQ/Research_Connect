@@ -1,43 +1,42 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Login from "../components/Login.jsx";
+import Signup from "../../components/user/Signup.jsx";
 
-const LoginPage = () => {
+// Page for user Sign up
+const SignupPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault(); // To prevent page reload on submit
+  const handleSignup = async (e) => {
+    e.preventDefault(); // prevents page to reload everytime you submit
 
-    const data = { username, password }; // creates data object
+    const payload = { username, password }; // stores username, password value to send
 
-    // Fetch API : POST
     try {
-      const response = await fetch("http://localhost:5000/user/login", {
+      const response = await fetch("/user/register", {
         method: "POST",
         headers: {
-          "Content-type": "application/json", // tells the backend that request body is json
+          "Content-type": "application/json",
         },
-        body: JSON.stringify(data), // converts javascript to json
-        credentials: "include", // includes jwt & cookies
+        body: JSON.stringify(payload),
+        credentials: "include",
       });
 
-      const resData = await response.json(); // wait for response
+      const data = await response.json();
 
-      if (!resData.ok) {
-        // if response is not ok
-        return resData.message; // returns response message
+      if (!data.ok) {
+        return data.message;
       }
 
-      navigate("/home");
+      navigate("/");
     } catch (err) {
-      console.error(`Error: ${err}`); // catches error
+      alert(`Error: ${err}`);
     }
   };
 
   return (
-    <section className="absolute flex flex-col top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2">
+    <section className=" absolute flex flex-col content-position-center">
       {/* Logo */}
       <svg
         width="76"
@@ -53,15 +52,14 @@ const LoginPage = () => {
         />
       </svg>
 
-      {/* Login Form */}
-      <Login
-        value={{ email: username, password: password }}
-        onChangeEmail={(e) => setUsername(e.target.value)}
-        onChangePassword={(e) => setPassword(e.target.value)}
-        submit={handleLogin}
+      {/* Signup Form */}
+      <Signup
+        Data={{ username: username, password: password }}
+        onChangeUsername={(e) => setUsername(e.target.value)}
+        onChangePassword={e => setPassword(e.target.value)}
       />
     </section>
   );
 };
 
-export default LoginPage;
+export default SignupPage;

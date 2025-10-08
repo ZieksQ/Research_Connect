@@ -6,10 +6,12 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import PostPage from "./pages/PostPage.jsx";
-import LoginPage from "./pages/LoginPage.jsx";
+import LoginPage from "./pages/user/LoginPage.jsx";
 import RootRoute from "./routes/RootRoute.jsx";
 import SurveyRoute from "./routes/SurveyRoute.jsx";
 import SurveyPage from "./pages/SurveyPage.jsx";
+import CreateFormPage from "./pages/CreateFormPage.jsx";
+import SignupPage from "./pages/user/SignupPage.jsx";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -18,6 +20,7 @@ const App = () => {
         {/* Root Path */}
         <Route path="/">
           <Route index element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
         </Route>
         
         {/* Home Path */}
@@ -27,7 +30,8 @@ const App = () => {
 
         {/* Survey Path */}
         <Route path="/client/survey" element={<SurveyRoute />} >
-          <Route path="create" element={<SurveyPage />}/>
+          <Route path="answer" element={<SurveyPage />}/>
+          <Route path="create" element={<CreateFormPage />} />
         </Route>
       </>,
     ),

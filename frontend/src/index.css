@@ -85,6 +85,16 @@ body {
   .content-position-center {
     @apply top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2;
   }
+
+  /* User Registration Form */
+
+  .registration {
+    @apply min-h-screen flex items-center justify-center lg:p-6 ;
+  }
+
+  .registration-card {
+    @apply w-full h-full lg:h-auto lg:max-w-sm lg:rounded-lg lg:shadow-xl  p-8 lg:p-10 flex flex-col justify-center;
+  }
 }
 
 @layer utilities {

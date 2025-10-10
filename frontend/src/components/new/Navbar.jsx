@@ -1,64 +1,11 @@
-import React, { useState } from "react";
-import HambergerMenu from "./ui/HamburgerMenu.jsx";
-import SearchBar from "./ui/SearchBar.jsx";
-import AddButton from "./ui/AddButton.jsx";
-import { hamburgerMenuLinks } from "../static/hamburgerMenuLinks.js";
+import React from "react";
 
 const Navbar = () => {
-  const [isMenuShown, setIsMenuShown] = useState(false);
-  const [search, setSearch] = useState("");
-
-  const handleOpenMenu = () => {
-    setIsMenuShown(!isMenuShown);
-  };
-
-  const handleOnChange = () => {};
-
-  const handleOnSubmit = () => {};
-
   return (
-    <nav className="navbar bg-secondary-background z-[99]">
-
-      {/* ----------------- Left Side of Navbar -----------------*/}
-
-      <div className="flex items-center gap-4">
-        {/* Hamburger Menu */}
-       <button onClick={handleOpenMenu}>
-          {/* if isMenuShown is FALSE it will show HAMBURGER MENU ICON 
-              if isMenuShown is TRUE it will show CLOSE ICON */}
-
-          {isMenuShown ? (
-            <svg 
-              xmlns="http://www.w3.org/2000/svg"
-              height="24px"
-              viewBox="0 -960 960 960"
-              width="24px"
-              fill="#000000"
-            >
-              <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
-            </svg>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="24px"
-              viewBox="0 -960 960 960"
-              width="24px"
-              fill="#000000"
-            >
-              <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" />
-            </svg>
-          )}
-
-        </button>
-          {/* This is Menus inside the Hamburger Menu */}
-          <HambergerMenu
-            handleOpenMenu={handleOpenMenu}
-            isMenuShown={isMenuShown}
-            MenuList={hamburgerMenuLinks}
-          />
-
-        {/* Logo */}
-        <a href="#">
+    <div className="navbar bg-base-100 glass z-1 shadow">
+      {/* ---------------- Left Side Navbar --------------------- */}
+      <div className="navbar-start">
+        <a href="#" className="btn btn-ghost">
           <svg
             width="76"
             height="23"
@@ -74,42 +21,53 @@ const Navbar = () => {
         </a>
       </div>
 
-      {/* ----------------- Middle Side of Navbar -----------------*/}
+      {/* ---------------- Left Side Navbar --------------------- */}
 
+      <div className="navbar-end space-x-4">
+        {/* Search Bar */}
+        <input
+          type="text"
+          placeholder="Search"
+          className="input hidden w-24 lg:flex lg:w-auto"
+        />
 
-      {/* Search Bar */}
-      <SearchBar
-        handleOnSubmit={handleOnSubmit}
-        handleOnChange={handleOnChange}
-        search={search}
-      />
-
-      {/* ----------------- Right Side of Navbar -----------------*/}
-
-      <div className="flex items-center gap-x-2">
-        <AddButton />
-
-        {/* Search Mobile Button */}
-        <button>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 640 640"
-            className="size-8 rounded-full p-1 active:bg-gray-400 lg:hidden"
+        {/* Profile Picture with Dropdown */}
+        <div className="dropdown dropdown-end">
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn btn-ghost btn-circle avatar"
           >
-            <path d="M480 272C480 317.9 465.1 360.3 440 394.7L566.6 521.4C579.1 533.9 579.1 554.2 566.6 566.7C554.1 579.2 533.8 579.2 521.3 566.7L394.7 440C360.3 465.1 317.9 480 272 480C157.1 480 64 386.9 64 272C64 157.1 157.1 64 272 64C386.9 64 480 157.1 480 272zM272 416C351.5 416 416 351.5 416 272C416 192.5 351.5 128 272 128C192.5 128 128 192.5 128 272C128 351.5 192.5 416 272 416z" />
-          </svg>
-        </button>
-
-        {/* Profile Button */}
-        <a href="#" className="icon-rounded border-ring">
-          <img
-            src="https://i.pinimg.com/236x/87/6f/df/876fdfae94fb47cfdb1c6c1dbc1d3cd0.jpg"
-            alt="profile picture"
-            className="icon-rounded cursor-opacity"
-          />
-        </a>
+            <div className="w-10 rounded-full">
+              <img
+                src="https://i.pinimg.com/736x/ea/f1/80/eaf1800d9e072048fea8ca2232e5e756.jpg"
+                alt="profile picture"
+              />
+            </div>
+          </div>
+          {/* Dropdown Menu */}
+          <ul
+            tabIndex={0}
+            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-52 p-2 shadow"
+          >
+            <li>
+              <a href="#" className="justify-between">
+                Profile
+                <span className="badge badge-accent badge-sm">Beta</span>
+              </a>
+            </li>
+            <li>
+              <a href="#">Settings</a>
+            </li>
+            <li>
+              <a href="#" className="hover:bg-error hover:text-white">
+                Logout
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
-    </nav>
+    </div>
   );
 };
 

@@ -11,7 +11,7 @@ const PostPage = () => {
   useEffect(() => {
     async function fetchPosts() {
       try {
-        const res = await fetch("http://localhost:5000/survey/post/get", {
+        const res = await fetch("/survey/post/get", {
           credentials: "include", // ALWAYS REMEMBER TO ADD CREDENTIALS WHEN FETCHING TO ADD COOKIES
         });
         const data = await res.json();

@@ -19,19 +19,18 @@ const App = () => {
       <>
         {/* Root Path */}
         <Route path="/">
+          {/* Register User Path */}
           <Route index element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-        </Route>
-        
-        {/* Home Path */}
-        <Route path="/home" element={<RootRoute />}>
-          <Route index element={<PostPage />} />
-        </Route>
-
-        {/* Survey Path */}
-        <Route path="/client/survey" element={<SurveyRoute />} >
-          <Route path="answer" element={<SurveyPage />}/>
-          <Route path="create" element={<CreateFormPage />} />
+          <Route path="signup" element={<SignupPage />} />
+          {/* Home Path */}
+          <Route path="home" element={<RootRoute />}>
+            <Route index element={<PostPage />} />
+          </Route>
+          {/* Survey Path */}
+          <Route path="form" element={<SurveyRoute />}>
+            <Route path="response" element={<SurveyPage />} />
+            <Route path="new" element={<CreateFormPage />} />
+          </Route>
         </Route>
       </>,
     ),

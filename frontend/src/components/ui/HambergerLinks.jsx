@@ -7,7 +7,7 @@ const HambergerLinks = ({ icon, name, func }) => {
   return (
     <button
       onClick={func}
-      className="flex items-center gap-2 rounded-md p-2 hover:bg-gray-200 active:bg-gray-300"
+      className="flex items-center gap-2 rounded-md p-2 hover:bg-gray-300 active:bg-gray-400"
     >
       {/* Add New Button */}
       <svg xmlns={icon.xmlns} viewBox={icon.viewBox} className="icon-size">

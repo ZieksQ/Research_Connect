@@ -10,7 +10,7 @@ body {
 @theme {
   --color-primary: #151515;
   --color-shade-primary: #474747;
-  --color-secondary: #6d6d6d;
+  --color-text-secondary: #6d6d6d;
   --color-background: #eeeeee;
   --color-secondary-background: #e0e0e0;
   --color-accent-100: #5057e9;
@@ -30,6 +30,16 @@ body {
   .icon-rounded {
     @apply size-10 rounded-full;
   }
+  /* Icon Size */
+  .icon-sm {
+    @apply size-4;
+  }
+  .icon-md {
+    @apply size-6;
+  }
+  .icon-lg {
+    @apply size-8;
+  }
   /* Input field such as Search Bar */
   .input-field {
     @apply rounded-lg px-2 py-1 ring-2 ring-black;
@@ -38,6 +48,21 @@ body {
   .border-ring {
     @apply ring-2 ring-black;
   }
+  /* Profile Page Picture */
+  .profile-pic {
+    @apply w-18 lg:w-36;
+  }
+  /* Small Navbar */
+  .navbar-sm {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    padding: 0.5rem /* 8px */;
+    min-height: 2rem /* 64px */;
+    :where(&) {
+        position: relative;
+    }
+}
 
   /* -------------------------------------- */
   /*                Padding                 */
@@ -94,6 +119,11 @@ body {
 
   .registration-card {
     @apply w-full h-full lg:h-auto lg:max-w-sm lg:rounded-lg lg:shadow-xl  p-8 lg:p-10 flex flex-col justify-center;
+  }
+
+  /* Profile Page */
+  .profile-container {
+    @apply flex flex-col lg:grid lg:grid-cols-5 lg:grid-rows-5 gap-4 lg:max-w-6xl;
   }
 }
 

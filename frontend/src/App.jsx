@@ -12,6 +12,7 @@ import SurveyRoute from "./routes/SurveyRoute.jsx";
 import SurveyPage from "./pages/SurveyPage.jsx";
 import CreateFormPage from "./pages/CreateFormPage.jsx";
 import SignupPage from "./pages/user/SignupPage.jsx";
+import ProfilePage from "./pages/profile/ProfilePage.jsx";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -25,6 +26,11 @@ const App = () => {
           {/* Home Path */}
           <Route path="home" element={<RootRoute />}>
             <Route index element={<PostPage />} />
+            <Route path="profile" element={<ProfilePage />} >
+              <Route index element={<h1>Hello World!</h1>} />
+              <Route path="my-survey" element={<h1>Hello World!</h1>} />
+              <Route path="user-info" element={<h1>User Information</h1>} />
+            </Route>
           </Route>
           {/* Survey Path */}
           <Route path="form" element={<SurveyRoute />}>
@@ -37,7 +43,7 @@ const App = () => {
   );
 
   return (
-    <div data-theme="light" className="h-[100vh]">
+    <div data-theme="light" className="h-full min-h-[100vh] pb-8">
       <RouterProvider router={router} />
     </div>
   );

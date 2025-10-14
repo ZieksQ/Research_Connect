@@ -8,28 +8,21 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="profile-container mx-auto mt-4">
-      {/* Left Side - Profile & Navigation */}
-      <div className="row-span-5 flex flex-col gap-4 p-4">
-        <div className="flex space-x-2 lg:flex-col">
-          <ProfilePicture />
-          <ProfileInfo />
-        </div>
-        <Stats />
-      </div>
+    <section className="page-margin lg:mx-auto lg:max-w-4xl">
+      <header className="flex items-center p-2 gap-2">
+        <ProfilePicture />
+        <ProfileInfo />
+        {/* Stats then Button if user == user then you can edit your profile */}
+      </header>
 
-      {/* Main Section */}
-      <main className="col-span-4 row-span-5 flex flex-col gap-4 p-4">
-        <nav className="flex justify-between">
-          <NavLink to={"/home/profile/my-survey"} className="btn w-[49%]">
-            My Surveys
-          </NavLink>
-          <NavLink to={"/home/profile/user-info"} className="btn w-[49%]">Profile Information</NavLink>
-        </nav>
-        <section>
-          <Outlet />
-        </section>
-      </main>
+      <nav role="tablist" className="tabs tabs-border mt-6">
+        <NavLink to='/home/profile/posts' role="tab" className={`tab`}>Posts</NavLink>
+        <NavLink to="/home/profile/about" role="tab" className={`tab`}>About</NavLink>
+      </nav>
+
+      <div>
+        <Outlet />
+      </div>
     </section>
   );
 };

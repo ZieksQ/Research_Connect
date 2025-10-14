@@ -8,7 +8,7 @@ body {
 }
 
 @theme {
-  --color-primary: #151515;
+  --color-primary-color: #151515;
   --color-shade-primary: #474747;
   --color-text-secondary: #6d6d6d;
   --color-background: #eeeeee;
@@ -50,7 +50,7 @@ body {
   }
   /* Profile Page Picture */
   .profile-pic {
-    @apply w-18 lg:w-36;
+    @apply w-18 lg:w-28;
   }
   /* Small Navbar */
   .navbar-sm {
@@ -152,5 +152,9 @@ body {
   /* mx-auto to center, max-w set max width of container per screen sizes */
   .container-center {
     @apply md:mx-auto md:max-w-xl lg:max-w-2xl;
+  }
+
+  .page-margin {
+    @apply mt-4 lg:mt-2
   }
 }

@@ -4,6 +4,7 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
   RouterProvider,
+  Navigate,
 } from "react-router-dom";
 import PostPage from "./pages/PostPage.jsx";
 import LoginPage from "./pages/user/LoginPage.jsx";
@@ -26,10 +27,11 @@ const App = () => {
           {/* Home Path */}
           <Route path="home" element={<RootRoute />}>
             <Route index element={<PostPage />} />
+            {/* Profile Page Path */}
             <Route path="profile" element={<ProfilePage />} >
-              <Route index element={<h1>Hello World!</h1>} />
-              <Route path="my-survey" element={<h1>Hello World!</h1>} />
-              <Route path="user-info" element={<h1>User Information</h1>} />
+              <Route index element={<Navigate to='posts' replace />} />
+              <Route path="posts" element={<h1>Hello World!</h1>} />
+              <Route path="about" element={<h1>User Information</h1>} />
             </Route>
           </Route>
           {/* Survey Path */}

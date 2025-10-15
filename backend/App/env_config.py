@@ -16,15 +16,15 @@ SPBS_PORT =                 os.environ.get("SPBS_PORT")
 SPBS_DATABASE =             os.environ.get("SPBS_DATABASE")
 
 # SPBS Session pooler
-SPBSV4_HOST =              os.environ.get("SPBSV4_HOST")
-SPBSV4_USER =              os.environ.get("SPBSV4_USER")
+SPBSV4_HOST =               os.environ.get("SPBSV4_HOST")
+SPBSV4_USER =               os.environ.get("SPBSV4_USER")
 
 # SPBS Transaction pooler
 SPBS_TP_PORT =              os.environ.get("SPBS_TP_PORT")
 
 # SPBS Direct Connectioe
-SPBSDR_HOST =              os.environ.get("SPBSDR_HOST")
-SPBSDR_USER =              os.environ.get("SPBSDR_USER")
+SPBSDR_HOST =               os.environ.get("SPBSDR_HOST")
+SPBSDR_USER =               os.environ.get("SPBSDR_USER")
 
 # SPBS Project Key
 SPBS_PROJECT_URL =          os.environ.get("SPBS_PROJECT_URL")

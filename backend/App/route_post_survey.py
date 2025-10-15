@@ -245,7 +245,7 @@ def search():
 
     if not data:
         logger.info("There is not post to be searched")
-        return jsonify_template_user(400, False, "There is no such thing")
+        return jsonify_template_user(204, True, "There is no such thing")
     
     logger.info("Search successful")
     return jsonify_template_user(200, True, data)

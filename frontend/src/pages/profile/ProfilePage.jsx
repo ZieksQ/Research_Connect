@@ -15,15 +15,13 @@ const ProfilePage = () => {
         {/* Stats then Button if user == user then you can edit your profile */}
       </header>
 
-      <nav role="tablist" className="tabs tabs-border mt-6">
+      <nav role="tablist" className="tabs tabs-border mt-6 mb-4">
         <NavLink to='/home/profile/posts' role="tab" className={`tab`}>Posts</NavLink>
         <NavLink to="/home/profile/about" role="tab" className={`tab`}>About</NavLink>
       </nav>
 
-      <div>
         <Outlet />
-      </div>
-    </section>
+     </section>
   );
 };
 

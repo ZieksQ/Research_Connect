@@ -132,6 +132,11 @@ body {
   .icon-size {
     @apply size-4;
   }
+  /* For centering items inside a flexbox */
+  .center-items {
+    @apply flex items-center justify-center
+  }
+
   /* For Drop down menu */
   /* Specify the location ex. top-15 left right bottom etc. */
   /* This will only set the height, width and column */

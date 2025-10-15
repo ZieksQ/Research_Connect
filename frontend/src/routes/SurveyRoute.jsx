@@ -4,7 +4,7 @@ import Navbar from '../components/new/Navbar'
 
 const SurveyRoute = () => {
   return (
-    <section className='bg-background'>
+    <section>
         <Navbar />
         <Outlet />
     </section>

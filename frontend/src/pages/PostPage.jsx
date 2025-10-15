@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PostCard from "../components/PostCard.jsx";
 import CardPost from "../components/post/CardPost.jsx";
+import CreateNewSurveyPage from "./home/CreateNewSurveyPage.jsx";
 
 // This is where we fetch post
 // !TODO: Fetch data from the Backend/Database
@@ -28,10 +29,12 @@ const PostPage = () => {
     }
 
     fetchPosts();
+
   }, []);
 
   return (
     <section className="container-center mt-6 mb-20 flex flex-col gap-4">
+      <CreateNewSurveyPage />
       {posts.map((e, index) => (
         <CardPost key={index} Title={e.title} Description={e.content} />
       ))}

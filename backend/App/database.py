@@ -1,11 +1,62 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, scoped_session
 from pathlib import Path
-from dotenv import load_dotenv
+from .env_config import ( SQLITE, SPBS_PASSWORD, SPBS_PORT, SPBS_DATABASE, SPBS_TP_PORT,
+                         SPBSV4_HOST, SPBSV4_USER, SPBSDR_USER, SPBSDR_HOST )
 from urllib.parse import quote_plus
-import os, logging
+import logging
 
-def logging_set_up():
+def set_up_db_url( IPV4: bool, TPOOLER: bool, TESTING: bool = True, SQLDB: bool = True ):
+    """Helper method to set up databse url
+
+    Args:
+        TESTING (bool): Used for unit testing
+        SQLDB (bool): For wanting to switch to a real DB instead of memory 
+        IPV4 (bool): True if you need IPv4 compatibility, however if not set it to false as it is recommended by Supabase
+        TPOOLER (bool): If True you need transaction pooler, else Session Pooler 
+
+    Returns:
+        String: String URL of database
+    """
+
+    DB_PATH = Path(__file__).resolve().parent.parent / f"instance/{SQLITE}"
+    PSSW_PARSED = quote_plus(SPBS_PASSWORD)
+
+    if TESTING == True:
+        if SQLDB:
+            return f"sqlite:///{DB_PATH}"
+        else: 
+            return "sqlite:///:memory:"
+
+    else:
+        if IPV4 == True:
+
+            if TPOOLER:
+
+                '''
+                - Transaction Pooler Coonection 
+                Ideal for stateless applications like serverless functions where each interaction with Postgres is brief and isolated.
+                '''
+                return f"postgresql://{SPBSV4_USER}:{PSSW_PARSED}@{SPBSV4_HOST}:{SPBS_TP_PORT}/{SPBS_DATABASE}"
+            
+            else:
+
+                '''
+                - Sessoon Pooler Connection
+                Only recommended as an alternative to Direct Connection, when connecting via an IPv4 network.
+                '''
+                return f"postgresql://{SPBSV4_USER}:{PSSW_PARSED}@{SPBSV4_HOST}:{SPBS_PORT}/{SPBS_DATABASE}"
+        else:
+
+            '''
+            - Direct Connection
+            Ideal for applications with persistent, long-lived connections, such as those running on virtual machines or long-standing containers.
+            '''
+            return f"postgresql://{SPBSDR_USER}:{PSSW_PARSED}@{SPBSDR_HOST}:{SPBS_PORT}/{SPBS_DATABASE}"
+
+def logger_setup_sqla():
+    """Helper method to set up logging for sqlalchemy"""
+
     FORMAT = "%(name)s - %(asctime)s - %(funcName)s - %(lineno)d - %(levelname)s - %(message)s"
     DATEFMT = "%Y-%m-%d %H:%M:%S"
     log_path = Path(__file__).resolve().parent.parent / "log_folder/sqlalchemy.log"
@@ -22,47 +73,24 @@ def logging_set_up():
     sqla_logger.setLevel(logging.INFO) 
 
     for handler in logging.getLogger().handlers:
-        sqla_logger.addHandler(handler)
-
-logging_set_up()
-
-env_path = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(dotenv_path=env_path)
-
-SQLITE = os.environ.get("SQLITEDB")
-DB_PATH = Path(__file__).resolve().parent.parent / f"instance/{SQLITE}"
-
-SPBS_PASSWORD = os.environ.get("SPBS_PASSWORD")
-SPBS_PORT = os.environ.get("SPBS_PORT")
-SPBS_DATABASE = os.environ.get("SPBS_DATABASE")
-PSSW_PARSED = quote_plus(SPBS_PASSWORD)
-
-# IPv4 
-SPBSV4_HOST = os.environ.get("SPBSV4_HOST")
-SPBSV4_USER  = os.environ.get("SPBSV4_USER")
-
-# Direct Connection
-SPBSDR_HOST = os.environ.get("SPBSDR_HOST")
-SPBSDR_USER = os.environ.get("SPBSDR_USER")
+        sqla_logger.addHandler(handler) 
 
 
-TESTING = True  # Used for unit testing
-SQLDB = True    # For wanting to switch to a real DB instead of memory 
-IPV4 = True     # True if you need IPv4 compatibility, however if not set it to false as it is recommended by Supabase
 
-if TESTING == True:
-    if SQLDB:
-        DATABASE_URL = f"sqlite:///{DB_PATH}"
-    else: 
-        DATABASE_URL = "sqlite:///:memory:"
+# Ignore the top, if i try to move this, it creates a circular import
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------       
 
-else:
-    if IPV4 == True:
-        # IPv4 Compatible
-        DATABASE_URL = f"postgresql://{SPBSV4_USER}:{PSSW_PARSED}@{SPBSV4_HOST}:{SPBS_PORT}/{SPBS_DATABASE}"
-    else:
-        # Not IPv4 Compatible, Direct Connection
-        DATABASE_URL = f"postgresql://{SPBSDR_USER}:{PSSW_PARSED}@{SPBSDR_HOST}:{SPBS_PORT}/{SPBS_DATABASE}"
+
+
+logger_setup_sqla()
+
+TESTING = False  # Used for unit testing
+SQLDB = True     # If testing is True, decide if you want to switch to a sqlite(True) instead of memory 
+IPV4 = False     # True if you need IPv4 compatibility, however if not set it to false as it is recommended by Supabase
+TPOOLER = False  # If IPV4 is True, then decide if you need Transaction_Pooler(True) or Session_Pooler(False)
+
+DATABASE_URL = set_up_db_url(TESTING=TESTING, SQLDB=SQLDB,
+                             IPV4=IPV4, TPOOLER=TPOOLER)
 
 # Set ups the database connection
 engine = create_engine(
@@ -71,7 +99,7 @@ engine = create_engine(
     future=True 
 )
 
-# Makes it possible to connect to the database
+# Makes it possible to connect to the database e.g. interact with it
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
@@ -79,9 +107,9 @@ SessionLocal = sessionmaker(
     future=True
 )
 
-# Puts all the session intoi a global one so i cant use app teardown
+# Puts all the session into a global one so i can use app teardown
 db_session = scoped_session(SessionLocal)
 
-# Class for all my table database to inherit form
+# Class for all my table database to inherit from
 class Base(DeclarativeBase):
     pass

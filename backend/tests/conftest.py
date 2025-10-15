@@ -42,6 +42,7 @@ def session(setup_db):
 def test_user(session):
     user = Users(username="Jane")
     user.set_password("Jane12345678")
+    user.role = "user"
     session.add(user)
     session.flush()  
     return user
@@ -67,7 +68,7 @@ def refresh_token(test_user, app, session):
     jti = decode_token(token_str).get("jti")
     expires = datetime.now(timezone.utc) + app.config["JWT_REFRESH_TOKEN_EXPIRES"]
 
-    token = RefreshToken(jti=jti, user=test_user, expires_at=expires)
+    token = RefreshToken(jti=jti, user_token=test_user, expires_at=expires)
     session.add(token)
     session.flush()
 

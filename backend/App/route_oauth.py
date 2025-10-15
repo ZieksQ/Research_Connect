@@ -2,11 +2,11 @@ from flask import jsonify, redirect, make_response, url_for, Blueprint
 from App import oauth
 from sqlalchemy import select, and_
 from .database import db_session as db
-from .model import Oauth_Users
+from .model import Oauth_Users, User_Roles
 from .helper_methods import commit_session, logger_setup
 from .env_config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-from flask_jwt_extended import ( create_access_token, set_access_cookies, 
-                                jwt_required, get_jwt_identity, unset_jwt_cookies )
+from flask_jwt_extended import ( create_access_token, create_refresh_token, set_access_cookies, 
+                                set_refresh_cookies, jwt_required, get_jwt_identity, unset_jwt_cookies )
 
 
 google = oauth.register(
@@ -43,6 +43,7 @@ def authorize():
     if not user:
         user = Oauth_Users(provider="google", username=user_info["name"], email=user_info["email"],
                         provider_user_id=user_info["sub"], profile_pic_url=user_info["picture"])
+        user.role = User_Roles.USER.value
         db.add(user)
         success, error = commit_session()
         if not success:
@@ -50,12 +51,16 @@ def authorize():
             return redirect("http://localhost:5173?msg=Database_error")
         logger.info("User added to the database")
 
-    access_token = create_access_token(identity=str(user.id))
+    access_token = create_access_token(identity=str(user.id),
+                                       additional_claims={"role": user.role, "username": user.username})
+    refresh_token = create_refresh_token(identity=str(user.id),
+                                       additional_claims={"role": user.role, "username": user.username})
 
     # to pass data to the response you need to type a query params
     resp = make_response(redirect("http://localhost:5173?msg=Login_successful"))
     set_access_cookies(resp, access_token)
-
+    set_refresh_cookies(resp, refresh_token)
+    
     logger.info("User successfully logged in as google")
 
     return resp
@@ -71,7 +76,7 @@ def protected():
 def logout():
     resp = jsonify({"message": "You are logged out"})
     unset_jwt_cookies(resp)
-    return resp
+    return resp 
     
 
 # The data being sent by google.get("userinfo").json()

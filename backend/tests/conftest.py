@@ -42,6 +42,7 @@ def session(setup_db):
 def test_user(session):
     user = Users(username="Jane")
     user.set_password("Jane12345678")
+    user.role = "user"
     session.add(user)
     session.flush()  
     return user

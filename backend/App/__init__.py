@@ -9,7 +9,6 @@ from .database import db_session
 from .helper_methods import logger_setup
 from .env_config import ( FLASK_SECRET_KEY, JWT_SECRET_KEY,
                          SPBS_PROJECT_URL, SPBS_SERVICE_ROLE_KEY )
-
 jwt = JWTManager()
 bcrypt = Bcrypt()
 oauth = OAuth()
@@ -52,7 +51,6 @@ def run_app():
 # To connect to supabase to host my users profile pic
 supabase_client = create_client(SPBS_PROJECT_URL, SPBS_SERVICE_ROLE_KEY)
 default_profile_pic = "https://siqejctaztvawzceuhrw.supabase.co/storage/v1/object/public/profile_pic/Jane_Silksong.jpg"
-
 
 '''
 def logging_set_up():

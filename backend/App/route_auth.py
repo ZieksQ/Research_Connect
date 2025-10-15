@@ -2,7 +2,7 @@ from App import supabase_client
 from flask import request, current_app, Blueprint
 from datetime import datetime, timezone
 from sqlalchemy import select, and_, or_
-from .model import Users, RefreshToken
+from .model import Users, RefreshToken, User_Roles
 from .database import db_session as db
 from .helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic
 from .helper_methods import ( commit_session, jsonify_template_user, logger_setup )
@@ -29,30 +29,31 @@ def user_register():
     validate_result, exists_flag = handle_user_input_exist(username, password)
     if exists_flag:
         logger.error(validate_result)
-        return jsonify_template_user(400, False, validate_result ), 400
+        return jsonify_template_user(400, False, validate_result )
     
     validate_user_requirements, req_flag = handle_validate_requirements(username, password)
     if req_flag:
         logger.error(validate_user_requirements)
-        return jsonify_template_user(422, False, validate_user_requirements), 422
+        return jsonify_template_user(422, False, validate_user_requirements)
 
     stmt = select(Users).where(Users.username == username)
     if db.execute(stmt).scalar_one_or_none():
         msg = "Username already exist"
         logger.error(msg)
-        return jsonify_template_user(409, False, msg), 409
+        return jsonify_template_user(409, False, msg)
     
     user = Users(username=username)
     user.set_password(password)
+    user.role = User_Roles.USER.value
 
     db.add(user)
     success, error = commit_session()
     if not success:
         logger.exception(error)
-        return jsonify_template_user(500, False, "Database Error"), 500
+        return jsonify_template_user(500, False, "Database Error")
     logger.info("Registered successfully")        
     
-    return jsonify_template_user(200, True, "User registered successful"), 200
+    return jsonify_template_user(200, True, "User registered successful")
 
 
 @user_auth.route("/login", methods=["POST"])
@@ -65,22 +66,24 @@ def user_login():
     validate_result, exists_flag = handle_user_input_exist(username, password)
     if exists_flag:
         logger.error(validate_result)
-        return jsonify_template_user(400, False, validate_result), 400
+        return jsonify_template_user(400, False, validate_result)
     
     stmt = select(Users).where(Users.username == username)
     user = db.execute(stmt).scalar_one_or_none()
     if not user:
         msg = "Username does not exist"
         logger.error(msg)
-        return jsonify_template_user(404, False, msg), 404
+        return jsonify_template_user(404, False, msg)
     
     if not user.check_password(password):
         msg = "Incorrect password"
         logger.error(msg)
-        return jsonify_template_user(401, False, msg), 401
+        return jsonify_template_user(401, False, msg)
     
-    access_token = create_access_token(identity=str(user.id))
-    refresh_token = create_refresh_token(identity=str(user.id))
+    access_token = create_access_token(identity=str(user.id), 
+                                       additional_claims={"role": user.role, "username": user.username})
+    refresh_token = create_refresh_token(identity=str(user.id),
+                                         additional_claims={"role": user.role, "username": user.username})
 
     jti = get_jti(refresh_token)
 
@@ -92,7 +95,7 @@ def user_login():
     success, error = commit_session()
     if not success:
         logger.exception(error)
-        return jsonify_template_user(500, False, "Database Error"), 500
+        return jsonify_template_user(500, False, "Database Error")
     
     response = jsonify_template_user(200, True, "Login successful")
 
@@ -101,7 +104,7 @@ def user_login():
 
     logger.info("Login Succesful")
 
-    return response, 200
+    return response
 
 
 @user_auth.route("/user/profile_upload", methods=["POST"])
@@ -114,7 +117,7 @@ def profile_upload():
 
     if profile_flag:
         logger.error(profile_msg)
-        return jsonify_template_user(400, False, profile_msg), 400
+        return jsonify_template_user(400, False, profile_msg)
     
     filename = f"{uuid.uuid4()}_{profile_pic.filename}"
 
@@ -123,7 +126,7 @@ def profile_upload():
     
     if resp.get("error"):
         logger.error(resp["error"]["message"])
-        return jsonify_template_user(500, False, resp["error"]["message"]), 500
+        return jsonify_template_user(500, False, resp["error"]["message"])
     
     user = db.get(Users, int(user_id))
     public_url = supabase_client.storage.from_("profile_pic").get_public_url(path=filename)
@@ -132,11 +135,11 @@ def profile_upload():
     success, error = commit_session()
     if not success:
         logger.exception(error)
-        return jsonify_template_user(500, False, "Database Error"), 500
+        return jsonify_template_user(500, False, "Database Error")
     
     logger.info("User has uploaded a profile picture")
 
-    return jsonify_template_user(200, True, "Upload successful"), 200
+    return jsonify_template_user(200, True, "Upload successful")
 
 
 @user_auth.route("/logout", methods=["POST"])
@@ -147,24 +150,24 @@ def logout():
     token = db.execute(stmt).scalar_one_or_none()
 
     if not token:
-        return jsonify_template_user(404, False, "I dont even know how you got this error. but you dont have a token"), 404
+        return jsonify_template_user(404, False, "I dont even know how you got this error. but you dont have a token")
     
     if token.revoked:
-        return jsonify_template_user(404, False, "I dont even know how you got this error. but your JWT has been revoked"), 404
+        return jsonify_template_user(404, False, "I dont even know how you got this error. but your JWT has been revoked")
     
     token.revoked = True
 
     success, error = commit_session()
     if not success:
         logger.error(error)
-        return jsonify_template_user(500, False, "Database error"), 500
+        return jsonify_template_user(500, False, "Database error")
     
     response = jsonify_template_user(200, True, "Successfully logged out")
 
     unset_jwt_cookies(response)
     logger.info("User has logged out")
 
-    return response, 200
+    return response
 
 
 # Route to refresh the access token for more security
@@ -180,9 +183,9 @@ def refresh_access():
         return jsonify_template_user(404, False, "You need to log in again"), 404
     
     user_id = get_jwt_identity()
-    access_token = create_access_token(identity=user_id)
+    access_token = create_access_token(identity=str(user_id))
     response = jsonify_template_user(200, True, "Refresh Token successful")
 
     set_access_cookies(response, access_token)
 
-    return response, 200
+    return response

@@ -1,12 +1,6 @@
 from .model import QuestionType
 import os
 
-# Dict to get the data of Enum
-type_map = {
-    "multiple_choice": QuestionType.MULTIPLE_CHOICE,
-    "essay": QuestionType.ESSAY
-}
-
 def handle_user_input_exist(username: str, password: str) -> tuple[dict, bool]:
     """validate user input whether it exist or not
 
@@ -168,7 +162,7 @@ def handle_survey_input_exists(svy_questions: dict) -> tuple[list, bool]:
         svy_questions (dict): Suvey questionnaire
 
     Returns:
-        tuple (bool, list): Returns a flag if it has a missing ouput and a message to indicate which is missing from each question
+        tuple (list, bool): Returns a list of missing fields and a flag indicating if any are missing.
     """
 
     qflag = []
@@ -180,7 +174,6 @@ def handle_survey_input_exists(svy_questions: dict) -> tuple[list, bool]:
     for qcounter, (qkey, qvalue) in enumerate(svy_questions.items(), start=1):
         result = {}
         each_qdata = []
-        q_type = type_map.get(qvalue.get("type", "").lower(), "")
 
         if not qkey:
             result[f"Question{qcounter}"] = False
@@ -194,12 +187,9 @@ def handle_survey_input_exists(svy_questions: dict) -> tuple[list, bool]:
             result["type"]= False
             each_qdata.append(True)
 
-        if q_type == QuestionType.MULTIPLE_CHOICE:
+        if qvalue.get("type", "") == QuestionType.MULTIPLE_CHOICE.value:
             if not qvalue.get("choice"):
                 result["choice"] = False
-                each_qdata.append(True)
-            if not qvalue.get("answer"):
-                result["answer"] = False
                 each_qdata.append(True)
 
         if result:
@@ -216,21 +206,20 @@ def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
         svy_question (dict): The questionnaire
 
     Returns:
-        tuple (list, bool): list to know whihc question was wrong and an easy flag to verify it
+        tuple (list, bool): (violations, has_violations_flag)
     """
     
     question_rules=[
         (lambda question: len(question) >= 10, "Question must be at least 10 characters long"),
     ]
     type_rules=[
-        (lambda qtype: qtype in type_map, "Wrong question type, please choose within multiple_choice and essay"),
+        (lambda qtype: qtype in [types.value for types in QuestionType], "Wrong question type, please choose within multiple_choice and essay"),
     ]
 
     qflag = []
     qcheck = [] 
 
     for qcounter, (_, qvalue) in enumerate(svy_question.items(), start=1):
-        q_type = type_map.get(qvalue.get("type", "").lower(), "")
         result = {}
         q_each_flag = []
 
@@ -245,12 +234,7 @@ def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
                 result["type"] = msg
                 q_each_flag.append(True)
                 break
-
-        if q_type == QuestionType.MULTIPLE_CHOICE:
-            if qvalue.get("answer") not in qvalue.get("choice"):
-                result["answer"] = "The answer is not within the choices"
-                q_each_flag.append(True)
-
+            
         if result:
             qflag.append({f"Question {qcounter}" : result})
 

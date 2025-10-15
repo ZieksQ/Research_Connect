@@ -2,13 +2,26 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from App import bcrypt, default_profile_pic
 from .database import Base
-from sqlalchemy import ( String, Integer, ForeignKey, Text, 
+from sqlalchemy import ( Table, Column, String, Integer, ForeignKey, Text, 
                         Boolean, DateTime, Enum, JSON )
-import enum
+from enum import Enum
 
 # -----------------------------
-# Root_User, User, Posts, RefreshToken, Oauth
+# Table connecting root_user and answer
 # -----------------------------
+
+rootUser_survey = Table("rootUser_survey", Base.metadata, 
+                        Column("root_user_ID", ForeignKey("users_root.id"), primary_key=True),
+                        Column("svy_surveys_ID", ForeignKey("svy_surveys.id"), primary_key=True),
+)
+
+# -----------------------------
+# User_Roles, Root_User, User, Posts, RefreshToken, Oauth
+# -----------------------------
+
+class User_Roles(Enum):
+    USER = "user"
+    ADMIN = "admin"
 
 # To unifiy both user since i have two way to log in
 class Root_User(Base):
@@ -16,6 +29,7 @@ class Root_User(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_type: Mapped[str] = mapped_column("type", String(64), nullable=False)
+    role: Mapped[str] = mapped_column(String(64), nullable=False)
 
     posts: Mapped[list["Posts"]] = relationship("Posts",
                                                 back_populates="user", 
@@ -28,6 +42,10 @@ class Root_User(Base):
     answers: Mapped[list["Answers"]] = relationship("Answers",
                                                     back_populates="user",
                                                     cascade="all, delete-orphan")
+    
+    survey: Mapped[list["Surveys"]] =relationship("Surveys",
+                                                  secondary=rootUser_survey,
+                                                  back_populates="root_user")
     
     __mapper_args__ = {
         "polymorphic_on": user_type,
@@ -83,7 +101,10 @@ class Posts(Base):
     date_updated: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=True)
+
     user: Mapped["Root_User"] = relationship("Root_User", back_populates="posts")
+    survey_posts: Mapped["Surveys"] = relationship("Surveys", back_populates="posts_survey",
+                                                   cascade="all, delete-orphan", uselist=False)
 
     def __repr__(self):
         return f"Post: {self.id}"
@@ -117,7 +138,7 @@ class RefreshToken(Base):
 # Survey Models
 # -----------------------------
 
-class QuestionType(enum.Enum):
+class QuestionType(Enum):
     MULTIPLE_CHOICE = "multiple_choice"
     ESSAY = "essay"
 
@@ -125,9 +146,15 @@ class Surveys(Base):
     __tablename__ = "svy_surveys"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    posts_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_posts.id"), nullable=False)
 
-    questions_survey: Mapped[list["Question"]] = relationship( "Question", back_populates="survey_question", 
+    posts_survey: Mapped["Posts"] = relationship("Posts", back_populates="survey_posts")
+    questions_survey: Mapped[list["Question"]] = relationship( "Question", back_populates="survey_question", uselist=True,
                                                               cascade="all, delete-orphan", lazy="selectin")
+    
+    root_user: Mapped[list["Root_User"]] = relationship("Root_User",
+                                                        secondary=rootUser_survey,
+                                                        back_populates="survey")
 
     def __repr__(self):
         return f"Survey: {self.id}"
@@ -137,7 +164,7 @@ class Question(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     question_text: Mapped[str] = mapped_column(Text, nullable=False)
-    q_type: Mapped[QuestionType] = mapped_column(Enum(QuestionType), nullable=False)
+    q_type: Mapped[str] = mapped_column(String(64), nullable=False)
     answer_key: Mapped[str] = mapped_column(String(128), nullable=True)
 
     survey_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_surveys.id"), nullable=False)
@@ -148,7 +175,16 @@ class Question(Base):
     
     answers: Mapped[list["Answers"]] = relationship( "Answers", back_populates="question", 
                                                     cascade="all, delete-orphan", uselist=True)
-
+    
+    def get_questions(self):
+        return {
+            "id": self.id,
+            "question_text": self.question_text,
+            "q_type": self.q_type,
+            "choices": self.choices_question.choice_text if self.q_type == QuestionType.MULTIPLE_CHOICE.value else "",
+            "answer_key": self.answer_key,
+        }
+    
 class Choice(Base):
     __tablename__ = "svy_choices"
 

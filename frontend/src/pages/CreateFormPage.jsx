@@ -1,10 +1,39 @@
 import { useState } from "react";
 import SurveyCardEditor from "./SurveyCardEditor";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateSurveyForm() {
-  const [surveyTitle, setSurveyTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, settitle] = useState("");
+  const [content, setcontent] = useState("");
   const [formData, setFormData] = useState([]);
+  const navigate = useNavigate();
+
+  const handlePost = async (e) => {
+    e.preventDefault();
+
+    const payload = {title, content}
+
+    try {
+      const response = await fetch('/survey/post/send',{
+        method: "POST",
+        headers: {
+          "Content-type": "application/json", // tells the backend that request body is json
+        },
+        body: JSON.stringify(payload), // converts javascript to json
+        credentials: "include", // includes jwt & cookies
+      })
+
+      const data = await response.json();
+
+      if(!data.ok) {
+        return data.msg;
+      }
+
+      navigate('/home');
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   // ✅ Add new question (no id, use Date.now() for unique name)
   const handleAddQuestion = (type) => {
@@ -33,8 +62,8 @@ export default function CreateSurveyForm() {
   const validateSurvey = () => {
     const errors = [];
 
-    if (!surveyTitle.trim()) errors.push("Survey title is required");
-    if (!description.trim()) errors.push("Survey description is required");
+    if (!title.trim()) errors.push("Survey title is required");
+    if (!content.trim()) errors.push("Survey content is required");
     if (formData.length === 0) errors.push("At least one question is required");
 
     formData.forEach((q, index) => {
@@ -77,8 +106,8 @@ export default function CreateSurveyForm() {
     }));
 
     const surveyJSON = {
-      surveyTitle,
-      description,
+      title,
+      content,
       data: cleaned,
     };
 
@@ -113,21 +142,21 @@ export default function CreateSurveyForm() {
                 type="text"
                 placeholder="Enter survey title"
                 className="w-full border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-gray-900 focus:outline-none"
-                value={surveyTitle}
-                onChange={(e) => setSurveyTitle(e.target.value)}
+                value={title}
+                onChange={(e) => settitle(e.target.value)}
               />
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-700">
-                Description *
+                content *
               </label>
               <textarea
                 rows={3}
-                placeholder="Enter survey description"
+                placeholder="Enter survey content"
                 className="w-full resize-none border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-gray-900 focus:outline-none"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                value={content}
+                onChange={(e) => setcontent(e.target.value)}
               />
             </div>
           </div>
@@ -196,7 +225,7 @@ export default function CreateSurveyForm() {
 
         {/* Save Button */}
         <button
-          onClick={handleSave}
+          onClick={handlePost}
           className="w-full bg-emerald-500 py-4 text-lg font-bold text-white shadow transition-colors hover:bg-emerald-600"
         >
           Save Survey

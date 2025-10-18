@@ -4,12 +4,12 @@ import PrimaryButton from "../../components/button/PrimaryButton";
 
 export default function LandingPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-background)] transition-colors duration-300">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-background)]">
       {/* fixed outer box */}
-      <section className="max-w-8xl relative h-[90vh] w-[90%] overflow-hidden rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-2xl">
-        {/* header (stays fixed at top inside box) */}
-        <header className="absolute top-0 left-0 z-10 flex w-full items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)]/80 px-10 py-4 backdrop-blur-md">
-          <h1 className="text-xl font-bold text-[var(--color-shade-primary)]">
+      <section className="max-w-8xl relative h-[92vh] w-[95%] overflow-hidden rounded-[2rem] bg-[var(--color-surface)] shadow-2xl">
+        {/* header */}
+        <header className="absolute top-4 left-0 z-10 flex w-full items-center justify-between bg-transparent px-10 py-4 backdrop-blur-none">
+          <h1 className="text-xl font-bold text-[var(--color-text-primary)]">
             Inquira
           </h1>
           <nav className="flex gap-6 text-[var(--color-text-secondary)]">
@@ -31,52 +31,47 @@ export default function LandingPage() {
             >
               Contact
             </Link>
-            <Link
-            to="/login">
+            <Link to="/login">
               <PrimaryButton
                 to="/login"
                 Text={"Login"}
-                Style={"px-4 rounded-sm"}
-              ></PrimaryButton>
+                Style={"px-4 rounded-sm bg-black"}
+              />
             </Link>
           </nav>
         </header>
 
-        {/* inner scrollable area */}
-        <div className="landing-scroll absolute inset-0 snap-y snap-mandatory overflow-y-scroll scroll-smooth pt-20">
-          {/* section 1 */}
-          <section className="flex h-[90vh] snap-start flex-col items-center justify-center bg-gradient-to-b from-[var(--color-section1-from)] to-[var(--color-section1-to)] text-center">
+        {/* scrollable container (no gradient, no visible scrollbar) */}
+        <div className="hide-scrollbar absolute inset-0 snap-y snap-mandatory overflow-y-scroll scroll-smooth pt-20">
+          <section className="flex h-[90vh] snap-start flex-col items-center justify-center text-center">
             <h2 className="mb-4 text-6xl font-extrabold text-[var(--color-text-primary)]">
-              Making work feel good
+              Connect Through Student Surveys
             </h2>
             <p className="max-w-md text-lg text-[var(--color-text-secondary)]">
-              We’re Golden, a new kind of talent consultancy. We help ambitious
-              companies and brilliant talent thrive through smart, strategic
-              matching.
+              Join a community where students can post surveys, explore
+              insights, and engage with peers to make research meaningful and
+              collaborative.
             </p>
           </section>
 
-          {/* section 2 */}
-          <section className="flex h-[90vh] snap-start flex-col items-center justify-center bg-gradient-to-b from-[var(--color-section2-from)] to-[var(--color-section2-to)] text-center">
+          <section className="flex h-[90vh] snap-start flex-col items-center justify-center text-center">
             <p className="max-w-xl text-lg text-[var(--color-text-secondary)]">
-              Great performance starts with happy people. We connect creative
-              talent with fulfilling roles at culture-conscious companies.
+              Post surveys. Discover insights. Connect with fellow students.
             </p>
           </section>
 
-          {/* section 3 */}
-          <section className="flex h-[90vh] snap-start flex-col items-center justify-center bg-gradient-to-b from-[var(--color-section3-from)] to-[var(--color-section3-to)] text-center">
+          <section className="flex h-[90vh] snap-start flex-col items-center justify-center text-center">
             <h2 className="mb-3 text-4xl font-bold text-[var(--color-text-primary)]">
-              Join the movement
+              Your Research, Your Community
             </h2>
             <p className="max-w-md text-[var(--color-text-secondary)]">
-              Discover how smart matchmaking can make work meaningful again.
+              Turn your questions into knowledge and collaborate with students
+              across campus. Share surveys, gather responses, and learn
+              together.
             </p>
           </section>
         </div>
       </section>
-
-      <section></section>
     </main>
   );
 }

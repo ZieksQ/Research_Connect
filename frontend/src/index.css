@@ -27,6 +27,13 @@ html {
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Bebas';
+  src: url("./assets/fonts/BebasNeue-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
 @layer base {
   a {
     cursor: pointer; /* Add cursor for every anchor some doesn't have idk why */
@@ -37,6 +44,10 @@ html {
 
   h1 {
     font-family: 'Giaza', sans-serif;
+  }
+
+  h2, h3, h4, h5, h6 {
+    font-family: Arial, Helvetica, sans-serif;
   }
 }
 

@@ -15,6 +15,7 @@ import CreateFormPage from "./pages/CreateFormPage.jsx";
 import SignupPage from "./pages/user/SignupPage.jsx";
 import ProfilePage from "./pages/profile/ProfilePage.jsx";
 import ProfileAboutPage from "./pages/profile/ProfileAboutPage.jsx";
+import LandingPage from "./pages/landingPage/landingPage.jsx";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -23,7 +24,8 @@ const App = () => {
         {/* Root Path */}
         <Route path="/">
           {/* Register User Path */}
-          <Route index element={<LoginPage />} />
+          <Route index element={<LandingPage />} />
+          <Route path="login" element={<LoginPage />} />
           <Route path="signup" element={<SignupPage />} />
           {/* Home Path */}
           <Route path="home" element={<RootRoute />}>

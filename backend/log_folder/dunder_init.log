@@ -1,0 +1,12 @@
+App.route_auth - 2025-10-17 15:53:30 - user_login - 68 -  ERROR - {'username': {'ok': False, 'msg': 'Missing username'}, 'password': {'ok': False, 'msg': 'Missing password'}}
+App.route_auth - 2025-10-17 15:53:48 - user_register - 31 -  ERROR - {'username': {'ok': False, 'msg': 'Missing username'}, 'password': {'ok': True, 'msg': None}}
+App.route_auth - 2025-10-17 15:53:56 - user_register - 31 -  ERROR - {'username': {'ok': False, 'msg': 'Missing username'}, 'password': {'ok': True, 'msg': None}}
+App.route_auth - 2025-10-17 15:53:56 - user_register - 31 -  ERROR - {'username': {'ok': False, 'msg': 'Missing username'}, 'password': {'ok': True, 'msg': None}}
+App.route_auth - 2025-10-17 15:54:33 - user_register - 31 -  ERROR - {'username': {'ok': False, 'msg': 'Missing username'}, 'password': {'ok': True, 'msg': None}}
+App.route_auth - 2025-10-17 15:59:13 - user_register - 36 -  ERROR - {'username': {'ok': True, 'msg': None}, 'password': {'ok': False, 'msg': 'Password must be at least 8 characters'}}
+App.route_auth - 2025-10-17 15:59:27 - user_register - 54 -  INFO - Registered successfully
+App.route_auth - 2025-10-17 15:59:46 - user_login - 105 -  INFO - Login Succesful
+App.route_auth - 2025-10-17 16:50:53 - user_register - 36 -  ERROR - {'username': {'ok': True, 'msg': None}, 'password': {'ok': False, 'msg': 'Password must contain at least 1 uppercase letter'}}
+App.route_auth - 2025-10-17 16:50:59 - user_register - 36 -  ERROR - {'username': {'ok': True, 'msg': None}, 'password': {'ok': False, 'msg': 'Password must contain at least 1 uppercase letter'}}
+App.route_auth - 2025-10-17 17:01:21 - user_register - 54 -  INFO - Registered successfully
+App.route_auth - 2025-10-17 17:01:28 - user_login - 105 -  INFO - Login Succesful

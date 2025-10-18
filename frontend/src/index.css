@@ -1,3 +1,4 @@
+
 @import "tailwindcss";
 @plugin "daisyui" {
   theme: light --default;
@@ -9,19 +10,6 @@ html {
   background-color: var(--color-background);
 }
 
-/* hide scrollbar but keep scroll functionality */
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-/* Firefox scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-shade-primary) var(--color-background);
-}
 
 @theme {
   --color-primary-color: #151515;
@@ -32,12 +20,23 @@ html {
   --color-accent-100: #5057e9;
 }
 
+@font-face {
+  font-family: 'Giaza';
+  src: url('./assets/fonts/Giaza.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
 @layer base {
   a {
     cursor: pointer; /* Add cursor for every anchor some doesn't have idk why */
   }
   button {
     cursor: pointer; /* Also adds cursor for every button cuz it doesn't have and it's sucks */
+  }
+
+  h1 {
+    font-family: 'Giaza', sans-serif;
   }
 }
 

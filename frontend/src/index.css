@@ -5,13 +5,10 @@
 
 body, html {
   scroll-behavior: smooth;
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
   background-color: var(--color-background);
 }
+
+
 
 /* hide scrollbar but keep scroll functionality */
 .hide-scrollbar::-webkit-scrollbar {
@@ -21,22 +18,6 @@ body, html {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
-
-/* Scrollbar styling (visible scrollbars) */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-background); /* scrollbar track color */
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--color-shade-primary); /* scrollbar thumb color */
-  border-radius: 9999px;
-  border: 2px solid var(--color-background); /* adds padding look */
-}
-
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;

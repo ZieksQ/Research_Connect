@@ -52,10 +52,10 @@ export default function SamplePostCard() {
       {/* Main Section */}
       <main className="col-span-4 row-span-5 flex flex-col gap-4 p-4">
         <nav className="flex justify-between">
-          <NavLink to={"/home/profile/my-survey"} className="btn w-[49%]">
+          <NavLink to={"/profile/my-survey"} className="btn w-[49%]">
             My Surveys
           </NavLink>
-          <NavLink to={"/home/profile/user-info"} className="btn w-[49%]">Profile Information</NavLink>
+          <NavLink to={"/profile/user-info"} className="btn w-[49%]">Profile Information</NavLink>
         </nav>
         <section>
           <Outlet />

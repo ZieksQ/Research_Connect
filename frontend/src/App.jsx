@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Route,
+  Routes,
   createBrowserRouter,
   createRoutesFromElements,
   RouterProvider,
@@ -30,15 +31,21 @@ const App = () => {
           {/* Home Path */}
           <Route path="home" element={<RootRoute />}>
             <Route index element={<PostPage />} />
-            {/* Profile Page Path */}
-            <Route path="profile" element={<ProfilePage />} >
-              <Route index element={<Navigate to='posts' replace />} />
+
+            {/* Profile section (inherits RootRoute) */}
+            <Route path="profile" element={<ProfilePage />}>
+              <Route index element={<Navigate to="posts" replace />} />
               <Route path="posts" element={<h1>Hello World!</h1>} />
               <Route path="about" element={<ProfileAboutPage />} />
             </Route>
           </Route>
-          {/* Survey Path */}
-          <Route path="form" element={<SurveyRoute />}>
+
+          {/* Auth routes (no RootRoute layout) */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+
+          {/* Survey routes (no RootRoute layout) */}
+          <Route path="/form" element={<SurveyRoute />}>
             <Route path="response" element={<SurveyPage />} />
             <Route path="new" element={<CreateFormPage />} />
           </Route>

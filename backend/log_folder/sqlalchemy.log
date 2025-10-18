@@ -1,0 +1,144 @@
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _connection_begin_impl - 2702 - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _connection_begin_impl - 2702 - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("rootUser_survey")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("rootUser_survey")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("users_root")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("users_root")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("users_local")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("users_local")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("users_oauth")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("users_oauth")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("users_posts")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("users_posts")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("user_refreshtoken")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("user_refreshtoken")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("svy_surveys")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("svy_surveys")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("svy_questions")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("svy_questions")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("svy_choices")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("svy_choices")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("svy_answers")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - PRAGMA main.table_info("svy_answers")
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _execute_context - 1846 - INFO - [raw sql] ()
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _connection_commit_impl - 2708 - INFO - COMMIT
+sqlalchemy.engine.Engine - 2025-10-17 15:47:12 - _connection_commit_impl - 2708 - INFO - COMMIT
+werkzeug - 2025-10-17 15:47:12 - _log - 97 - WARNING -  * Debugger is active!
+werkzeug - 2025-10-17 15:47:12 - _log - 97 - INFO -  * Debugger PIN: 447-437-068
+App.route_auth - 2025-10-17 15:53:30 - user_login - 68 - ERROR - {'username': {'ok': False, 'msg': 'Missing username'}, 'password': {'ok': False, 'msg': 'Missing password'}}
+werkzeug - 2025-10-17 15:53:30 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 15:53:30] "[31m[1mPOST /user/login HTTP/1.1[0m" 400 -
+App.route_auth - 2025-10-17 15:53:48 - user_register - 31 - ERROR - {'username': {'ok': False, 'msg': 'Missing username'}, 'password': {'ok': True, 'msg': None}}
+werkzeug - 2025-10-17 15:53:48 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 15:53:48] "[31m[1mPOST /user/register HTTP/1.1[0m" 400 -
+App.route_auth - 2025-10-17 15:53:56 - user_register - 31 - ERROR - {'username': {'ok': False, 'msg': 'Missing username'}, 'password': {'ok': True, 'msg': None}}
+werkzeug - 2025-10-17 15:53:56 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 15:53:56] "[31m[1mPOST /user/register HTTP/1.1[0m" 400 -
+App.route_auth - 2025-10-17 15:53:56 - user_register - 31 - ERROR - {'username': {'ok': False, 'msg': 'Missing username'}, 'password': {'ok': True, 'msg': None}}
+werkzeug - 2025-10-17 15:53:56 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 15:53:56] "[31m[1mPOST /user/register HTTP/1.1[0m" 400 -
+App.route_auth - 2025-10-17 15:54:33 - user_register - 31 - ERROR - {'username': {'ok': False, 'msg': 'Missing username'}, 'password': {'ok': True, 'msg': None}}
+werkzeug - 2025-10-17 15:54:33 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 15:54:33] "[31m[1mPOST /user/register HTTP/1.1[0m" 400 -
+App.route_auth - 2025-10-17 15:59:13 - user_register - 36 - ERROR - {'username': {'ok': True, 'msg': None}, 'password': {'ok': False, 'msg': 'Password must be at least 8 characters'}}
+werkzeug - 2025-10-17 15:59:13 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 15:59:13] "[31m[1mPOST /user/register HTTP/1.1[0m" 422 -
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _connection_begin_impl - 2702 - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _connection_begin_impl - 2702 - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _execute_context - 1846 - INFO - SELECT users_local.id, users_root.id AS id_1, users_root.type, users_root.role, users_local.username, users_local.password, users_local.profile_pic_url 
+FROM users_root JOIN users_local ON users_root.id = users_local.id 
+WHERE users_local.username = ?
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _execute_context - 1846 - INFO - SELECT users_local.id, users_root.id AS id_1, users_root.type, users_root.role, users_local.username, users_local.password, users_local.profile_pic_url 
+FROM users_root JOIN users_local ON users_root.id = users_local.id 
+WHERE users_local.username = ?
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _execute_context - 1846 - INFO - [generated in 0.00046s] ('sarneandy6@gmail.com',)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _execute_context - 1846 - INFO - [generated in 0.00046s] ('sarneandy6@gmail.com',)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _execute_context - 1846 - INFO - INSERT INTO users_root (type, role) VALUES (?, ?)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _execute_context - 1846 - INFO - INSERT INTO users_root (type, role) VALUES (?, ?)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _execute_context - 1846 - INFO - [generated in 0.00043s] ('local', 'user')
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _execute_context - 1846 - INFO - [generated in 0.00043s] ('local', 'user')
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _execute_context - 1846 - INFO - INSERT INTO users_local (id, username, password, profile_pic_url) VALUES (?, ?, ?, ?)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _execute_context - 1846 - INFO - INSERT INTO users_local (id, username, password, profile_pic_url) VALUES (?, ?, ?, ?)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _execute_context - 1846 - INFO - [generated in 0.00036s] (1, 'sarneandy6@gmail.com', '$2b$12$UA/S/5iMvglFkhKIhgYc7u.wlI3L.Jqe0MyX69MeB.UbFJdKKiDAK', 'https://siqejctaztvawzceuhrw.supabase.co/storage/v1/object/public/profile_pic/Jane_Silksong.jpg')
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _execute_context - 1846 - INFO - [generated in 0.00036s] (1, 'sarneandy6@gmail.com', '$2b$12$UA/S/5iMvglFkhKIhgYc7u.wlI3L.Jqe0MyX69MeB.UbFJdKKiDAK', 'https://siqejctaztvawzceuhrw.supabase.co/storage/v1/object/public/profile_pic/Jane_Silksong.jpg')
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _connection_commit_impl - 2708 - INFO - COMMIT
+sqlalchemy.engine.Engine - 2025-10-17 15:59:27 - _connection_commit_impl - 2708 - INFO - COMMIT
+App.route_auth - 2025-10-17 15:59:27 - user_register - 54 - INFO - Registered successfully
+werkzeug - 2025-10-17 15:59:27 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 15:59:27] "POST /user/register HTTP/1.1" 200 -
+sqlalchemy.engine.Engine - 2025-10-17 15:59:45 - _connection_begin_impl - 2702 - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:45 - _connection_begin_impl - 2702 - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:45 - _execute_context - 1846 - INFO - SELECT users_local.id, users_root.id AS id_1, users_root.type, users_root.role, users_local.username, users_local.password, users_local.profile_pic_url 
+FROM users_root JOIN users_local ON users_root.id = users_local.id 
+WHERE users_local.username = ?
+sqlalchemy.engine.Engine - 2025-10-17 15:59:45 - _execute_context - 1846 - INFO - SELECT users_local.id, users_root.id AS id_1, users_root.type, users_root.role, users_local.username, users_local.password, users_local.profile_pic_url 
+FROM users_root JOIN users_local ON users_root.id = users_local.id 
+WHERE users_local.username = ?
+sqlalchemy.engine.Engine - 2025-10-17 15:59:45 - _execute_context - 1846 - INFO - [cached since 18.35s ago] ('sarneandy6@gmail.com',)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:45 - _execute_context - 1846 - INFO - [cached since 18.35s ago] ('sarneandy6@gmail.com',)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:46 - _execute_context - 1846 - INFO - INSERT INTO user_refreshtoken (jti, revoked, expires_at, user_id) VALUES (?, ?, ?, ?)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:46 - _execute_context - 1846 - INFO - INSERT INTO user_refreshtoken (jti, revoked, expires_at, user_id) VALUES (?, ?, ?, ?)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:46 - _execute_context - 1846 - INFO - [generated in 0.00068s] ('8333abf6-a17c-454f-ace9-9ebf33eaefcc', 0, '2025-10-20 07:59:46.025816', 1)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:46 - _execute_context - 1846 - INFO - [generated in 0.00068s] ('8333abf6-a17c-454f-ace9-9ebf33eaefcc', 0, '2025-10-20 07:59:46.025816', 1)
+sqlalchemy.engine.Engine - 2025-10-17 15:59:46 - _connection_commit_impl - 2708 - INFO - COMMIT
+sqlalchemy.engine.Engine - 2025-10-17 15:59:46 - _connection_commit_impl - 2708 - INFO - COMMIT
+App.route_auth - 2025-10-17 15:59:46 - user_login - 105 - INFO - Login Succesful
+werkzeug - 2025-10-17 15:59:46 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 15:59:46] "POST /user/login HTTP/1.1" 200 -
+werkzeug - 2025-10-17 16:01:46 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 16:01:46] "[33mGET / HTTP/1.1[0m" 404 -
+werkzeug - 2025-10-17 16:01:47 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 16:01:47] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+App.route_auth - 2025-10-17 16:50:53 - user_register - 36 - ERROR - {'username': {'ok': True, 'msg': None}, 'password': {'ok': False, 'msg': 'Password must contain at least 1 uppercase letter'}}
+werkzeug - 2025-10-17 16:50:53 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 16:50:53] "[31m[1mPOST /user/register HTTP/1.1[0m" 422 -
+App.route_auth - 2025-10-17 16:50:59 - user_register - 36 - ERROR - {'username': {'ok': True, 'msg': None}, 'password': {'ok': False, 'msg': 'Password must contain at least 1 uppercase letter'}}
+werkzeug - 2025-10-17 16:50:59 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 16:50:59] "[31m[1mPOST /user/register HTTP/1.1[0m" 422 -
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _connection_begin_impl - 2702 - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _connection_begin_impl - 2702 - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _execute_context - 1846 - INFO - SELECT users_local.id, users_root.id AS id_1, users_root.type, users_root.role, users_local.username, users_local.password, users_local.profile_pic_url 
+FROM users_root JOIN users_local ON users_root.id = users_local.id 
+WHERE users_local.username = ?
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _execute_context - 1846 - INFO - SELECT users_local.id, users_root.id AS id_1, users_root.type, users_root.role, users_local.username, users_local.password, users_local.profile_pic_url 
+FROM users_root JOIN users_local ON users_root.id = users_local.id 
+WHERE users_local.username = ?
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _execute_context - 1846 - INFO - [cached since 3714s ago] ('Andy',)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _execute_context - 1846 - INFO - [cached since 3714s ago] ('Andy',)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _execute_context - 1846 - INFO - INSERT INTO users_root (type, role) VALUES (?, ?)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _execute_context - 1846 - INFO - INSERT INTO users_root (type, role) VALUES (?, ?)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _execute_context - 1846 - INFO - [cached since 3714s ago] ('local', 'user')
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _execute_context - 1846 - INFO - [cached since 3714s ago] ('local', 'user')
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _execute_context - 1846 - INFO - INSERT INTO users_local (id, username, password, profile_pic_url) VALUES (?, ?, ?, ?)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _execute_context - 1846 - INFO - INSERT INTO users_local (id, username, password, profile_pic_url) VALUES (?, ?, ?, ?)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _execute_context - 1846 - INFO - [cached since 3714s ago] (2, 'Andy', '$2b$12$ZEXBcv.DY2ZOVtt/IxCCVOHiZZWOEh67Zd6ehDMQs/HvkZZVv2krq', 'https://siqejctaztvawzceuhrw.supabase.co/storage/v1/object/public/profile_pic/Jane_Silksong.jpg')
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _execute_context - 1846 - INFO - [cached since 3714s ago] (2, 'Andy', '$2b$12$ZEXBcv.DY2ZOVtt/IxCCVOHiZZWOEh67Zd6ehDMQs/HvkZZVv2krq', 'https://siqejctaztvawzceuhrw.supabase.co/storage/v1/object/public/profile_pic/Jane_Silksong.jpg')
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _connection_commit_impl - 2708 - INFO - COMMIT
+sqlalchemy.engine.Engine - 2025-10-17 17:01:21 - _connection_commit_impl - 2708 - INFO - COMMIT
+App.route_auth - 2025-10-17 17:01:21 - user_register - 54 - INFO - Registered successfully
+werkzeug - 2025-10-17 17:01:21 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 17:01:21] "POST /user/register HTTP/1.1" 200 -
+sqlalchemy.engine.Engine - 2025-10-17 17:01:27 - _connection_begin_impl - 2702 - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:27 - _connection_begin_impl - 2702 - INFO - BEGIN (implicit)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:27 - _execute_context - 1846 - INFO - SELECT users_local.id, users_root.id AS id_1, users_root.type, users_root.role, users_local.username, users_local.password, users_local.profile_pic_url 
+FROM users_root JOIN users_local ON users_root.id = users_local.id 
+WHERE users_local.username = ?
+sqlalchemy.engine.Engine - 2025-10-17 17:01:27 - _execute_context - 1846 - INFO - SELECT users_local.id, users_root.id AS id_1, users_root.type, users_root.role, users_local.username, users_local.password, users_local.profile_pic_url 
+FROM users_root JOIN users_local ON users_root.id = users_local.id 
+WHERE users_local.username = ?
+sqlalchemy.engine.Engine - 2025-10-17 17:01:27 - _execute_context - 1846 - INFO - [cached since 3720s ago] ('Andy',)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:27 - _execute_context - 1846 - INFO - [cached since 3720s ago] ('Andy',)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:28 - _execute_context - 1846 - INFO - INSERT INTO user_refreshtoken (jti, revoked, expires_at, user_id) VALUES (?, ?, ?, ?)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:28 - _execute_context - 1846 - INFO - INSERT INTO user_refreshtoken (jti, revoked, expires_at, user_id) VALUES (?, ?, ?, ?)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:28 - _execute_context - 1846 - INFO - [cached since 3702s ago] ('cd7e4ef9-35e4-4f27-8507-41889ccd9016', 0, '2025-10-20 09:01:28.032047', 2)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:28 - _execute_context - 1846 - INFO - [cached since 3702s ago] ('cd7e4ef9-35e4-4f27-8507-41889ccd9016', 0, '2025-10-20 09:01:28.032047', 2)
+sqlalchemy.engine.Engine - 2025-10-17 17:01:28 - _connection_commit_impl - 2708 - INFO - COMMIT
+sqlalchemy.engine.Engine - 2025-10-17 17:01:28 - _connection_commit_impl - 2708 - INFO - COMMIT
+App.route_auth - 2025-10-17 17:01:28 - user_login - 105 - INFO - Login Succesful
+werkzeug - 2025-10-17 17:01:28 - _log - 97 - INFO - 127.0.0.1 - - [17/Oct/2025 17:01:28] "POST /user/login HTTP/1.1" 200 -

@@ -69,7 +69,7 @@ export default function LandingPage() {
       </section>
 
       {/* Additional Sections */}
-      <section className="flex flex-col gap-20 bg-gray-100 px-8 py-40">
+      <section className="flex flex-col gap-10 bg-gray-100 px-8 py-40">
         <h2 className="text-4xl font-bold text-black">Our Services</h2>
         <p className="max-w-3xl text-lg text-gray-700">
           We provide a range of services to help turn your curiosity into

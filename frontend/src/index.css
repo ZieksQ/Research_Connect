@@ -3,8 +3,44 @@
   theme: light --default;
 }
 
-body {
+body, html {
   scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--color-background);
+}
+
+/* hide scrollbar but keep scroll functionality */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Scrollbar styling (visible scrollbars) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background); /* scrollbar track color */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-shade-primary); /* scrollbar thumb color */
+  border-radius: 9999px;
+  border: 2px solid var(--color-background); /* adds padding look */
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-shade-primary) var(--color-background);
 }
 
 @theme {
@@ -60,9 +96,9 @@ body {
     padding: 0.5rem /* 8px */;
     min-height: 2rem /* 64px */;
     :where(&) {
-        position: relative;
+      position: relative;
     }
-}
+  }
 
   /* -------------------------------------- */
   /*                Padding                 */
@@ -114,16 +150,16 @@ body {
   /* User Registration Form */
 
   .registration {
-    @apply min-h-screen flex items-center justify-center lg:p-6 ;
+    @apply flex min-h-screen items-center justify-center lg:p-6;
   }
 
   .registration-card {
-    @apply w-full h-full lg:h-auto lg:max-w-sm lg:rounded-lg lg:shadow-xl  p-8 lg:p-10 flex flex-col justify-center;
+    @apply flex h-full w-full flex-col justify-center p-8 lg:h-auto lg:max-w-sm lg:rounded-lg lg:p-10 lg:shadow-xl;
   }
 
   /* Profile Page */
   .profile-container {
-    @apply flex flex-col lg:grid lg:grid-cols-5 lg:grid-rows-5 gap-4 lg:max-w-6xl;
+    @apply flex flex-col gap-4 lg:grid lg:max-w-6xl lg:grid-cols-5 lg:grid-rows-5;
   }
 }
 
@@ -134,7 +170,7 @@ body {
   }
   /* For centering items inside a flexbox */
   .center-items {
-    @apply flex items-center justify-center
+    @apply flex items-center justify-center;
   }
 
   /* For Drop down menu */
@@ -160,6 +196,6 @@ body {
   }
 
   .page-margin {
-    @apply mt-4 lg:mt-2
+    @apply mt-4 lg:mt-2;
   }
 }

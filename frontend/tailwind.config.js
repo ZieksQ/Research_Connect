@@ -8,6 +8,7 @@ export default {
     extend: {
       fontFamily: {
         giaza: ["Giaza", "sans-serif"], // your local font
+        bebas: ["Bebas", "sans-serif"],
       },
     },
   },

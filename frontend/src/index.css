@@ -3,12 +3,11 @@
   theme: light --default;
 }
 
-body, html {
+body,
+html {
   scroll-behavior: smooth;
   background-color: var(--color-background);
 }
-
-
 
 /* hide scrollbar but keep scroll functionality */
 .hide-scrollbar::-webkit-scrollbar {
@@ -178,5 +177,9 @@ body, html {
 
   .page-margin {
     @apply mt-4 lg:mt-2;
+  }
+  
+  .even-shadow {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
   }
 }

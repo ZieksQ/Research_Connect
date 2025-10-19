@@ -43,7 +43,7 @@ export default function LandingPage() {
         ref={scrollRef}
         className="overflow-x-hidden scroll-smooth bg-white p-15 pt-10" // add padding-top to avoid overlap with fixed header
       >
-        <HeroSection />
+        <HeroSection x1={x1} x2={x2} x3={x3}/>
         <AboutSection />
         <GallerySection />
       </main>

@@ -5,7 +5,7 @@
 # /user
 <br>
 
-> ### http://127.0.0.1:5000/user/register
+> ### http://127.0.0.1:5000/api/user/register
 
 ```
 {
@@ -15,7 +15,7 @@
 ```
 <br>
 
-> #### http://127.0.0.1:5000/user/login
+> #### http://127.0.0.1:5000/api/user/login
 
   
 
@@ -27,7 +27,7 @@
 ```
 <br>  
 
-> #### http://127.0.0.1:5000/user/logout
+> #### http://127.0.0.1:5000/api/user/logout
 
 ```
 {
@@ -36,7 +36,7 @@ Di ko alam bat post dito, pero wala kayong need lagay na data
 ```
 <br>
 
-> #### http://127.0.0.1:5000/user/user/profile_upload
+> #### http://127.0.0.1:5000/api/user/profile_upload
 
 ```
 
@@ -50,7 +50,7 @@ Di ko alam kung pano sa dart/flutter, ask chatgpt
 
   
 
-> #### http://127.0.0.1:5000/user/refresh
+> #### http://127.0.0.1:5000/api/user/refresh
 
   
 
@@ -65,7 +65,7 @@ explain so sayo sa f2f andy :ey: kakatmad pag sa chat kasi ni explain ko na kay 
 
 <br>
 
-> #### http://127.0.0.1:5000/survey/post/send
+> #### http://127.0.0.1:5000/api/survey/post/send
 
 ```
 {
@@ -104,7 +104,7 @@ explain so sayo sa f2f andy :ey: kakatmad pag sa chat kasi ni explain ko na kay 
 
 <br>
 
-> #### http://127.0.0.1:5000/survey/answer/questionnaire/<int:id>
+> #### http://127.0.0.1:5000/api/survey/answer/questionnaire/<int:id>
 
 The <int:id> is the ID of the post itself, not the survey
 ```

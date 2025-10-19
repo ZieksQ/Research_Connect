@@ -2,10 +2,11 @@ from App import supabase_client
 from flask import request, current_app, Blueprint
 from datetime import datetime, timezone
 from sqlalchemy import select, and_, or_
-from .model import Users, RefreshToken, User_Roles
 from .database import db_session as db
 from .helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic
 from .helper_methods import ( commit_session, jsonify_template_user, logger_setup )
+from .model import ( Root_User, Users, Oauth_Users, 
+                    RefreshToken, User_Roles )
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, 
     set_access_cookies, set_refresh_cookies, 
@@ -80,10 +81,8 @@ def user_login():
         logger.error(msg)
         return jsonify_template_user(401, False, msg)
     
-    access_token = create_access_token(identity=str(user.id), 
-                                       additional_claims={"role": user.role, "username": user.username})
-    refresh_token = create_refresh_token(identity=str(user.id),
-                                         additional_claims={"role": user.role, "username": user.username})
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
 
     jti = get_jti(refresh_token)
 
@@ -107,14 +106,19 @@ def user_login():
     return response
 
 
-@user_auth.route("/user/profile_upload", methods=["POST"])
+@user_auth.route("/profile_upload", methods=["POST"])
 @jwt_required()
 def profile_upload():
     profile_pic = request.files.get("profile_pic")
-    profile_msg, profile_flag = handle_profile_pic(profile_pic)
 
     user_id = get_jwt_identity()
+    user = db.get(Users, int(user_id))
 
+    if not user:
+        logger.info("Someone tired to change profile without logging or having a nexisting user")
+        return jsonify_template_user(400, False, "You need to log in to access this")
+
+    profile_msg, profile_flag = handle_profile_pic(profile_pic)
     if profile_flag:
         logger.error(profile_msg)
         return jsonify_template_user(400, False, profile_msg)
@@ -123,12 +127,10 @@ def profile_upload():
 
     resp = supabase_client.storage.from_("profile_pic").upload(path=filename, file=profile_pic.read(), 
                                                                file_options={"content-type": profile_pic.content_type})
-    
     if resp.get("error"):
         logger.error(resp["error"]["message"])
         return jsonify_template_user(500, False, resp["error"]["message"])
     
-    user = db.get(Users, int(user_id))
     public_url = supabase_client.storage.from_("profile_pic").get_public_url(path=filename)
     user.profile_pic_url = public_url
 
@@ -189,3 +191,23 @@ def refresh_access():
     set_access_cookies(response, access_token)
 
     return response
+
+@user_auth.route('/user_data', methods=['GET'])
+@jwt_required()
+def get_user_data():
+    user_id = get_jwt_identity()
+    user = db.get(Root_User, int(user_id))
+
+    if not user:
+        logger.error("Somehow, someone accessed the fucking route wihtout them being in the database")
+        return jsonify_template_user(400, False, "How did you even access this, you are not in the database")
+
+    who_user: Users | Oauth_Users = db.get(Users, int(user_id)) if user.user_type == "local" else db.get(Oauth_Users, int(user_id))
+
+    user_info = who_user.get_user()
+    user_posts = [post.get_post() for post in user.posts]
+
+    data = {"user_indo": user_info, 
+            "user_posts": user_posts,}
+
+    return jsonify_template_user(200, True, data)

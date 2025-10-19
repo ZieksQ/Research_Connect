@@ -47,6 +47,9 @@ class Root_User(Base):
                                                   secondary=rootUser_survey,
                                                   back_populates="root_user")
     
+    def __repr__(self):
+        return f"User {self.id}"
+    
     __mapper_args__ = {
         "polymorphic_on": user_type,
         "polymorphic_identity": "root",
@@ -56,7 +59,7 @@ class Users(Root_User):
     __tablename__ = "users_local"
 
     id: Mapped[int] = mapped_column(ForeignKey("users_root.id"), primary_key=True)
-    username: Mapped[str] = mapped_column(String(32), nullable=False, unique=True)
+    username: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     _password: Mapped[str] = mapped_column("password" ,String(256), nullable=False)
     profile_pic_url: Mapped[str] = mapped_column(String(512), nullable=True,
                                                  default=default_profile_pic)
@@ -91,11 +94,21 @@ class Oauth_Users(Root_User):
 
     __mapper_args__ = {"polymorphic_identity": "oauth"}
 
+    def __repr__(self):
+        return F"User {self.id}"
+    
+    def get_user(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "profile_pic_url": self.profile_pic_url,
+        }
+
 class Posts(Base):
     __tablename__ = "users_posts"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    title: Mapped[str] = mapped_column(String(128), nullable=False)
+    title: Mapped[str] = mapped_column(String(512), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     date_created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     date_updated: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
@@ -147,6 +160,8 @@ class Surveys(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     posts_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_posts.id"), nullable=False)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=True)
 
     posts_survey: Mapped["Posts"] = relationship("Posts", back_populates="survey_posts")
     questions_survey: Mapped[list["Question"]] = relationship( "Question", back_populates="survey_question", uselist=True,
@@ -158,31 +173,46 @@ class Surveys(Base):
 
     def __repr__(self):
         return f"Survey: {self.id}"
+    
+    def get_survey(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "content": self.content,
+        }
 
 class Question(Base):
     __tablename__ = "svy_questions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    question_number: Mapped[str] = mapped_column(Integer, nullable=False)
     question_text: Mapped[str] = mapped_column(Text, nullable=False)
     q_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    answer_required = mapped_column(Boolean, default=False, nullable=False)
     answer_key: Mapped[str] = mapped_column(String(128), nullable=True)
 
     survey_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_surveys.id"), nullable=False)
     survey_question: Mapped["Surveys"] = relationship(back_populates="questions_survey")
 
-    choices_question: Mapped["Choice"] = relationship( "Choice", back_populates="question_choices",
-                                                      uselist=False, cascade="all, delete-orphan")
+    choices_question: Mapped[list["Choice"]] = relationship( "Choice", back_populates="question_choices",
+                                                      uselist=True, cascade="all, delete-orphan")
     
     answers: Mapped[list["Answers"]] = relationship( "Answers", back_populates="question", 
                                                     cascade="all, delete-orphan", uselist=True)
     
+    def __repr__(self):
+        return f"Question {self.id}"
+    
     def get_questions(self):
         return {
             "id": self.id,
+            "q_number": self.question_number,
             "question_text": self.question_text,
             "q_type": self.q_type,
-            "choices": self.choices_question.choice_text if self.q_type == QuestionType.MULTIPLE_CHOICE.value else "",
+            "choices": ([c.choice_text for c in self.choices_question] 
+                        if self.q_type == QuestionType.MULTIPLE_CHOICE.value else []),
             "answer_key": self.answer_key,
+            "required": self.answer_required,
         }
     
 class Choice(Base):
@@ -194,14 +224,20 @@ class Choice(Base):
     question_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_questions.id"), nullable=False)
     question_choices: Mapped["Question"] = relationship( "Question", back_populates="choices_question")
 
+    def __repr__(self):
+        return f"Choice {self.id}"
+
 class Answers(Base):
     __tablename__ = "svy_answers"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    answer_text: Mapped[str] = mapped_column(String(512), nullable=True)
+    answer_text: Mapped[str] = mapped_column(Text, nullable=True)
 
     question_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_questions.id"), nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
 
     question: Mapped["Question"] = relationship("Question", back_populates="answers")
     user: Mapped["Root_User"] = relationship("Root_User", back_populates="answers")
+
+    def __repr__(self):
+        return f"Answer {self.id}"

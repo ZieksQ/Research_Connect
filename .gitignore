@@ -1,5 +1,6 @@
 client_credentials.json
 .vscode
+backend/ztest.py
 
 # Logs
 logs

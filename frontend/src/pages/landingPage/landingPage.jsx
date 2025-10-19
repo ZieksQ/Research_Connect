@@ -3,6 +3,7 @@ import LocomotiveScroll from "locomotive-scroll";
 import "locomotive-scroll/src/locomotive-scroll.scss";
 import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import HeroBackground from "./heroBackground";
 
 export default function LandingPage() {
   const scrollRef = useRef(null);
@@ -60,20 +61,32 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="flex min-h-screen flex-col items-start justify-start gap-15 selection:bg-black selection:text-white">
+      <section className="relative mb-15 flex min-h-screen flex-col items-start justify-start gap-15 selection:bg-black selection:text-white">
         <h1 className="mb-10 text-4xl">Inquira&trade;</h1>
 
-        <motion.h2 style={{ x: x1 }} className="text-6xl whitespace-nowrap md:text-9xl">
+        <motion.h2
+          style={{ x: x1 }}
+          className="text-6xl whitespace-nowrap text-black md:text-9xl"
+        >
           TURNING CURIOSITY
         </motion.h2>
 
-        <motion.h2 style={{ x: x2 }} className="text-6xl whitespace-nowrap md:text-9xl">
+        <motion.h2
+          style={{ x: x2 }}
+          className="text-6xl whitespace-nowrap text-black md:text-9xl"
+        >
           INTO MEANINGFUL
         </motion.h2>
 
-        <motion.h2 style={{ x: x3 }} className="text-6xl whitespace-nowrap md:text-9xl">
-          RESEARCH.
-        </motion.h2>
+        {/* research + video side by side */}
+        <motion.div
+          style={{ x: x3, willChange: "transform" }}
+          className="flex items-center gap-6 text-6xl whitespace-nowrap text-black md:text-9xl"
+        >
+          <h2>RESEARCH.</h2>
+
+          <HeroBackground></HeroBackground>
+        </motion.div>
       </section>
 
       {/* Additional Sections */}

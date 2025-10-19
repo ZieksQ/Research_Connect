@@ -16,8 +16,8 @@ const ProfilePage = () => {
       </header>
 
       <nav role="tablist" className="tabs tabs-border mt-6 mb-4">
-        <NavLink to='/home/profile/posts' role="tab" className={`tab`}>Posts</NavLink>
-        <NavLink to="/home/profile/about" role="tab" className={`tab`}>About</NavLink>
+        <NavLink to='/profile/posts' role="tab" className={`tab`}>Posts</NavLink>
+        <NavLink to="/profile/about" role="tab" className={`tab`}>About</NavLink>
       </nav>
 
         <Outlet />

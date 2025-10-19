@@ -16,7 +16,7 @@ export default function SpinningCube() {
 
     // Camera
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
-    camera.position.z = 4; // closer so cube is visible
+    camera.position.z = 7;
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -25,27 +25,50 @@ export default function SpinningCube() {
     mountRef.current.innerHTML = "";
     mountRef.current.appendChild(renderer.domElement);
 
-    // Cube
-    const geometry = new THREE.BoxGeometry(2, 2, 2); // bigger cube
-    const material = new THREE.MeshStandardMaterial({ color: 0x000000 });
-    const cube = new THREE.Mesh(geometry, material);
+    // Cube (slightly bigger and vibrant color)
+    const cubeGeo = new THREE.BoxGeometry(2, 2, 2);
+    const cubeMat = new THREE.MeshStandardMaterial({ color: 0xffc107, roughness: 0.5, metalness: 0.6 });
+    const cube = new THREE.Mesh(cubeGeo, cubeMat);
+    cube.position.set(-2, 1.5, 0);
     scene.add(cube);
 
+    // Tetrahedron
+    const tetraGeo = new THREE.TetrahedronGeometry(1.8);
+    const tetraMat = new THREE.MeshStandardMaterial({ color: 0x00bcd4, roughness: 0.5, metalness: 0.5 });
+    const tetra = new THREE.Mesh(tetraGeo, tetraMat);
+    tetra.position.set(2, 1.5, 0);
+    scene.add(tetra);
+
+    // Cone
+    const coneGeo = new THREE.ConeGeometry(1.2, 2.4, 32);
+    const coneMat = new THREE.MeshStandardMaterial({ color: 0xe91e63, roughness: 0.5, metalness: 0.5 });
+    const cone = new THREE.Mesh(coneGeo, coneMat);
+    cone.position.set(0, -2, 0);
+    scene.add(cone);
+
     // Light
-    const light = new THREE.DirectionalLight(0xffffff, 1);
+    const light = new THREE.DirectionalLight(0xffffff, 1.2);
     light.position.set(5, 5, 5);
     scene.add(light);
 
-    // Animation
+    // Animate (slightly slower)
     const animate = () => {
       frameId = requestAnimationFrame(animate);
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
+
+      cube.rotation.x += 0.005;
+      cube.rotation.y += 0.004;
+
+      tetra.rotation.x += 0.0045;
+      tetra.rotation.y += 0.0035;
+
+      cone.rotation.y += 0.007;
+      cone.rotation.x += 0.003;
+
       renderer.render(scene, camera);
     };
     animate();
 
-    // Resize
+    // Handle resize
     const handleResize = () => {
       const width = mountRef.current.clientWidth;
       const height = mountRef.current.clientHeight;
@@ -65,5 +88,5 @@ export default function SpinningCube() {
     };
   }, []);
 
-  return <div ref={mountRef} className="w-full h-[400px] overflow-hidden" />;
+  return <div ref={mountRef} className="w-full h-full" />;
 }

@@ -18,34 +18,35 @@ export default function LandingPage() {
   const x3 = useTransform(scrollY, [0, 800], ["0%", "-100%"]);
 
   useEffect(() => {
+    if (!scrollRef.current) return;
     const scroll = new LocomotiveScroll({
       el: scrollRef.current,
       smooth: true,
+      smartphone: { smooth: true },
+      tablet: { smooth: true },
     });
 
     scroll.on("scroll", (args) => {
       scrollY.set(args.scroll.y);
     });
 
-    return () => {
-      scroll.destroy();
-    };
+    return () => scroll.destroy();
   }, [scrollY]);
 
   return (
     <>
       <Header />
-
       <main
         data-scroll-container
         ref={scrollRef}
-        className="min-h-screen overflow-x-hidden scroll-smooth p-8 "
+        className="relative min-h-screen overflow-x-hidden scroll-smooth p-8 bg-white"
       >
-        {/* Light Sections */}
         <HeroSection x1={x1} x2={x2} x3={x3} />
         <AboutSection />
         <GallerySection />
         <FeatureSection />
+        {/* Add extra padding at the bottom so last section scrolls */}
+        <div className="h-32" />
       </main>
     </>
   );

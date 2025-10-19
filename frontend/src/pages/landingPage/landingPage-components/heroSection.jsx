@@ -3,7 +3,7 @@ import HeroBackground from "./heroBackground";
 
 export default function HeroSection({ x1, x2, x3 }) {
   return (
-    <section className="relative mb-15 flex min-h-screen flex-col items-start justify-start gap-15 selection:bg-black selection:text-white">
+    <section className="relative mb-15 flex flex-col items-start justify-start gap-15 selection:bg-black selection:text-white">
       <h1 className="mb-10 text-4xl">Inquira&trade;</h1>
 
       <motion.h2

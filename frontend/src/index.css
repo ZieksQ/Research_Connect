@@ -192,4 +192,26 @@ html {
   .even-shadow {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
   }
+
+  /*landing page*/
+
+  .group-image {
+    @apply relative aspect-[2/3] w-full overflow-hidden rounded-4xl border border-gray-300 bg-white;
+  }
+
+  .image-zoom {
+    @apply h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110;
+  }
+
+  .text-appear-container {
+    @apply absolute bottom-10 left-6 transition-all duration-500;
+  }
+
+  .text-header-group {
+    @apply text-4xl font-semibold text-white drop-shadow transition-all duration-500 ease-out group-hover:-translate-y-3;
+  }
+
+  .text-description-group {
+    @apply mt-1 translate-y-3 text-lg font-medium text-white opacity-0 drop-shadow transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100;
+  }
 }

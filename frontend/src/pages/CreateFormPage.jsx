@@ -29,7 +29,7 @@ export default function CreateSurveyForm() {
         return data.msg;
       }
 
-      navigate('/');
+      navigate('/home');
     } catch (err) {
       console.error(err)
     }

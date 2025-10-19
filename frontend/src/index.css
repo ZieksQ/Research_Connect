@@ -66,6 +66,9 @@ html {
   .icon-lg {
     @apply size-8;
   }
+  .icon-xl {
+    @apply size-10;
+  }
   /* Input field such as Search Bar */
   .input-field {
     @apply rounded-lg px-2 py-1 ring-2 ring-black;
@@ -90,28 +93,7 @@ html {
     }
   }
 
-  /* -------------------------------------- */
-  /*                Padding                 */
-  /* -------------------------------------- */
-  .padding-sm {
-    @apply px-2 py-1;
-  }
-  .padding-md {
-    @apply px-4 py-2;
-  }
-  .padding-lg {
-    @apply px-6 py-4;
-  }
-  /* Padding with Larger Height */
-  .padding-h-sm {
-    @apply px-1 py-2;
-  }
-  .padding-h-md {
-    @apply px-2 py-4;
-  }
-  .padding-h-lg {
-    @apply px-4 py-6;
-  }
+  
   /* -------------------------------------- */
   /*                Margin                  */
   /* -------------------------------------- */
@@ -191,5 +173,28 @@ html {
   
   .even-shadow {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+  }
+
+  /* -------------------------------------- */
+  /*                Padding                 */
+  /* -------------------------------------- */
+  .padding-sm {
+    @apply px-2 py-1;
+  }
+  .padding-md {
+    @apply px-4 py-2;
+  }
+  .padding-lg {
+    @apply px-6 py-4;
+  }
+  /* Padding with Larger Height */
+  .padding-h-sm {
+    @apply px-1 py-2;
+  }
+  .padding-h-md {
+    @apply px-2 py-4;
+  }
+  .padding-h-lg {
+    @apply px-4 py-6;
   }
 }

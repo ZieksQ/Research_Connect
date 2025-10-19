@@ -11,17 +11,17 @@ const CardPost = ({Title, Description}) => {
         <div className="collapse-arrow collapse ">
           <input type="checkbox" /> {/* required for toggle */}
           <div className="collapse-title card-title">{Title}</div>
-          <div className="collapse-content text-md">
+          <div className="collapse-content text-[16px]">
             <p className="text-base-content">
              {Description}
             </p>
           </div>
         </div>
 
-        <span className="badge badge-neutral badge-sm font-bold mx-4 rounded-xl">Research</span>
-        <div className="pl-4 pr-3 flex items-center justify-between">
+        <span className="badge badge-neutral text-[10px] rounded-lg font-semibold mx-4">Research</span>
+        <div className="pl-4 pr-3 flex items-end justify-between">
           <span>Avg. ~10min</span>
-          <button className="btn btn-primary btn-sm rounded-lg" onClick={() => navigate('/form/response')}>
+          <button className="btn btn-primary btn-sm" onClick={() => navigate('/form/response')}>
             Take Test
           </button>
         </div>

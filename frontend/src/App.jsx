@@ -55,7 +55,7 @@ const App = () => {
   );
 
   return (
-    <div data-theme="light" className="h-full min-h-[100vh] pb-8">
+    <div data-theme="light" className="min-h-screen">
       <RouterProvider router={router} />
     </div>
   );

@@ -14,14 +14,14 @@ const Navbar = () => {
       return ;
     }
 
-    navigate("/login");  // if data status is ok navigate to login page
+    navigate("/");  // if data status is ok navigate to login page
   };
 
   return (
     <div className="navbar bg-base-100 glass z-1 shadow">
       {/* ---------------- Left Side Navbar --------------------- */}
       <div className="navbar-start">
-        <Link to="/" className="btn btn-ghost">
+        <Link to="/home" className="btn btn-ghost">
           <svg
             width="76"
             height="23"
@@ -67,7 +67,7 @@ const Navbar = () => {
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-60 p-2 shadow"
           >
             <li>
-              <Link to="/profile" className="justify-between">
+              <Link to="/home/profile" className="justify-between">
                 Profile
                 <span className="badge badge-accent badge-sm">Beta</span>
               </Link>

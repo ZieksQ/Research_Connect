@@ -62,6 +62,7 @@ def get_posts_solo(id):
 @survey_posting.route("/post/send", methods=["POST"])
 @jwt_required()
 def send_post():
+    """Depracated, use /post/send/questionnaire instead"""
 
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
@@ -102,6 +103,7 @@ def send_post():
 @survey_posting.route("/post/questionnaire", methods=['POST'])
 @jwt_required()
 def send_survey():
+    """Depracated, use /post/send/questionnaire instead"""
 
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))

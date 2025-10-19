@@ -19,19 +19,14 @@ GET - http://127.0.0.1:5000/api/survey/post/get
 INTEGER is the ID of the post you want to fetch, useful for when the user clicked the post in a new tab
 GET - http://127.0.0.1:5000/api/survey/post/get/INTEGER
 
+DONT use this, depracated
 POST - http://127.0.0.1:5000/api/survey/post/send
+DONT use this, depracated
 POST - http://127.0.0.1:5000/api/survey/post/questionnaire
 
-Dont use yet, im still fixing that
 POST - http://127.0.0.1:5000/api/survey/post/send/questionnaire
-
-Dont use this also, im still fixing that
 POST - http://127.0.0.1:5000/api/survey/post/get/questionnaire/<int:id>
-
-Dont use this also, im still fixing that
 POST - http://127.0.0.1:5000/api/survey/post/search?query=&order=
-
-Dont use this also, im still fixing that
 POST - http://127.0.0.1:5000/api/survey/answer/questionnaire
 ```
 

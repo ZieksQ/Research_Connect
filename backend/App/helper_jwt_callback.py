@@ -3,7 +3,7 @@ from sqlalchemy import select
 from datetime import datetime, timezone
 from .helper_methods import jsonify_template_user, logger_setup
 from .database import db_session as db
-from .model import RefreshToken
+from .model import RefreshToken, Root_User, Users, Oauth_Users
 
 logger = logger_setup(__name__, "JWT_callback.log")
 
@@ -13,13 +13,28 @@ def expired_token_response(jwt_header, jwt_payload):
     token_type = jwt_payload.get("type", "access")  # default to 'access'
 
     if token_type == "refresh":
-        return jsonify_template_user( 401, False, "Your refresh token has expired. Please log in again.",
+        return jsonify_template_user(
+            401, False,
+            "Your refresh token has expired. Please log in again.",
             token=False, token_msg="refresh token expired"
         )
     
-    return jsonify_template_user( 401, False, "Access token expired. You need to refresh it.",
+    return jsonify_template_user(
+        401, False, 
+        "Access token expired. You need to refresh it.",
         token=False, token_msg="access token expired"
     )
+
+# Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
+@jwt.invalid_token_loader
+def check_unauthorized_access_cookies(err_msg):
+    logger.error(err_msg)
+
+    return jsonify_template_user(
+        401, False, 
+        "You need to log in to access this",
+        logged_in=False, 
+        logged_in_msg="Please log in before accessing this")
 
 # Callback method to check if the token is revoked
 @jwt.token_in_blocklist_loader
@@ -31,19 +46,37 @@ def check_if_token_revoked(jwt_header, jwt_payload):
 
     if token is None:
         return True
-
     if token.expires_at < datetime.now(timezone.utc):
         return True
 
     return token.revoked
 
-# Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
-@jwt.unauthorized_loader
-def check_unauthorized_access(err_msg):
-    logger.error(err_msg)
+# cuztomized message when the token is revoked
+@jwt.revoked_token_loader
+def revoked_token_callback(jwt_header, jwt_payload):
+    return jsonify_template_user(
+        401, False,
+        "This token has been revoked. Please log in again.",
+        token=False,
+        token_msg="revoked token"
+    )
 
-    return jsonify_template_user(401, False, "You need to log in to access this",
-                                 logged_in=False, logged_in_msg="Please log in before accessing this")
+# Callback to automatically add claims to create access/refresh tokens
+@jwt.additional_claims_loader
+def add_claims_to_tokens(user: Root_User | Users | Oauth_Users):
+    return {
+        "role": user.role,
+        "username": user.username,
+        "type": user.user_type
+    }
+
+'''
+# Addiotnally i can use this for when im passing a sqlalchmey object as a arguement in indentity, but im not
+@jwt.user_identity_loader
+def user_identity_lookup(user: Root_User | Users | Oauth_Users):
+    return user.id
+'''
+
 
 #-------------------------------------------------------------------------------------------------------
 

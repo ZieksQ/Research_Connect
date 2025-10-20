@@ -6,6 +6,11 @@ from .env_config import ( SQLITE, SPBS_PASSWORD, SPBS_PORT, SPBS_DATABASE, SPBS_
 from urllib.parse import quote_plus
 import logging
 
+
+# Ignore the two methods, i cant move this to helper_methods.py since it wil create a circular import 
+# and i dont want to create another file just for these two. it will be too modular
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------       
+
 def set_up_db_url( IPV4: bool, TPOOLER: bool, TESTING: bool = True, SQLDB: bool = True ):
     """Helper method to set up databse url
 
@@ -84,10 +89,10 @@ def logger_setup_sqla():
 
 logger_setup_sqla()
 
-TESTING = False  # Used for unit testing
-SQLDB = True     # If testing is True, decide if you want to switch to a sqlite(True) instead of memory 
-IPV4 = False     # True if you need IPv4 compatibility, however if not set it to false as it is recommended by Supabase
-TPOOLER = False  # If IPV4 is True, then decide if you need Transaction_Pooler(True) or Session_Pooler(False)
+TESTING = True  # Used for unit testing
+SQLDB = True    # If testing is True, decide if you want to switch to a sqlite(True) instead of memory 
+IPV4 = True     # True if you need IPv4 compatibility, however if not set it to false as it is recommended by Supabase
+TPOOLER = True  # If IPV4 is True, then decide if you need Transaction_Pooler(True) or Session_Pooler(False)
 
 DATABASE_URL = set_up_db_url(TESTING=TESTING, SQLDB=SQLDB,
                              IPV4=IPV4, TPOOLER=TPOOLER)

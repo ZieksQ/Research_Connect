@@ -1,5 +1,5 @@
 from .model import QuestionType
-import os
+import os, string
 
 def handle_user_input_exist(username: str, password: str) -> tuple[dict, bool]:
     """validate user input whether it exist or not
@@ -13,20 +13,15 @@ def handle_user_input_exist(username: str, password: str) -> tuple[dict, bool]:
             dictionary containing flag and message for clean reading and bool for easy flagging
     """
 
-    result = {
-        "username": {"ok" : True, "msg": None},
-        "password": {"ok" : True, "msg": None},
-    }
+    result = {}
     extra_flag = []
 
     if not username:
-        result["username"]["ok"] = False
-        result["username"]["msg"] = "Missing username"
+        result["username"] = "Missing username"
         extra_flag.append(True)
 
     if not password:
-        result["password"]["ok"] = False
-        result["password"]["msg"] = "Missing password"
+        result["password"] = "Missing password"
         extra_flag.append(True)
 
     return result, any(extra_flag)
@@ -43,10 +38,7 @@ def handle_validate_requirements(username: str, password: str) -> tuple[dict, bo
             dictionary containing flag and message for clean reading and bool for easy flagging
     """
 
-    result = {
-        "username" : {"ok": False, "msg": None},
-        "password" : {"ok": False, "msg": None},
-    }
+    result = {}
     extra_flag = []
 
     useranme_rules = [
@@ -60,27 +52,25 @@ def handle_validate_requirements(username: str, password: str) -> tuple[dict, bo
         (lambda psww: any(c.isupper() for c in psww),   "Password must contain at least 1 uppercase letter"),
         (lambda psww: any(c.islower() for c in psww),   "Password must contain at least 1 lowercase letter"),
         (lambda psww: any(c.isdigit() for c in psww),   "Password must contain at least 1 digit"),
+        (lambda psww: any(c in string.punctuation 
+                          for c in psww),               "Password must contain at least 1 special character"),
     ]
 
     for check,msg in useranme_rules:
         if not check(username):
-            result["username"]["msg"] = msg
+            result["username"] = msg
             extra_flag.append(True)
             break
-    else:
-        result["username"]["ok"] = True
 
     for check,msg in password_rules:
         if not check(password):
-            result["password"]["msg"] = msg
+            result["password"] = msg
             extra_flag.append(True)
             break
-    else:
-        result["password"]["ok"] = True
 
     return result, any(extra_flag)
 
-def handle_post_input_exist(title: str, content: str) -> tuple[dict, bool]:
+def handle_post_input_exist(title: str, content: str, post: bool = True) -> tuple[dict, bool]:
     """validate post input whether it exist or not
 
     Args:
@@ -92,25 +82,23 @@ def handle_post_input_exist(title: str, content: str) -> tuple[dict, bool]:
             dictionary containing flag and message for clean reading and bool for easy flagging
     """
     
-    result = {
-        "title" : {"ok" : True, "msg" : None},
-        "content" : {"ok" : True, "msg" : None},
-    }
+    who_title = "post title" if post else "survey title"
+    who_content = "post content" if post else "survey content"
+
+    result = {}
     extra_flag = []
 
     if not title:
-        result["title"]["ok"] = False
-        result["title"]["msg"] = "Missing Title"
+        result["title"] = f"Missing {who_title}"
         extra_flag.append(True)
 
     if not content:
-        result["content"]["ok"] = False
-        result["content"]["msg"] = "Missing content"
+        result["content"] = f"Missing {who_content}"
         extra_flag.append(True)
 
     return result, any(extra_flag)
 
-def handle_post_requirements(title: str, content: str) -> tuple[dict, bool]:
+def handle_post_requirements(title: str, content: str, post = True) -> tuple[dict, bool]:
     """validates the user input if it meets the requirements e.g. username must be x char long
 
     Args:
@@ -122,36 +110,39 @@ def handle_post_requirements(title: str, content: str) -> tuple[dict, bool]:
             dictionary containing flag and message for clean reading and bool for easy flagging
     """
     
-    result = {
-        "title" : {"ok": False, "msg": None},
-        "content" : {"ok": False, "msg": None},
-    }
+    result = {}
     extra_flag = []
 
+    who_title = "Post title" if post else "Survey title"
+    who_content = "Post title" if post else "Survey description"
+    who_limit = 400 if post else 100
+
+    title = title.split()
+    content = content.split()
+
     title_rules = [
-        (lambda title: len(title) >=10, "Title must at least be 10 characters"),
-        (lambda title: len(title) <=128, "Title must not exceed 128 characters"),
+        (lambda title: len(title) >=4,              f"{who_title} must at least be 4 words"),
+        (lambda title: len(title) <= 40,            f"{who_title} must not exceed 40 words"),
+        (lambda title: len(" ".join(title)) <= 512, f"{who_title} must not exceed 512 characters"),
     ]
 
     content_rules = [
-        (lambda content: len(content) >= 30, "Content should be atleast 30 characters"),
+        (lambda content: len(content) >= 20,                f"{who_content} should be atleast 20 words"),
+        (lambda content: len(content) <= who_limit,         f"{who_content} must not exceed {who_limit} words"),
+        (lambda content: len(" ".join(content)) <= 5000,    f"{who_content} must not exceed 5000 characters"),
     ]
 
     for check, msg in title_rules:
         if not check(title):
-            result["title"]["msg"] = msg
+            result["title"] = msg
             extra_flag.append(True)
             break
-    else:
-        result["title"]["ok"] = True
 
     for check, msg in content_rules:
         if not check(content):
-            result["content"]["msg"] = msg
+            result["content"] = msg
             extra_flag.append(True)
             break
-    else:
-        result["content"]["ok"] = True
 
     return result, any(extra_flag)
 
@@ -187,9 +178,14 @@ def handle_survey_input_exists(svy_questions: dict) -> tuple[list, bool]:
             result["type"]= False
             each_qdata.append(True)
 
-        if qvalue.get("type", "") == QuestionType.MULTIPLE_CHOICE.value:
-            if not qvalue.get("choice"):
+        if qvalue.get("type") == QuestionType.MULTIPLE_CHOICE.value:
+            choices = qvalue.get("choice")
+
+            if not isinstance(choices, list) or not choices:
                 result["choice"] = False
+                each_qdata.append(True)
+            if qvalue.get("required") and qvalue.get("answer") not in (choices or []):
+                result["answer"] = False
                 each_qdata.append(True)
 
         if result:
@@ -209,11 +205,14 @@ def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
         tuple (list, bool): (violations, has_violations_flag)
     """
     
+    qtype_list = [qt.value for qt in QuestionType]
     question_rules=[
-        (lambda question: len(question) >= 10, "Question must be at least 10 characters long"),
+        (lambda question: len(question) >= 4, "Question must be at least 4 words"),
+        (lambda question: len(question) >= 150, "Question must not exceed 150 words"),
+        (lambda question: len(" ".join(question)) >= 2000, "Question must not exceed 2000 characters"),
     ]
     type_rules=[
-        (lambda qtype: qtype in [types.value for types in QuestionType], "Wrong question type, please choose within multiple_choice and essay"),
+        (lambda qtype: qtype in qtype_list, f"Wrong question type, please choose within [{", ".join(qtype_list)}]"),
     ]
 
     qflag = []
@@ -222,9 +221,12 @@ def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
     for qcounter, (_, qvalue) in enumerate(svy_question.items(), start=1):
         result = {}
         q_each_flag = []
+        
+        question_text: str = qvalue.get("question")
+        question_text_list = question_text.split()
 
         for check, msg in question_rules:
-            if not check(qvalue.get("question")):
+            if not check(question_text_list):
                 result["question"] = msg
                 q_each_flag.append(True)
                 break

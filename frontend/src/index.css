@@ -215,3 +215,14 @@ html {
     @apply mt-1 translate-y-3 text-lg font-medium text-white opacity-0 drop-shadow transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100;
   }
 }
+
+/* tailwind.css or global.css */
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+}
+
+.animate-blink {
+  display: inline-block;
+  animation: blink 1s infinite;
+}

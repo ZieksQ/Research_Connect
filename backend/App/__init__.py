@@ -33,9 +33,9 @@ def run_app():
     from .route_post_survey import survey_posting
     from .route_oauth import oauth_me
 
-    app.register_blueprint( user_auth, url_prefix="/user" )         # Registers each route for different file for more organized project
-    app.register_blueprint( survey_posting, url_prefix="/survey" )
-    app.register_blueprint( oauth_me, url_prefix="/oauth" )
+    app.register_blueprint( user_auth, url_prefix="/api/user" )         # Registers each route for different file for more organized project
+    app.register_blueprint( survey_posting, url_prefix="/api/survey" )
+    app.register_blueprint( oauth_me, url_prefix="/api/oauth" )
 
     jwt.init_app(app)                                               # Initializes Each library
     bcrypt.init_app(app)

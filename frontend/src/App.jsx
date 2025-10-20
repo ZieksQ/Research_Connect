@@ -17,6 +17,7 @@ import SignupPage from "./pages/user/SignupPage.jsx";
 import ProfilePage from "./pages/profile/ProfilePage.jsx";
 import ProfileAboutPage from "./pages/profile/ProfileAboutPage.jsx";
 import LandingPage from "./pages/landingPage/landingPage.jsx";
+import SortableList from "./pages/sample/SortableList.jsx";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -38,6 +39,9 @@ const App = () => {
               <Route path="posts" element={<h1>Hello World!</h1>} />
               <Route path="about" element={<ProfileAboutPage />} />
             </Route>
+
+            {/* Sample Route - For testing components */}
+            <Route path="sample" element={<SortableList />} />
           </Route>
 
           {/* Auth routes (no RootRoute layout) */}

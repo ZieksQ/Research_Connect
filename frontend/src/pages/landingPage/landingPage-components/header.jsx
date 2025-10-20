@@ -13,7 +13,7 @@ export default function Header() {
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-        className="hidden lg:flex fixed top-6 left-1/2 z-50 flex -translate-x-1/2 items-center justify-center rounded-full bg-transparent w-[90%] max-w-[1200px]"
+        className="fixed top-6 left-1/2 z-50 hidden w-[90%] max-w-[1200px] -translate-x-1/2 items-center justify-center rounded-full bg-transparent lg:flex"
       >
         <nav className="even-shadow flex items-center justify-center gap-4 rounded-full bg-white px-4 py-2">
           <button className="rounded-full px-4 py-3 text-sm font-semibold text-black transition-all hover:bg-[#F2F0EC]">
@@ -43,16 +43,16 @@ export default function Header() {
       </motion.header>
 
       {/* Hamburger icon with Inquira for md and below */}
-      <div className="lg:hidden fixed top-6 left-8 z-50 flex items-center gap-4">
+      <div className="fixed top-6 left-8 z-50 flex items-center gap-4 lg:hidden">
         <button
-          className="flex flex-col justify-between w-8 h-6 focus:outline-none"
+          className="flex h-6 w-8 flex-col justify-between focus:outline-none"
           onClick={() => setIsOpen(true)}
         >
-          <span className="block h-1 w-full bg-black rounded"></span>
-          <span className="block h-1 w-full bg-black rounded"></span>
-          <span className="block h-1 w-full bg-black rounded"></span>
+          <span className="block h-1 w-full rounded bg-black"></span>
+          <span className="block h-1 w-full rounded bg-black"></span>
+          <span className="block h-1 w-full rounded bg-black"></span>
         </button>
-        <h1 className="text-xl ">Inquira&trade;</h1>
+        <h1 className="text-xl">Inquira&trade;</h1>
       </div>
 
       {/* Sidebar overlay with AnimatePresence for exit animation */}
@@ -60,14 +60,14 @@ export default function Header() {
         {isOpen && (
           <motion.div
             initial={{ x: "-100%" }} // start off-screen left
-            animate={{ x: 0 }}       // slide to 0
-            exit={{ x: "-100%" }}    // slide back to left
+            animate={{ x: 0 }} // slide to 0
+            exit={{ x: "-100%" }} // slide back to left
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="fixed inset-0 z-50 flex bg-black/80 backdrop-blur-sm"
           >
-            <div className="mr-auto w-64 bg-white h-full p-6 flex flex-col gap-4 items-start">
+            <div className="mr-auto flex h-full w-64 flex-col items-start gap-4 bg-white p-6">
               <button
-                className="self-end mb-4 text-black font-bold text-xl"
+                className="mb-4 self-end text-xl font-bold text-black"
                 onClick={() => setIsOpen(false)}
               >
                 ✕
@@ -95,13 +95,13 @@ export default function Header() {
               </button>
 
               <Link to="/login">
-                <span className="text-lg font-semibold text-black hover:text-gray-500 cursor-pointer">
+                <span className="cursor-pointer text-lg font-semibold text-black hover:text-gray-500">
                   LOGIN
                 </span>
               </Link>
 
               <Link to="/signup">
-                <span className="text-lg font-semibold text-black hover:text-gray-500 cursor-pointer">
+                <span className="cursor-pointer text-lg font-semibold text-black hover:text-gray-500">
                   SIGN UP
                 </span>
               </Link>

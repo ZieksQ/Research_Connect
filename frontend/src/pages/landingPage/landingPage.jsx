@@ -1,6 +1,6 @@
 import { motion, useTransform, useMotionValue } from "framer-motion";
 import LocomotiveScroll from "locomotive-scroll";
-import "locomotive-scroll/src/locomotive-scroll.scss";
+import "locomotive-scroll/dist/locomotive-scroll.css";
 import React, { useEffect, useRef, useState } from "react";
 import Header from "./landingPage-components/header";
 import HeroSection from "./landingPage-components/heroSection";

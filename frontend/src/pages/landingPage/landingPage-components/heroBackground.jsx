@@ -3,7 +3,7 @@ import React from "react";
 export default function HeroBackground({ src = "/src/assets/video/studying.mp4" }) {
   return (
     <div
-      className="group relative w-25 h-14 overflow-hidden rounded-full cursor-pointer 
+      className="group relative w-20 h-14 overflow-hidden rounded-full cursor-pointer 
                  sm:w-26 sm:h-16 lg:w-40 lg:h-26"
     >
       <video

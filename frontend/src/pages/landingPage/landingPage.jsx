@@ -8,7 +8,7 @@ import AboutSection from "./landingPage-components/aboutSection";
 import GallerySection from "./landingPage-components/gallerySection";
 import FeatureSection from "./landingPage-components/featureSection";
 import TransitionText from "./landingPage-components/transitionText";
-import Loader from "./landingPage-components/loader"; // import the loader
+import Loader from "./landingPage-components/loader";
 
 export default function LandingPage() {
   const scrollRef = useRef(null);
@@ -20,7 +20,7 @@ export default function LandingPage() {
   const x2 = useTransform(scrollY, [0, 800], ["0%", "70%"]);
   const x3 = useTransform(scrollY, [0, 800], ["0%", "-100%"]);
 
-  // Initialize LocomotiveScroll **after loader finishes**
+  // Initialize LocomotiveScroll after loader finishes
   useEffect(() => {
     if (!loading && scrollRef.current) {
       const scroll = new LocomotiveScroll({
@@ -47,15 +47,29 @@ export default function LandingPage() {
       {!loading && (
         <>
           <Header />
+
           <main
             data-scroll-container
             ref={scrollRef}
             className="relative min-h-screen overflow-x-hidden scroll-smooth p-8 bg-white"
           >
-            <HeroSection x1={x1} x2={x2} x3={x3} />
-            <AboutSection />
-            <GallerySection />
-            <FeatureSection />
+            {/* Add IDs for hamburger scrolling */}
+            <section id="home">
+              <HeroSection x1={x1} x2={x2} x3={x3} />
+            </section>
+
+            <section id="about">
+              <AboutSection />
+            </section>
+
+            <section id="socials">
+              <GallerySection />
+            </section>
+
+            <section id="features">
+              <FeatureSection />
+            </section>
+
             <TransitionText />
             <div className="h-32" />
           </main>

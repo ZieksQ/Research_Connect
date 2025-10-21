@@ -2,8 +2,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from App import bcrypt, default_profile_pic
 from .database import Base
-from sqlalchemy import ( Table, Column, String, Integer, ForeignKey, Text, 
-                        Boolean, DateTime, Enum, JSON )
+from sqlalchemy import (Table, Column, String, Integer, ForeignKey,
+                        Text, Boolean, DateTime, Enum)
 from enum import Enum
 
 # -----------------------------
@@ -16,7 +16,7 @@ rootUser_survey = Table("rootUser_survey", Base.metadata,
 )
 
 # -----------------------------
-# User_Roles, Root_User, User, Posts, RefreshToken, Oauth
+# User & Post Models 
 # -----------------------------
 
 class User_Roles(Enum):
@@ -219,7 +219,7 @@ class Choice(Base):
     __tablename__ = "svy_choices"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    choice_text: Mapped[list[str]] = mapped_column(JSON, nullable=False)  # list of options
+    choice_text: Mapped[list[str]] = mapped_column(Text, nullable=False)  # list of options
 
     question_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_questions.id"), nullable=False)
     question_choices: Mapped["Question"] = relationship( "Question", back_populates="choices_question")
@@ -241,3 +241,20 @@ class Answers(Base):
 
     def __repr__(self):
         return f"Answer {self.id}"
+    
+
+# -----------------------------
+# OTP
+# -----------------------------
+
+class OTP(Base):
+    __tablename__ = "OTP"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+
+class Code(Base):
+    __tablename__ = "post_code"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)

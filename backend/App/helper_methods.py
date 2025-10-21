@@ -64,38 +64,3 @@ def logger_setup(name: str, filename: str, mode: str = "a"):
     logger.addHandler(handler)
 
     return logger
-        
-"""
-if TESTING == True:
-    if SQLDB:
-        DATABASE_URL = f"sqlite:///{DB_PATH}"
-    else: 
-        DATABASE_URL = "sqlite:///:memory:"
-
-else:
-    if IPV4 == True:
-
-        if TPOOLER:
-
-            '''
-            Ideal for stateless applications like serverless functions
-            where each interaction with Postgres is brief and isolated.
-            '''
-            DATABASE_URL = f"postgresql://{SPBSV4_USER}:{PSSW_PARSED}@{SPBSV4_HOST}:{SPBS_TP_PORT}/{SPBS_DATABASE}"
-        else:
-
-            '''
-            Sessoon Pooler Connection
-            Only recommended as an alternative to Direct Connection, 
-            when connecting via an IPv4 network.
-            '''
-            DATABASE_URL = f"postgresql://{SPBSV4_USER}:{PSSW_PARSED}@{SPBSV4_HOST}:{SPBS_PORT}/{SPBS_DATABASE}"
-    else:
-
-        '''
-        Direct Connection
-        Ideal for applications with persistent, long-lived connections, 
-        such as those running on virtual machines or long-standing containers.
-        '''
-        DATABASE_URL = f"postgresql://{SPBSDR_USER}:{PSSW_PARSED}@{SPBSDR_HOST}:{SPBS_PORT}/{SPBS_DATABASE}"
-"""

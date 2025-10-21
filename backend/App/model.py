@@ -248,10 +248,13 @@ class Answers(Base):
 # -----------------------------
 
 class OTP(Base):
-    __table__ = "otp"
+    __tablename__ = "OTP"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
 class Code(Base):
-    pass
+    __tablename__ = "post_code"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)

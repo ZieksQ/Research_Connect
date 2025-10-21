@@ -25,34 +25,29 @@ def set_up_db_url( IPV4: bool, TPOOLER: bool, TESTING: bool = True, SQLDB: bool 
     """
 
     DB_PATH = Path(__file__).resolve().parent.parent / f"instance/{SQLITE}"
-    PSSW_PARSED = quote_plus(SPBS_PASSWORD)
+    PSSW_PARSED = quote_plus((SPBS_PASSWORD or "default"))
 
     if TESTING == True:
         if SQLDB:
             return f"sqlite:///{DB_PATH}"
         else: 
             return "sqlite:///:memory:"
-
     else:
         if IPV4 == True:
 
             if TPOOLER:
-
                 '''
                 - Transaction Pooler Coonection 
                 Ideal for stateless applications like serverless functions where each interaction with Postgres is brief and isolated.
                 '''
                 return f"postgresql://{SPBSV4_USER}:{PSSW_PARSED}@{SPBSV4_HOST}:{SPBS_TP_PORT}/{SPBS_DATABASE}"
-            
             else:
-
                 '''
                 - Sessoon Pooler Connection
                 Only recommended as an alternative to Direct Connection, when connecting via an IPv4 network.
                 '''
                 return f"postgresql://{SPBSV4_USER}:{PSSW_PARSED}@{SPBSV4_HOST}:{SPBS_PORT}/{SPBS_DATABASE}"
         else:
-
             '''
             - Direct Connection
             Ideal for applications with persistent, long-lived connections, such as those running on virtual machines or long-standing containers.

@@ -1,4 +1,4 @@
-from flask import jsonify, redirect, make_response, url_for, Blueprint, current_app
+from flask import jsonify, redirect, make_response, url_for, Blueprint, current_app, request, session
 from App import oauth
 from sqlalchemy import select, and_
 from datetime import datetime, timezone
@@ -9,6 +9,9 @@ from .env_config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 from flask_jwt_extended import ( create_access_token, create_refresh_token, set_access_cookies, get_jti,
                                 set_refresh_cookies, jwt_required, get_jwt_identity, unset_jwt_cookies )
 
+logger = logger_setup(__name__, "user_oauth.log")
+
+oauth_me = Blueprint("oauth_me", __name__)
 
 google = oauth.register(
     name="google",
@@ -22,12 +25,21 @@ google = oauth.register(
     # api_base_url="https://www.googleapis.com/oauth2/v1/",
 )
 
-logger = logger_setup(__name__, "user_oauth.log")
+ALLOWED_REDIRECTS = {
+    "react": "http://localhost:5173/home",
+    "flutter": "myapp://oauth-callback",
+    }
 
-oauth_me = Blueprint("oauth_me", __name__)
+is_valid_redirect = lambda url: url in ALLOWED_REDIRECTS
+get_url = lambda url: ALLOWED_REDIRECTS.get(url)
 
 @oauth_me.route("/login")
 def login():
+    redirect_url = request.args.get("redirect_url")
+    if not redirect_url or not is_valid_redirect(redirect_url):
+        return redirect("http://localhost:5173?msg=invalid_redirect")
+
+    session["redirect_url"] = get_url(redirect_url)
     redirect_uri = url_for("oauth_me.authorize", _external=True)
     return google.authorize_redirect(redirect_uri)
 
@@ -39,6 +51,8 @@ def authorize():
     # user_info = google.get("userinfo").json()
     user_info = google.userinfo()
 
+    url_redirect = session.get("redirect_url")
+
     stmt = select(Oauth_Users).where(and_(Oauth_Users.provider == "google", Oauth_Users.provider_user_id == user_info["sub"]))
     user = db.execute(stmt).scalar_one_or_none()
     if not user:
@@ -49,7 +63,7 @@ def authorize():
         success, error = commit_session()
         if not success:
             logger.error(error)
-            return redirect("http://localhost:5173?msg=Database_error")
+            return redirect(f"{url_redirect}?msg=Database_error&reason=Cannot_register_user")
         logger.info("User added to the database")
 
     access_token = create_access_token(identity=str(user.id))
@@ -64,10 +78,10 @@ def authorize():
     success, error = commit_session()
     if not success:
         logger.exception(error)
-        return redirect("http://localhost:5173?msg=Database_error")
+        return redirect(f"{url_redirect}?msg=Database_error")
     
     # to pass data to the response you need to type a query params
-    resp = make_response(redirect("http://localhost:5173?msg=Login_successful"))
+    resp = make_response(redirect(f"{url_redirect}?msg=Login_successful&login_type=google"))
     set_access_cookies(resp, access_token)
     set_refresh_cookies(resp, refresh_token)
     
@@ -81,9 +95,11 @@ def protected():
     current_user = get_jwt_identity()
     return jsonify({"message": current_user})
 
+
 @oauth_me.route("/logout", methods=['POST'])
 @jwt_required()
 def logout():
+    """Deprecated dont use this"""
     resp = jsonify({"message": "You are logged out"})
     unset_jwt_cookies(resp)
     return resp 

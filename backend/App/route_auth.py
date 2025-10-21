@@ -96,7 +96,7 @@ def user_login():
         logger.exception(error)
         return jsonify_template_user(500, False, "Database Error")
     
-    response = jsonify_template_user(200, True, "Login successful")
+    response = jsonify_template_user(200, True, "Login successful", login_type="inquira")
 
     set_access_cookies(response, access_token)
     set_refresh_cookies(response, refresh_token)
@@ -171,7 +171,6 @@ def logout():
 
     return response
 
-
 # Route to refresh the access token for more security
 # If the refresh token expires the user needs to log in again
 @user_auth.route("/refresh", methods=["POST"])
@@ -211,3 +210,25 @@ def get_user_data():
             "user_posts": user_posts,}
 
     return jsonify_template_user(200, True, data)
+
+# Global endpoint message for when the user successfully logs in 
+@user_auth.route('/login_success', methods=['GET'])
+@jwt_required()
+def login_success():
+    user_id = get_jwt_identity()
+    user = db.get(Root_User, int(user_id))
+
+    if not user:
+        logger.info("User tried to access login successfull wihtout logging in")
+        return jsonify_template_user(400, False, "Please log in to access this")
+    
+    who_user: Users | Oauth_Users = db.get(Users, int(user_id)) if user.user_type == "local" else db.get(Oauth_Users, int(user_id))
+
+    user_data = {
+        "id": who_user.id,
+        "username": who_user.username,
+        "profile_pic": who_user.profile_pic_url,
+        "provider": "local" if who_user.user_type == "local" else who_user.provider,
+    }
+
+    return jsonify_template_user(200, True, user_data)

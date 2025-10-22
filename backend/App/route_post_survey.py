@@ -57,9 +57,12 @@ def get_posts_solo(id):
 
     return jsonify_template_user(200, True, data)
 
+# Don not use this
+# Use send_post_survey() instead
 @survey_posting.route("/post/send", methods=["POST"])
 @jwt_required()
 def send_post():
+    """Depracated, use /post/send/questionnaire instead"""
 
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
@@ -95,9 +98,12 @@ def send_post():
     
     return jsonify_template_user(200, True, f"Post created by {user.id}")
 
+# Don not use this
+# Use send_post_survey() instead
 @survey_posting.route("/post/questionnaire", methods=['POST'])
 @jwt_required()
 def send_survey():
+    """Depracated, use /post/send/questionnaire instead"""
 
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
@@ -154,19 +160,31 @@ def send_post_survey():
 
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
-    title = data.get("title", "")
-    content = data.get("content", "")
-    dsurvey = data.get("survey", "")
+    post_title: str = data.get("post_title", "")
+    post_content: str = data.get("post_content", "")
+    survey_title: str = data.get("survey_title", "")
+    survey_content: str = data.get("survey_content", "")
+    dsurvey: dict[str, dict] = data.get("survey_questions", {})
 
-    post_input_validate, post_exist_flag = handle_post_input_exist(title, content)
+    # Checks if the post and survey title content exists
+    post_input_validate, post_exist_flag = handle_post_input_exist(post_title, post_content)
+    survey_input_validate, survey_exist_flag = handle_post_input_exist(survey_title, survey_content, False)
     if post_exist_flag:
         logger.error(post_input_validate)
         return jsonify_template_user(400, False, post_input_validate)
+    if survey_exist_flag:
+        logger.error(survey_input_validate)
+        return jsonify_template_user(400, False, survey_requirements)
     
-    post_requirements, post_req_flag = handle_post_requirements(title, content)
+    # Checks if the post and survey title content is wihtin the requirements
+    post_requirements, post_req_flag = handle_post_requirements(post_title, post_content)
+    survey_requirements, survey_req_flag = handle_post_requirements(survey_title, survey_content, False)
     if post_req_flag:
         logger.error(post_requirements)
         return jsonify_template_user(422, False, post_requirements)
+    if survey_req_flag:
+        logger.error(survey_requirements)
+        return jsonify_template_user(422, False, survey_requirements)
     
     svy_exists_msg, svy_exists_flag = handle_survey_input_exists(dsurvey)
     if svy_exists_flag:
@@ -179,17 +197,17 @@ def send_post_survey():
         logger.error(svy_req_msg)
         return jsonify_template_user(422, False, "You must meet the requirements for the survey", survey={"survey": svy_exists_msg})
     
-    post = Posts(title=title, content=content, user=user)
+    post = Posts(title=post_title, content=post_content, user=user)
     survey = Surveys()
 
-    for _, dvalue in data.items():
+    for counter, (_, dvalue) in enumerate(dsurvey.items(), start=1):
         
-        question = Question(question_text=dvalue["question"], q_type=dvalue["type"], 
-                            answer_key=dvalue.get("answer", None))
+        question = Question(question_text=dvalue.get("question"), q_type=dvalue.get("type"), answer_required=dvalue.get("required"),
+                            answer_key=dvalue.get("answer"), question_number=counter)
 
         if dvalue["type"] == QuestionType.MULTIPLE_CHOICE.value:
-            choice = Choice(choice_text=dvalue["choice"])
-            question.choices_question = choice
+            for data_choice in dvalue.get("choice"):
+                question.choices_question.append( Choice(choice_text=data_choice) )
         
         survey.questions_survey.append(question)
     
@@ -218,19 +236,27 @@ def get_questionnaire(id):
     post = db.get(Posts, id)
     survey = post.survey_posts
 
-    questions: list[Question] = [question.get_questions() for question in survey.questions_survey]
+    sorted_question = sorted(survey.questions_survey, key=lambda x: x.question_number)
+    questions = [question.get_questions() for question in sorted_question]
 
     logger.info(f"{post} {survey}")
 
     return jsonify_template_user(200, True, {"survey" : survey.id, "questions": questions})
 
-@survey_posting.route("/post/search", methods=["POST"])
+@survey_posting.route("/post/search", methods=["GET"])
 @jwt_required()
 def search():
     query = request.args.get("query", "").strip()
     order = request.args.get("order", "asc").strip()
 
     post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
+
+    user_id = get_jwt_identity()
+    user = db.get(Root_User, user_id)
+
+    if not user:
+        logger.info("User tried to access search route wihtout logging in")
+        return jsonify_template_user(401, False, "You need to log in to access this")
 
     stmt = (
         select(Posts)
@@ -244,7 +270,7 @@ def search():
     data = [post.get_post() for post in posts]
 
     if not data:
-        logger.info("There is not post to be searched")
+        logger.info("There is no post to be searched")
         return jsonify_template_user(204, True, "There is no such thing")
     
     logger.info("Search successful")
@@ -253,7 +279,7 @@ def search():
 @survey_posting.route("/answer/questionnaire/<int:id>", methods=['POST'])
 @jwt_required()
 def answer_questionnaire(id):
-    data = request.get_json()
+    data: dict = request.get_json()
 
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
@@ -273,6 +299,15 @@ def answer_questionnaire(id):
         logger.info(f"User {user.id} already answered survey {survey.id}.")
         return jsonify_template_user(409, False, "You already answered this survey.")
 
-
     survey.root_user.append(user)
 
+    q_sorted = sorted(survey.questions_survey, key=lambda x: x.question_number)
+
+    for question in q_sorted:
+        answer = Answers(answer_text=data.get(f"{question.question_number}"), 
+                                   user=user)
+        question.answers.append(answer)
+        
+    logger.info("Response saved")
+
+    return jsonify_template_user(200, True, "You have succesfully answered this survey")

@@ -1,8 +1,10 @@
 {
-  "title": "AI and Human Interaction",
-  "content": "This post explores how humans engage with AI...",
-  
-  "survey": {
+  "post_title": "AI and Human Interaction",
+  "post_content": "This post explores how humans engage with AI...",
+  "survey_title": "This post explores how humans engage with AI...",
+  "survey_content": "This post explores how humans engage with AI...",
+
+  "survey_questions": {
     "questionNo.1": {
       "question": "What is the capital of France?",
       "type": "multiple_choice",

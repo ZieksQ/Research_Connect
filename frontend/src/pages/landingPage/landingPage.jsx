@@ -1,0 +1,82 @@
+import { motion, useTransform, useMotionValue } from "framer-motion";
+import LocomotiveScroll from "locomotive-scroll";
+import "locomotive-scroll/dist/locomotive-scroll.css";
+import React, { useEffect, useRef, useState } from "react";
+import Header from "./landingPage-components/header";
+import HeroSection from "./landingPage-components/heroSection";
+import AboutSection from "./landingPage-components/aboutSection";
+import GallerySection from "./landingPage-components/gallerySection";
+import FeatureSection from "./landingPage-components/featureSection";
+import TransitionText from "./landingPage-components/transitionText";
+import Loader from "./landingPage-components/loader";
+import Footer from "./landingPage-components/footer";
+
+export default function LandingPage() {
+  const scrollRef = useRef(null);
+  const scrollY = useMotionValue(0);
+  const [loading, setLoading] = useState(true);
+
+  // HeroSection scroll animations
+  const x1 = useTransform(scrollY, [0, 800], ["0%", "-70%"]);
+  const x2 = useTransform(scrollY, [0, 800], ["0%", "70%"]);
+  const x3 = useTransform(scrollY, [0, 800], ["0%", "-100%"]);
+
+  useEffect(() => {
+    if (!loading && scrollRef.current) {
+      const scroll = new LocomotiveScroll({
+        el: scrollRef.current,
+        smooth: true,
+        smartphone: { smooth: true },
+        tablet: { smooth: true },
+      });
+
+      scroll.on("scroll", (args) => {
+        scrollY.set(args.scroll.y);
+      });
+
+      // Update locomotive-scroll after a short delay on content/images load
+      setTimeout(() => {
+        scroll.update();
+      }, 600);
+
+      return () => scroll.destroy();
+    }
+  }, [loading, scrollY]);
+
+  return (
+    <>
+      {/* Loader */}
+      {loading && <Loader onFinish={() => setLoading(false)} />}
+
+      {/* Main content, only rendered after loader */}
+      {!loading && (
+        <>
+          <Header />
+          <main
+            data-scroll-container
+            ref={scrollRef}
+            className="relative min-h-screen overflow-x-hidden scroll-smooth bg-white p-8"
+          >
+            {/* Add IDs for hamburger scrolling */}
+            <section id="home">
+              <HeroSection x1={x1} x2={x2} x3={x3} />
+            </section>
+            <section id="about">
+              <AboutSection />
+            </section>
+            <section id="socials">
+              <GallerySection />
+            </section>
+            <section id="features">
+              <FeatureSection />
+            </section>
+            <TransitionText />
+            <div className="h-32" />
+            {/* Footer is INSIDE the main container */}
+            <Footer />
+          </main>
+        </>
+      )}
+    </>
+  );
+}

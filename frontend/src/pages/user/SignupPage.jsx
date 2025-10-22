@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Signup from "../../components/user/Signup.jsx";
 import InquiraIcon from "../../assets/icons/Inquira.svg";
+import { registerUser } from "../../services/auth.js";
 
 // Page for user Sign up
 const SignupPage = () => {
@@ -9,43 +10,32 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(""); // shows message error
-  const [loading, setLoading] = useState(false); // loading state 
+  const [loading, setLoading] = useState(false); // loading state
 
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault(); // prevents page to reload everytime you submit
-    setLoading(true) // loading...
+    setLoading(true); // loading...
 
     const payload = { username, password }; // stores username, password value to send
 
+    // confirm password validation
     if (password != confirmPassword) {
       setError("Wrong Password");
-      setLoading(false)
+      setLoading(false);
       return;
     }
 
-    try {
-      const response = await fetch("/user/register", {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify(payload),
-        credentials: "include",
-      });
+    const data = await registerUser(payload); // register user
 
-      const data = await response.json();
-      setLoading(false) // Loading ends
-
-      if (!data.ok) {
-        return data.message;
-      }
-
-      navigate("/");
-    } catch (err) {
-      alert(`Error: ${err}`);
+    // checks returned data
+    if (!data.ok) {
+      return data.message;
     }
+
+    setLoading(false); // Loading done!
+    navigate("/login"); // if data is ok then navigate to login page
   };
 
   return (
@@ -67,10 +57,14 @@ const SignupPage = () => {
 
         {/* Signup Form */}
         <Signup
-          Data={{ username: username, password: password, confirmPassword: confirmPassword }}
+          Data={{
+            username: username,
+            password: password,
+            confirmPassword: confirmPassword,
+          }}
           onChangeUsername={(e) => setUsername(e.target.value)}
           onChangePassword={(e) => setPassword(e.target.value)}
-          onChangeConfirmPassword={e => setConfirmPassword(e.target.value)}
+          onChangeConfirmPassword={(e) => setConfirmPassword(e.target.value)}
           onSubmit={handleSignup}
           loading={loading}
           error={error}

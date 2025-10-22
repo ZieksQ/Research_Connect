@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import GoogleLogo from "../../assets/icons/google_icon.svg";
 import InquiraIcon from "../../assets/icons/Inquira.svg"
 
-const Login = ({ value, onChangeEmail, onChangePassword, submit, error, loading }) => {
+const Login = ({ value, onChangeEmail, onChangePassword, submit, error, loading, handleGoogleLogin }) => {
   return (
     <form onSubmit={submit}>
       {/* Error Handling */}
@@ -65,16 +65,16 @@ const Login = ({ value, onChangeEmail, onChangePassword, submit, error, loading 
 
       {/* Sign In Button */}
       <button className="btn btn-neutral w-full mt-6" type="submit">
-        {loading ? <span className="loading loading-dots loading-md"></span> : "Sign in"}
+        {loading ? <span className="loading loading-dots loading-md"></span> : "Login"}
       </button>
 
       {/* Divider */}
       <div className="divider text-gray-400 text-xs my-4">or</div>
 
       {/* Google Login */}
-      <button type="button" className="btn bg-white border border-gray-300 w-full hover:bg-gray-50">
+      <button type="button" onClick={handleGoogleLogin} className="btn bg-white border border-gray-300 w-full hover:bg-gray-50">
         <img src={GoogleLogo} alt="google icon" className="icon-size w-5 h-5" />
-        Sign in with Google
+        Login with Google
       </button>
 
       {/* Sign Up Link */}

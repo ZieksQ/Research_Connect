@@ -17,7 +17,7 @@ import SignupPage from "./pages/user/SignupPage.jsx";
 import ProfilePage from "./pages/profile/ProfilePage.jsx";
 import ProfileAboutPage from "./pages/profile/ProfileAboutPage.jsx";
 import LandingPage from "./pages/landingPage/landingPage.jsx";
-import SortableList from "./pages/sample/SortableList.jsx";
+import SortableList from "./pages/sample/SortableForm.jsx";
 
 const App = () => {
   const router = createBrowserRouter(

@@ -18,7 +18,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="navbar bg-base-100 glass z-1 shadow">
+    <div className="navbar bg-base-100 glass z-99 shadow">
       {/* ---------------- Left Side Navbar --------------------- */}
       <div className="navbar-start">
         <Link to="/home" className="btn btn-ghost">

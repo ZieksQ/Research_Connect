@@ -1,4 +1,3 @@
-
 @import "tailwindcss";
 @plugin "daisyui" {
   theme: light --default;
@@ -10,7 +9,6 @@ html {
   background-color: var(--color-background);
 }
 
-
 @theme {
   --color-primary-color: #151515;
   --color-shade-primary: #474747;
@@ -21,14 +19,14 @@ html {
 }
 
 @font-face {
-  font-family: 'Giaza';
-  src: url('./assets/fonts/Giaza.otf') format('opentype');
+  font-family: "Giaza";
+  src: url("./assets/fonts/Giaza.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Bebas';
+  font-family: "Bebas";
   src: url("./assets/fonts/BebasNeue-Regular.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
@@ -43,10 +41,14 @@ html {
   }
 
   h1 {
-    font-family: 'Giaza', sans-serif;
+    font-family: "Giaza", sans-serif;
   }
 
-  h2, h3, h4, h5, h6 {
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: Arial, Helvetica, sans-serif;
   }
 }
@@ -93,7 +95,6 @@ html {
     }
   }
 
-  
   /* -------------------------------------- */
   /*                Margin                  */
   /* -------------------------------------- */
@@ -133,6 +134,17 @@ html {
   .profile-container {
     @apply flex flex-col gap-4 lg:grid lg:max-w-6xl lg:grid-cols-5 lg:grid-rows-5;
   }
+
+  /* Sortable Item */
+  /* Draft.js customization */
+  .public-DraftEditor-content {
+    min-height: 100px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .public-DraftEditorPlaceholder-root {
+    color: #a0a0a0;
+  }
 }
 
 @layer utilities {
@@ -170,7 +182,7 @@ html {
   .page-margin {
     @apply mt-4 lg:mt-2;
   }
-  
+
   .even-shadow {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
   }

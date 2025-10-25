@@ -1,7 +1,7 @@
 import { apiFetch } from "./fetcher";
 
 export const loginUser = async(data) => 
-    apiFetch('/api/user/login', {
+    apiFetch('/api/user/refresh/login', {
         method: "POST",
         body: JSON.stringify(data),
     })
@@ -13,7 +13,7 @@ export const registerUser = async(data) =>
     })
 
 export const logoutUser = async() => 
-    apiFetch('/api/user/logout', {method: "POST"})
+    apiFetch('/api/user/refresh/logout', {method: "POST"})
 
 export const refreshUser = async () => {
   try {

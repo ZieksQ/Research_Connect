@@ -3,9 +3,9 @@
 ## /api/user
 ```bash
 POST - http://127.0.0.1:5000/api/user/register
-POST - http://127.0.0.1:5000/api/user/login
+POST - http://127.0.0.1:5000/api/user/refresh/login
 POST - http://127.0.0.1:5000/api/user/profile_upload
-POST - http://127.0.0.1:5000/api/user/logout
+POST - http://127.0.0.1:5000/api/user/refresh/logout
 GET - http://127.0.0.1:5000/api/user/login_success
 GET - http://127.0.0.1:5000/api/user/user_data
 

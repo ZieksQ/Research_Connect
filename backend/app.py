@@ -13,4 +13,4 @@ if __name__ == "__main__":
     LOCAL_HOST = "127.0.0.1"    # Local host
     PORT = 5000
     print(f"Running on host: http://{LOCAL_HOST}:{PORT}")
-    app.run(host=LOCAL_HOST, port=PORT, debug=True)
+    app.run(host=HOST, port=PORT, debug=True)

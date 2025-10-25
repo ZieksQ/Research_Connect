@@ -57,7 +57,7 @@ def user_register():
     return jsonify_template_user(200, True, "User registered successful")
 
 
-@user_auth.route("/login", methods=["POST"])
+@user_auth.route("/refresh/login", methods=["POST"])
 def user_login():
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
@@ -209,6 +209,8 @@ def get_user_data():
 
     data = {"user_info": user_info, 
             "user_posts": user_posts,}
+    
+    logger.info("You have got the user data")
 
     return jsonify_template_user(200, True, data)
 

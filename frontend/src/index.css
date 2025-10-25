@@ -3,8 +3,10 @@
   theme: light --default;
 }
 
-body {
+body,
+html {
   scroll-behavior: smooth;
+  background-color: var(--color-background);
 }
 
 @theme {
@@ -16,12 +18,38 @@ body {
   --color-accent-100: #5057e9;
 }
 
+@font-face {
+  font-family: "Giaza";
+  src: url("./assets/fonts/Giaza.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Bebas";
+  src: url("./assets/fonts/BebasNeue-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
 @layer base {
   a {
     cursor: pointer; /* Add cursor for every anchor some doesn't have idk why */
   }
   button {
     cursor: pointer; /* Also adds cursor for every button cuz it doesn't have and it's sucks */
+  }
+
+  h1 {
+    font-family: "Giaza", sans-serif;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: Arial, Helvetica, sans-serif;
   }
 }
 
@@ -39,6 +67,9 @@ body {
   }
   .icon-lg {
     @apply size-8;
+  }
+  .icon-xl {
+    @apply size-10;
   }
   /* Input field such as Search Bar */
   .input-field {
@@ -60,32 +91,10 @@ body {
     padding: 0.5rem /* 8px */;
     min-height: 2rem /* 64px */;
     :where(&) {
-        position: relative;
+      position: relative;
     }
-}
+  }
 
-  /* -------------------------------------- */
-  /*                Padding                 */
-  /* -------------------------------------- */
-  .padding-sm {
-    @apply px-2 py-1;
-  }
-  .padding-md {
-    @apply px-4 py-2;
-  }
-  .padding-lg {
-    @apply px-6 py-4;
-  }
-  /* Padding with Larger Height */
-  .padding-h-sm {
-    @apply px-1 py-2;
-  }
-  .padding-h-md {
-    @apply px-2 py-4;
-  }
-  .padding-h-lg {
-    @apply px-4 py-6;
-  }
   /* -------------------------------------- */
   /*                Margin                  */
   /* -------------------------------------- */
@@ -114,16 +123,27 @@ body {
   /* User Registration Form */
 
   .registration {
-    @apply min-h-screen flex items-center justify-center lg:p-6 ;
+    @apply flex min-h-screen items-center justify-center lg:p-6;
   }
 
   .registration-card {
-    @apply w-full h-full lg:h-auto lg:max-w-sm lg:rounded-lg lg:shadow-xl  p-8 lg:p-10 flex flex-col justify-center;
+    @apply flex h-full w-full flex-col justify-center p-8 lg:h-auto lg:max-w-sm lg:rounded-lg lg:p-10 lg:shadow-xl;
   }
 
   /* Profile Page */
   .profile-container {
-    @apply flex flex-col lg:grid lg:grid-cols-5 lg:grid-rows-5 gap-4 lg:max-w-6xl;
+    @apply flex flex-col gap-4 lg:grid lg:max-w-6xl lg:grid-cols-5 lg:grid-rows-5;
+  }
+
+  /* Sortable Item */
+  /* Draft.js customization */
+  .public-DraftEditor-content {
+    min-height: 100px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .public-DraftEditorPlaceholder-root {
+    color: #a0a0a0;
   }
 }
 
@@ -134,7 +154,7 @@ body {
   }
   /* For centering items inside a flexbox */
   .center-items {
-    @apply flex items-center justify-center
+    @apply flex items-center justify-center;
   }
 
   /* For Drop down menu */
@@ -160,6 +180,33 @@ body {
   }
 
   .page-margin {
-    @apply mt-4 lg:mt-2
+    @apply mt-4 lg:mt-2;
+  }
+
+  .even-shadow {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+  }
+
+  /* -------------------------------------- */
+  /*                Padding                 */
+  /* -------------------------------------- */
+  .padding-sm {
+    @apply px-2 py-1;
+  }
+  .padding-md {
+    @apply px-4 py-2;
+  }
+  .padding-lg {
+    @apply px-6 py-4;
+  }
+  /* Padding with Larger Height */
+  .padding-h-sm {
+    @apply px-1 py-2;
+  }
+  .padding-h-md {
+    @apply px-2 py-4;
+  }
+  .padding-h-lg {
+    @apply px-4 py-6;
   }
 }

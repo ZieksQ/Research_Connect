@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Login from "../../components/user/Login.jsx";
 import InquiraIcon from "../../assets/icons/Inquira.svg"
+import { loginUser } from "../../services/auth.js";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -24,35 +25,22 @@ const LoginPage = () => {
     e.preventDefault(); // To prevent page reload on submit
     setLoading(true) // loading...
 
-    const data = { username, password }; // creates data object
-
+    const payload = { username, password }; // object destructuring
+    const data = await loginUser(payload);  // logging in User
+    setLoading(false);                      // loading done!
     
-
-    // Fetch API : POST
-    try {
-      const response = await fetch("/user/login", {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json", // tells the backend that request body is json
-        },
-        body: JSON.stringify(data), // converts javascript to json
-        credentials: "include", // includes jwt & cookies
-      });
-
-      const resData = await response.json(); // wait for response
-      setLoading(false) // done 
-
-      if (!resData.ok) {
-        // if response is not ok
-        setError(resData.message || "Something went wrong")
-        return;
-      }
-
-      navigate("/home"); // Navigate to home page
-    } catch (err) {
-      console.error(`Error: ${err}`); // catches error
+    // Checks returned data 
+    if (!data.ok) {
+      setError(data.message || "Something went wrong")
+      return;
     }
+
+    navigate('/home'); // if data status is ok then navigate to / homepage
   };
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://127.0.0.1:5000/oauth/login";
+  }
 
   return (
     <section className="registration ">
@@ -70,6 +58,7 @@ const LoginPage = () => {
           value={{ email: username, password: password }}
           onChangeEmail={(e) => setUsername(e.target.value)}
           onChangePassword={(e) => setPassword(e.target.value)}
+          handleGoogleLogin={handleGoogleLogin}
           submit={handleLogin}
           loading={loading}
           error={error}

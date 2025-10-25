@@ -127,9 +127,10 @@ def profile_upload():
 
     resp = supabase_client.storage.from_("profile_pic").upload(path=filename, file=profile_pic.read(), 
                                                                file_options={"content-type": profile_pic.content_type})
-    if resp.get("error"):
-        logger.error(resp["error"]["message"])
-        return jsonify_template_user(500, False, resp["error"]["message"])
+    logger.info(resp)
+    # if resp.error:
+    #     logger.error(resp["error"]["message"])
+    #     return jsonify_template_user(500, False, resp["error"]["message"])
     
     public_url = supabase_client.storage.from_("profile_pic").get_public_url(path=filename)
     user.profile_pic_url = public_url

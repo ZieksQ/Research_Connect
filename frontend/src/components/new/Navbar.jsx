@@ -1,35 +1,26 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { logoutUser } from "../../services/auth";
 
 const Navbar = () => {
   const navigate = useNavigate();
 
-  const userLogout = async () => {
-    try {
-      const response = await fetch(`user/logout`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
+  const handleLogout = async () => {
+    const data = await logoutUser(); // logout user
 
-      const data = await response.json();
-
-      if (!data.ok) {
-        console.error("User log out error");
-        return data.message;
-      }
-
-      navigate("/");
-      return data;
-    } catch (error) {
-      console.error(`Error: ${error}`);
+    // checks returned data
+    if (!data.ok) {
+      console.error(data.message);
+      return ;
     }
+
+    navigate("/");  // if data status is ok navigate to login page
   };
 
   return (
-    <div className="navbar bg-base-100 glass z-1 shadow">
+    <div className="navbar bg-base-100 glass z-99 shadow">
       {/* ---------------- Left Side Navbar --------------------- */}
-      <div className="navbar-start" >
+      <div className="navbar-start">
         <Link to="/home" className="btn btn-ghost">
           <svg
             width="76"
@@ -88,7 +79,7 @@ const Navbar = () => {
               <a
                 href="#"
                 className="hover:bg-error hover:text-white"
-                onClick={userLogout}
+                onClick={handleLogout}
               >
                 Logout
               </a>

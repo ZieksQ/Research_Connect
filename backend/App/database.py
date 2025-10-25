@@ -25,7 +25,7 @@ def set_up_db_url( IPV4: bool, TPOOLER: bool, TESTING: bool = True, SQLDB: bool 
     """
 
     DB_PATH = Path(__file__).resolve().parent.parent / f"instance/{SQLITE}"
-    PSSW_PARSED = quote_plus((SPBS_PASSWORD or "default"))
+    PSSW_PARSED = quote_plus(SPBS_PASSWORD)
 
     if TESTING == True:
         if SQLDB:
@@ -77,8 +77,8 @@ def logger_setup_sqla():
 
 
 
-# Ignore the top, if i try to move this, it creates a circular import
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------       
+# Ignore the top, if i try to move this, it creates a circular import
 
 
 

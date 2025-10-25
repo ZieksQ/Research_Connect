@@ -2,14 +2,14 @@
 
 <br>
 
-# /user
+# /api/user
 <br>
 
 > ### http://127.0.0.1:5000/api/user/register
 
-```
+```JSON
 {
-"username": "John Doe"
+"username": "John Doe",
 "password": "@JohnDoe12345"
 }
 ```
@@ -19,9 +19,9 @@
 
   
 
-```
+```JSON
 {
-"username": "John Doe"
+"username": "John Doe",
 "password": "@JohnDoe12345"
 }
 ```
@@ -61,13 +61,13 @@ explain so sayo sa f2f andy :ey: kakatmad pag sa chat kasi ni explain ko na kay 
 ---
 <br>
 
-# /survey
+# /api/survey
 
 <br>
 
 > #### http://127.0.0.1:5000/api/survey/post/send
 
-```
+```JSON
 {
 "post_title": "minimum 4 words, maximum 40 words",
 "post_content": "minimum 20 words, maximum 100 words",
@@ -107,11 +107,24 @@ explain so sayo sa f2f andy :ey: kakatmad pag sa chat kasi ni explain ko na kay 
 > #### http://127.0.0.1:5000/api/survey/answer/questionnaire/<int:id>
 
 The <int:id> is the ID of the post itself, not the survey
-```
+```JSON
 {
 	"1": "Paris",
 	"2": "Kotlin",
 	"3": "a realy long text",
 	"4": "imagine a really long key value pair of id and answer"
+}
+```
+
+<br>
+
+# /api/otp
+<br>
+
+> #### http://127.0.0.1:5000/api/otp/send_otp
+
+```JSON
+{
+	"email" : "youremail@gmail.com"
 }
 ```

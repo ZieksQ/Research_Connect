@@ -1,6 +1,6 @@
 # List of API  Endpoints returned JSON
 
-## /user
+## /api/user
 ```bash
 POST - http://127.0.0.1:5000/api/user/register
 POST - http://127.0.0.1:5000/api/user/login
@@ -14,7 +14,7 @@ See "Expired Token Callback" in JSON
 POST - http://127.0.0.1:5000/api/user/refresh
 ```
 
-## /survey
+## /api/survey
 ```bash
 GET - http://127.0.0.1:5000/api/survey/post/get
 
@@ -32,7 +32,7 @@ POST - http://127.0.0.1:5000/api/survey/post/search?query=&order=
 POST - http://127.0.0.1:5000/api/survey/answer/questionnaire
 ```
 
-## /oauth
+## /api/oauth
 ```bash
 Dont call this, change the url of the frontend using windows.location.href or something. chatgpt it, for web redicrect_url=react and for flutter redicrect_url=flutter
 http://127.0.0.1:5000/api/oauth/login?redirect_url=react
@@ -43,6 +43,11 @@ http://127.0.0.1:5000/api/oauth/protected
 di ko alam bat may separate logout oauth, gagana nmansa siguro both logout, 
 please dont ever use this, ts not secure, use the one from the /user is the same funciton
 http://127.0.0.1:5000/api/oauth/logout
+```
+
+## /api/otp
+```bash
+POST - http://127.0.0.1:5000/api/otp/send_otp
 ```
 
 ## JSON

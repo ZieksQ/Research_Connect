@@ -127,10 +127,10 @@ def profile_upload():
 
     resp = supabase_client.storage.from_("profile_pic").upload(path=filename, file=profile_pic.read(), 
                                                                file_options={"content-type": profile_pic.content_type})
-    logger.info(resp)
-    # if resp.error:
-    #     logger.error(resp["error"]["message"])
-    #     return jsonify_template_user(500, False, resp["error"]["message"])
+    
+    if hasattr(resp, "error"):
+        logger.error(resp.error)
+        return jsonify_template_user(500, False, resp.error)
     
     public_url = supabase_client.storage.from_("profile_pic").get_public_url(path=filename)
     user.profile_pic_url = public_url
@@ -145,7 +145,7 @@ def profile_upload():
     return jsonify_template_user(200, True, "Upload successful")
 
 
-@user_auth.route("/logout", methods=["POST"])
+@user_auth.route("/refresh/logout", methods=["POST"])
 @jwt_required(refresh=True)
 def logout():
     jti = get_jwt()["jti"]
@@ -207,12 +207,12 @@ def get_user_data():
     user_info = who_user.get_user()
     user_posts = [post.get_post() for post in user.posts]
 
-    data = {"user_indo": user_info, 
+    data = {"user_info": user_info, 
             "user_posts": user_posts,}
 
     return jsonify_template_user(200, True, data)
 
-# Global endpoint message for when the user successfully logs in 
+# Global endpoint message for when the user successfully logs in1 
 @user_auth.route('/login_success', methods=['GET'])
 @jwt_required()
 def login_success():
@@ -223,7 +223,7 @@ def login_success():
         logger.info("User tried to access login successfull wihtout logging in")
         return jsonify_template_user(400, False, "Please log in to access this")
     
-    who_user: Users | Oauth_Users = db.get(Users, int(user_id)) if user.user_type == "local" else db.get(Oauth_Users, int(user_id))
+    who_user = db.get(Users, int(user_id)) if user.user_type == "local" else db.get(Oauth_Users, int(user_id))
 
     user_data = {
         "id": who_user.id,

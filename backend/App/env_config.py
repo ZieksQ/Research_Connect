@@ -6,12 +6,12 @@ env_path = Path(__file__).resolve().parent.parent / ".env"      # Gets the absol
 load_dotenv(dotenv_path=env_path)
 
 # Getting the secrets from the .env file to sep up flask
-FLASK_SECRET_KEY =          os.environ.get("FLASK_SECRET_KEY")
-JWT_SECRET_KEY =            os.environ.get("JWT_SECRET_KEY")
-SQLITE =                    os.environ.get("SQLITEDB") 
+FLASK_SECRET_KEY =          os.environ.get("FLASK_SECRET_KEY", "123456789")
+JWT_SECRET_KEY =            os.environ.get("JWT_SECRET_KEY", "987654321")
+SQLITE =                    os.environ.get("SQLITEDB", "name.db") 
 
 # SPBS
-SPBS_PASSWORD =             os.environ.get("SPBS_PASSWORD")
+SPBS_PASSWORD =             os.environ.get("SPBS_PASSWORD", "larenredandy")
 SPBS_PORT =                 os.environ.get("SPBS_PORT")
 SPBS_DATABASE =             os.environ.get("SPBS_DATABASE")
 
@@ -33,3 +33,4 @@ SPBS_SERVICE_ROLE_KEY =     os.environ.get("SPBS_SERVICE_ROLE_KEY")
 # For Google Oauth
 GOOGLE_CLIENT_ID =          os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET =      os.environ.get("GOOGLE_CLIENT_SECRET")
+GOOGLE_APP_PSSW =           os.environ.get("GOOGLE_APP_PSSW", "abcd efgh ijkl mnop")

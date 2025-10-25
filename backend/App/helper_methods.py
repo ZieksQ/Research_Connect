@@ -2,6 +2,9 @@ from flask import jsonify
 from pathlib import Path
 from .database import db_session as db
 import logging
+# from .model import Users, Oauth_Users
+
+# who_user = lambda user_type, id: db.get(Users, id) if user_type == "local" else db.get(Oauth_Users, id)
 
 def commit_session() -> tuple[bool, str | None]:
     """Helper method to reduce try-except for database commit.
@@ -30,15 +33,15 @@ def jsonify_template_user(status: int, ok: bool, message: str | dict, **extra_fl
         tuple (Response, status): tuple of flask reponse and staus
     """
     
-    response = jsonify(
+    resp = jsonify(
         { "status": status, 
          "ok": ok, 
          "message": message, 
          **extra_flag }
         )
-    response.status_code = status
+    resp.status_code = status
 
-    return response
+    return resp
 
 def logger_setup(name: str, filename: str, mode: str = "a"):
     """Helper method to set up global logging

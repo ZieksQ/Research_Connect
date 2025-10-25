@@ -43,6 +43,14 @@ class Root_User(Base):
                                                     back_populates="user",
                                                     cascade="all, delete-orphan")
     
+    otp: Mapped["OTP"] = relationship("OTP", uselist=False,
+                                       back_populates="user",
+                                       cascade="all, delete-orphan")
+    
+    bypass_code: Mapped["Code"] = relationship("Code", uselist=False,
+                                               back_populates="user",
+                                               cascade="all, delete-orphan")
+    
     survey: Mapped[list["Surveys"]] =relationship("Surveys",
                                                   secondary=rootUser_survey,
                                                   back_populates="root_user")
@@ -113,7 +121,7 @@ class Posts(Base):
     date_created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     date_updated: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
 
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
 
     user: Mapped["Root_User"] = relationship("Root_User", back_populates="posts")
     survey_posts: Mapped["Surveys"] = relationship("Surveys", back_populates="posts_survey",
@@ -248,13 +256,25 @@ class Answers(Base):
 # -----------------------------
 
 class OTP(Base):
-    __tablename__ = "OTP"
+    __tablename__ = "otp"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    otp_text: Mapped[str] = mapped_column(String(32), nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
+
+    user: Mapped["Root_User"] = relationship("Root_User", back_populates="otp")
 
 class Code(Base):
     __tablename__ = "post_code"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    otp_text: Mapped[str] = mapped_column(String(32), nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
+
+    user: Mapped["Root_User"] = relationship("Root_User", back_populates="bypass_code")

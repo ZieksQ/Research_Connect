@@ -7,7 +7,7 @@
 <br>
 
 #### Missing Post/Survey input
-```
+```JSON
 {
 "status": 400,
 "ok": False,
@@ -19,7 +19,7 @@
 ```
 
 #### Missing user
-```
+```JSON
 {
 "status": 401,
 "ok": False,
@@ -28,7 +28,7 @@
 ```
 
 #### Missing Requirements Post/Survey title and content
-```
+```JSON
 {
 "status": 422,
 "ok": False,
@@ -40,7 +40,7 @@
 ```
 
 #### Missing Survey questions
-```
+```JSON
 {
 "status": 400,
 "ok": False,
@@ -52,7 +52,7 @@
 ```
 
 #### Missing Requirements for Survey questions
-```
+```JSON
 {
 "status": 422,
 "ok": False,
@@ -64,7 +64,7 @@
 ```
 
 #### Database Error
-```
+```JSON
 {
 "status": 500,
 "ok": False,
@@ -73,7 +73,7 @@
 ```
 
 #### Success
-```
+```JSON
 {
 "status": 200,
 "ok": True,
@@ -89,7 +89,7 @@
 <br>
 
 #### Not logged in
-```
+```JSON
 {
 "status": 401,
 "ok": False,
@@ -98,7 +98,7 @@
 ```
 
 #### Nothing in search
-```
+```JSON
 {
 "status": 204,
 "ok": True,
@@ -108,7 +108,7 @@
 
 
 #### Database Error
-```
+```JSON
 {
 "status": 500,
 "ok": False,
@@ -117,7 +117,7 @@
 ```
 
 #### Success
-```
+```JSON
 {
 "status": 200,
 "ok": True,
@@ -136,7 +136,7 @@
 <br>
 
 #### Not logged in
-```
+```JSON
 {
 "status": 401,
 "ok": False,
@@ -145,7 +145,7 @@
 ```
 
 #### Missing Posts, or there is no post
-```
+```JSON
 {
 "status": 400,
 "ok": False,
@@ -154,7 +154,7 @@
 ```
 
 #### User already answered the survey
-```
+```JSON
 {
 "status": 409,
 "ok": False,
@@ -164,7 +164,7 @@
 
 
 #### Database Error
-```
+```JSON
 {
 "status": 500,
 "ok": False,
@@ -173,7 +173,7 @@
 ```
 
 #### Success
-```
+```JSON
 {
 "status": 200,
 "ok": True,

@@ -3,6 +3,7 @@ import Navbar from '../components/new/Navbar'
 import { Outlet } from 'react-router-dom'
 
 const RootRoute = () => {
+  
   return (
     <div>
       <Navbar />

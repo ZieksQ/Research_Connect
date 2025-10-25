@@ -13,6 +13,7 @@ export default defineConfig({
       "/user": "http://127.0.0.1:5000",
       "/survey": "http://127.0.0.1:5000",
       "/oauth": "http://127.0.0.1:5000",
+      "/api": "http://127.0.0.1:5000",
     },
   },
 });

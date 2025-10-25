@@ -51,7 +51,7 @@ const App = () => {
           {/* Survey routes (no RootRoute layout) */}
           <Route path="/form" element={<SurveyRoute />}>
             <Route path="response" element={<SurveyPage />} />
-            <Route path="new" element={<CreateFormPage />} />
+            <Route path="new" element={<SortableList />} />
           </Route>
         </Route>
       </>,

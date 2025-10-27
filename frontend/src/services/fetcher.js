@@ -21,7 +21,7 @@ export const apiFetch = async (url, options = {}) => {
       headers,
     });
 
-    const data = await res.json();
+    let data = await res.json();
 
      // 🔴 If token expired — refresh & retry once
     if (data?.msg === "Token has expired") {

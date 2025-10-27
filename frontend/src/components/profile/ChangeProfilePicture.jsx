@@ -42,9 +42,10 @@ export default function ChangeProfilePicture() {
     setPreview(null);
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     // Add your upload logic here
-    postProfilePicture(file);
+    const response = await postProfilePicture(file);
+    console.log(response.data)
     console.log("Uploading file:", file);
     
     handleClose();
@@ -115,7 +116,7 @@ export default function ChangeProfilePicture() {
             {/* File Upload Input */}
             <input
               type="file"
-              className="file-input file-input-bordered file-input-primary w-full"
+              className="file-input file-input-bordered  w-full"
               accept="image/png, image/jpeg"
               onChange={handleFileInput}
             />

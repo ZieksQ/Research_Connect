@@ -35,7 +35,7 @@ const LoginPage = () => {
       return;
     }
 
-    navigate('/'); // if data status is ok then navigate to / homepage
+    navigate('/home'); // if data status is ok then navigate to / homepage
   };
 
   const handleGoogleLogin = () => {

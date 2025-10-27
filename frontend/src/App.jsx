@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Route,
+  Routes,
   createBrowserRouter,
   createRoutesFromElements,
   RouterProvider,
@@ -16,6 +17,7 @@ import SignupPage from "./pages/user/SignupPage.jsx";
 import ProfilePage from "./pages/profile/ProfilePage.jsx";
 import ProfileAboutPage from "./pages/profile/ProfileAboutPage.jsx";
 import LandingPage from "./pages/landingPage/landingPage.jsx";
+import SortableList from "./pages/sample/SortableForm.jsx";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -23,9 +25,11 @@ const App = () => {
       <>
         {/* Root Path */}
         <Route path="/">
-          <Route index element={<LandingPage />} /> {/* Start with landing page */}
-
-          {/* Main Site (uses RootRoute layout) */}
+          {/* Register User Path */}
+          <Route index element={<LandingPage />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="signup" element={<SignupPage />} />
+          {/* Home Path */}
           <Route path="home" element={<RootRoute />}>
             <Route index element={<PostPage />} />
 
@@ -35,16 +39,19 @@ const App = () => {
               <Route path="posts" element={<h1>Hello World!</h1>} />
               <Route path="about" element={<ProfileAboutPage />} />
             </Route>
+
+            {/* Sample Route - For testing components */}
+            <Route path="sample" element={<SortableList />} />
           </Route>
 
           {/* Auth routes (no RootRoute layout) */}
-          <Route path="login" element={<LoginPage />} />
-          <Route path="signup" element={<SignupPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
 
           {/* Survey routes (no RootRoute layout) */}
-          <Route path="form" element={<SurveyRoute />}>
+          <Route path="/form" element={<SurveyRoute />}>
             <Route path="response" element={<SurveyPage />} />
-            <Route path="new" element={<CreateFormPage />} />
+            <Route path="new" element={<SortableList />} />
           </Route>
         </Route>
       </>,
@@ -52,7 +59,7 @@ const App = () => {
   );
 
   return (
-    <div data-theme="light" className="h-full min-h-[100vh] pb-8">
+    <div data-theme="light" className="min-h-screen">
       <RouterProvider router={router} />
     </div>
   );

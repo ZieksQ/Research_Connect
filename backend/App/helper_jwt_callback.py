@@ -16,13 +16,15 @@ def expired_token_response(jwt_header, jwt_payload):
         return jsonify_template_user(
             401, False,
             "Your refresh token has expired. Please log in again.",
-            token=False, token_msg="refresh token expired"
+            token_expired=True, 
+            token_msg="refresh token expired"
         )
     
     return jsonify_template_user(
         401, False, 
         "Access token expired. You need to refresh it.",
-        token=False, token_msg="access token expired"
+        token_expired=True, 
+        token_msg="access token expired"
     )
 
 # Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
@@ -33,7 +35,7 @@ def check_unauthorized_access_cookies(err_msg):
     return jsonify_template_user(
         401, False, 
         "You need to log in to access this",
-        logged_in=False, 
+        not_logged_in=True, 
         logged_in_msg="Please log in before accessing this")
 
 # Callback method to check if the token is revoked
@@ -57,7 +59,7 @@ def revoked_token_callback(jwt_header, jwt_payload):
     return jsonify_template_user(
         401, False,
         "This token has been revoked. Please log in again.",
-        token=False,
+        token_revoked=True,
         token_msg="revoked token"
     )
 

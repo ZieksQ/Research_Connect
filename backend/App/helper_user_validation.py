@@ -208,8 +208,8 @@ def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
     qtype_list = [qt.value for qt in QuestionType]
     question_rules=[
         (lambda question: len(question) >= 4, "Question must be at least 4 words"),
-        (lambda question: len(question) >= 150, "Question must not exceed 150 words"),
-        (lambda question: len(" ".join(question)) >= 2000, "Question must not exceed 2000 characters"),
+        (lambda question: len(question) <= 150, "Question must not exceed 150 words"),
+        (lambda question: len(" ".join(question)) <= 2000, "Question must not exceed 2000 characters"),
     ]
     type_rules=[
         (lambda qtype: qtype in qtype_list, f"Wrong question type, please choose within [{", ".join(qtype_list)}]"),

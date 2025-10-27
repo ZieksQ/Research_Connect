@@ -1,16 +1,29 @@
 import { apiFetch } from "./fetcher";
 
 export const loginUser = async(data) => 
-    apiFetch('/user/login', {
+    apiFetch('/api/user/login', {
         method: "POST",
         body: JSON.stringify(data),
     })
 
 export const registerUser = async(data) =>
-    apiFetch('/user/register', {
+    apiFetch('/api/user/register', {
         method: "POST",
         body: JSON.stringify(data),
     })
 
 export const logoutUser = async() => 
-    apiFetch('user/logout', {method: "POST"})
+    apiFetch('/api/user/logout', {method: "POST"})
+
+export const refreshUser = async () => {
+  try {
+    const res = await fetch("http://localhost:5000/api/user/refresh", {
+      method: "POST",
+      credentials: "include", // send refresh cookie
+    });
+    return await res.json();
+  } catch (err) {
+    console.error("Error refreshing token:", err);
+    return null;
+  }
+};

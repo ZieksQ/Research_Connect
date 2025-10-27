@@ -14,14 +14,22 @@ const Navbar = () => {
       return ;
     }
 
+<<<<<<< HEAD
     navigate("/login");  // if data status is ok navigate to login page
+=======
+    navigate("/");  // if data status is ok navigate to login page
+>>>>>>> 425fa10a79bab007e685ced00a23e80736dd6ab9
   };
 
   return (
-    <div className="navbar bg-base-100 glass z-1 shadow">
+    <div className="navbar bg-base-100 glass z-99 shadow">
       {/* ---------------- Left Side Navbar --------------------- */}
       <div className="navbar-start">
+<<<<<<< HEAD
         <Link to="/" className="btn btn-ghost">
+=======
+        <Link to="/home" className="btn btn-ghost">
+>>>>>>> 425fa10a79bab007e685ced00a23e80736dd6ab9
           <svg
             width="76"
             height="23"

@@ -132,7 +132,7 @@ def send_survey():
         question = Question(question_text=dvalue["question"], q_type=dvalue["type"], 
                             answer_key=dvalue["answer"])
 
-        if dvalue["type"] == QuestionType.MULTIPLE_CHOICE:
+        if dvalue["type"] == QuestionType.MULTIPLE_CHOICE.value:
             Choice(question_choices=question, choice_text=dvalue["choice"])
         
         survey.questions_survey.append(question)

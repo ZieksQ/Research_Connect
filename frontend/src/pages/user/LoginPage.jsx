@@ -39,7 +39,7 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://127.0.0.1:5000/oauth/login";
+    window.location.href = "http://localhost:5000/api/oauth/login?redirect_url=react";
   }
 
   return (

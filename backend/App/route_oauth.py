@@ -4,10 +4,10 @@ from sqlalchemy import select, and_
 from datetime import datetime, timezone
 from .database import db_session as db
 from .model import Oauth_Users, User_Roles, RefreshToken
-from .helper_methods import commit_session, logger_setup
+from .helper_methods import commit_session, logger_setup, create_access_refresh_tokens
 from .env_config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-from flask_jwt_extended import ( create_access_token, create_refresh_token, set_access_cookies, get_jti,
-                                set_refresh_cookies, jwt_required, get_jwt_identity, unset_jwt_cookies )
+from flask_jwt_extended import ( set_access_cookies, get_jti, set_refresh_cookies, 
+                                jwt_required, get_jwt_identity, unset_jwt_cookies )
 
 logger = logger_setup(__name__, "user_oauth.log")
 
@@ -62,12 +62,11 @@ def authorize():
         db.add(user)
         success, error = commit_session()
         if not success:
-            logger.error(error)
-            return redirect(f"{url_redirect}?msg=Database_error&reason=Cannot_register_user")
+            logger.exception(error)
+            return redirect(f"{url_redirect}?msg=Database_error")
         logger.info("User added to the database")
 
-    access_token = create_access_token(identity=str(user.id))
-    refresh_token = create_refresh_token(identity=str(user.id))
+    access_token, refresh_token = create_access_refresh_tokens(identity=user)
 
     jti = get_jti(refresh_token)
 
@@ -84,6 +83,8 @@ def authorize():
     resp = make_response(redirect(f"{url_redirect}?msg=Login_successful&login_type=google"))
     set_access_cookies(resp, access_token)
     set_refresh_cookies(resp, refresh_token)
+
+    logger.info(resp.headers)
     
     logger.info("User successfully logged in as google")
 

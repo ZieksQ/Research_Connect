@@ -29,7 +29,6 @@ class Root_User(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_type: Mapped[str] = mapped_column("type", String(64), nullable=False)
-    role: Mapped[str] = mapped_column(String(64), nullable=False)
 
     posts: Mapped[list["Posts"]] = relationship("Posts",
                                                 back_populates="user", 
@@ -71,6 +70,7 @@ class Users(Root_User):
     _password: Mapped[str] = mapped_column("password" ,String(256), nullable=False)
     profile_pic_url: Mapped[str] = mapped_column(String(512), nullable=True,
                                                  default=default_profile_pic)
+    role: Mapped[str] = mapped_column(String(64), nullable=False)
     
     __mapper_args__ = {"polymorphic_identity": "local"}
 
@@ -96,6 +96,7 @@ class Oauth_Users(Root_User):
     id: Mapped[int] = mapped_column(ForeignKey("users_root.id"), primary_key=True)
     provider: Mapped[str] = mapped_column(String(128), nullable=False)
     username: Mapped[str] = mapped_column(String(256), nullable=False)
+    role: Mapped[str] = mapped_column(String(64), nullable=False)
     email: Mapped[str] = mapped_column(String(256), nullable=False)
     provider_user_id: Mapped[str] = mapped_column(String(512), nullable=False)
     profile_pic_url: Mapped[str] = mapped_column(String(512), nullable=False)
@@ -146,7 +147,7 @@ class RefreshToken(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     jti: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     revoked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=True)
     user_token: Mapped["Root_User"] = relationship("Root_User", back_populates="refresh_token")

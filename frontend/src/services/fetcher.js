@@ -42,6 +42,9 @@ export const apiFetch = async (url, options = {}) => {
         console.error("Token refresh failed.");
       }
     }
+    
+    
+    console.log(data);
 
     return data;
   } catch (err) {

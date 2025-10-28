@@ -1,9 +1,9 @@
 from App import jwt
 from sqlalchemy import select
-from datetime import datetime, timezone
+from datetime import datetime
 from .helper_methods import jsonify_template_user, logger_setup
 from .database import db_session as db
-from .model import RefreshToken, Root_User, Users, Oauth_Users
+from .model import RefreshToken
 
 logger = logger_setup(__name__, "JWT_callback.log")
 
@@ -36,17 +36,31 @@ def check_unauthorized_access_cookies(err_msg):
         401, False, 
         "You need to log in to access this",
         not_logged_in=True, 
+        logged_in_msg="Please log in to accessing this")
+
+# Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
+@jwt.unauthorized_loader
+def user_not_logged_in(err_msg):
+    logger.error(err_msg)
+    return jsonify_template_user(
+        401, False, 
+        "You need to log in to access this",
+        not_logged_in=True, 
         logged_in_msg="Please log in before accessing this")
 
 # Callback method to check if the token is revoked
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_payload):
+
     jti = jwt_payload["jti"]
+
+    if jwt_payload["type"] != "refresh":
+        return False  # Access tokens are not stored, so not revoked
 
     stmt = select(RefreshToken).where(RefreshToken.jti == jti)
     token = db.execute(stmt).scalars().first() 
 
-    if token is None or token.expires_at < datetime.now(timezone.utc):
+    if token is None or token.expires_at < datetime.now():
         return True
 
     return token.revoked
@@ -54,6 +68,7 @@ def check_if_token_revoked(jwt_header, jwt_payload):
 # cuztomized message when the token is revoked
 @jwt.revoked_token_loader
 def revoked_token_callback(jwt_header, jwt_payload):
+    logger.error("user need to login agian")
     return jsonify_template_user(
         401, False,
         "This token has been revoked. Please log in again.",
@@ -61,14 +76,11 @@ def revoked_token_callback(jwt_header, jwt_payload):
         token_msg="revoked token"
     )
 
-# Callback to automatically add claims to create access/refresh tokens
-@jwt.additional_claims_loader
-def add_claims_to_tokens(user: Root_User | Users | Oauth_Users):
-    return {
-        "role": user.role,
-        "username": user.username,
-        "type": user.user_type
-    }
+# tandem para sa additional claims loader 
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return str(getattr(user, "id", None))
+
 
 '''
 # Addiotnally i can use this for when im passing a sqlalchmey object as a arguement in indentity, but im not

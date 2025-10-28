@@ -12,5 +12,5 @@ if __name__ == "__main__":
     HOST = "0.0.0.0"            # Listen on all available network interfaces
     LOCAL_HOST = "127.0.0.1"    # Local host
     PORT = 5000
-    print(f"Running on host: http://{LOCAL_HOST}:{PORT}")
+    print(f"Running on host: http://{HOST}:{PORT}")
     app.run(host=HOST, port=PORT, debug=True)

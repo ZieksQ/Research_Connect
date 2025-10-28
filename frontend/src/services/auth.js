@@ -1,7 +1,7 @@
 import { apiFetch } from "./fetcher";
 
 export const loginUser = async(data) => 
-    apiFetch('/api/user/refresh/login', {
+    apiFetch('/api/user/login', {
         method: "POST",
         body: JSON.stringify(data),
     })

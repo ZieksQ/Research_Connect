@@ -1,5 +1,6 @@
 from flask import jsonify
 from pathlib import Path
+from flask_jwt_extended import create_access_token, create_refresh_token
 from .database import db_session as db
 import logging
 # from .model import Users, Oauth_Users
@@ -67,3 +68,22 @@ def logger_setup(name: str, filename: str, mode: str = "a"):
     logger.addHandler(handler)
 
     return logger
+
+def create_access_refresh_tokens(identity):
+    """helper method to create access and refresh tokens
+
+    Args:
+        identity (sqlalchemy object): sqlalchemy object of the user
+
+    Returns:
+        tuple (str, str): Tuple strings of the access and refresh tokens
+    """
+    access_token = create_access_token(identity=identity, 
+                                       additional_claims={
+                                           "username": getattr(identity, "username", "acob"),
+                                           "role": getattr(identity, "role", "user"),
+                                           "type": getattr(identity, "user_type", "local")
+                                       })
+    refresh_token = create_refresh_token(identity=identity)
+
+    return access_token, refresh_token

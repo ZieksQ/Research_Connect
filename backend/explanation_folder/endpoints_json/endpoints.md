@@ -3,7 +3,7 @@
 ## /api/user
 ```bash
 POST - http://127.0.0.1:5000/api/user/register
-POST - http://127.0.0.1:5000/api/user/refresh/login
+POST - http://127.0.0.1:5000/api/user/login
 POST - http://127.0.0.1:5000/api/user/profile_upload
 POST - http://127.0.0.1:5000/api/user/refresh/logout
 GET - http://127.0.0.1:5000/api/user/login_success
@@ -35,13 +35,15 @@ POST - http://127.0.0.1:5000/api/survey/answer/questionnaire
 ## /api/oauth
 ```bash
 Dont call this, change the url of the frontend using windows.location.href or something. chatgpt it, for web redicrect_url=react and for flutter redicrect_url=flutter
-http://127.0.0.1:5000/api/oauth/login?redirect_url=react
+http://localhost:5000/api/oauth/login?redirect_url=react
 
 get ID
+DONT use this deprecated
 http://127.0.0.1:5000/api/oauth/protected
 
 di ko alam bat may separate logout oauth, gagana nmansa siguro both logout, 
 please dont ever use this, ts not secure, use the one from the /user is the same funciton
+DONT use this deprecated, use the route_auth or /api/user logout
 http://127.0.0.1:5000/api/oauth/logout
 ```
 

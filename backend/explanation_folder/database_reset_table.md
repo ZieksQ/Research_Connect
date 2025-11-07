@@ -1,3 +1,6 @@
+Punta kayo sa app.py tas makikita nyo to
+
+```python
 from App import run_app
 from App.database import Base, engine
 from time import sleep
@@ -17,3 +20,18 @@ if __name__ == "__main__":
     PORT = 5000
     print(f"Running on host: http://{HOST}:{PORT}")
     app.run(host=HOST, port=PORT, debug=True)
+```
+
+<br></br>
+
+#### Resets the whole table in the databse. if you run this just wait 5-10 seconcs since if i dont put a break within those if causes problems
+```python
+RESET = True
+```
+
+<br></br>
+
+#### runs normally
+```python
+RESET = False
+```

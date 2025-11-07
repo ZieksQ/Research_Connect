@@ -1,6 +1,6 @@
 from App import jwt
 from sqlalchemy import select
-from datetime import datetime
+from datetime import datetime, timezone
 from .helper_methods import jsonify_template_user, logger_setup
 from .database import db_session as db
 from .model import RefreshToken
@@ -27,7 +27,7 @@ def expired_token_response(jwt_header, jwt_payload):
         token_msg="access token expired"
     )
 
-# Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
+# Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required() and/or the user tampered with the jwt
 @jwt.invalid_token_loader
 def check_unauthorized_access_cookies(err_msg):
     logger.error(err_msg)
@@ -60,7 +60,14 @@ def check_if_token_revoked(jwt_header, jwt_payload):
     stmt = select(RefreshToken).where(RefreshToken.jti == jti)
     token = db.execute(stmt).scalars().first() 
 
-    if token is None or token.expires_at < datetime.now():
+    if not token:
+        return True
+
+    expires_at: datetime = token.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+    if token is None or expires_at < datetime.now(timezone.utc):
         return True
 
     return token.revoked
@@ -77,17 +84,10 @@ def revoked_token_callback(jwt_header, jwt_payload):
     )
 
 # tandem para sa additional claims loader 
+# additional claims loader didnt work since im also using a refresh token but i devided to keep this if i ever decided to change the user identity
 @jwt.user_identity_loader
 def user_identity_lookup(user):
     return str(getattr(user, "id", None))
-
-
-'''
-# Addiotnally i can use this for when im passing a sqlalchmey object as a arguement in indentity, but im not
-@jwt.user_identity_loader
-def user_identity_lookup(user: Root_User | Users | Oauth_Users):
-    return user.id
-'''
 
 
 #-------------------------------------------------------------------------------------------------------

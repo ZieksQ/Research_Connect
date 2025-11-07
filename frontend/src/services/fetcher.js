@@ -24,7 +24,7 @@ export const apiFetch = async (url, options = {}) => {
     let data = await res.json();
 
      // 🔴 If token expired — refresh & retry once
-    if (data?.msg === "Token has expired") {
+    if (data?.token_expired) {
       console.warn("Access token expired. Refreshing...");
 
       const refresh = await refreshUser();
@@ -42,7 +42,6 @@ export const apiFetch = async (url, options = {}) => {
         console.error("Token refresh failed.");
       }
     }
-    
     
     console.log(data);
 

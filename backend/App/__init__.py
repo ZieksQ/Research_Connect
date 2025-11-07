@@ -40,24 +40,24 @@ def run_app():
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USE_SSL'] = False
     app.config['MAIL_USERNAME'] = 'cas092125@gmail.com'
-    app.config['MAIL_PASSWORD'] = GOOGLE_APP_PSSW
     app.config['MAIL_DEFAULT_SENDER'] = 'cas092125@gmail.com'
-
-    from .route_auth import user_auth
-    from .route_post_survey import survey_posting
-    from .route_oauth import oauth_me
-    from .route_otp import otp_route
-
-    app.register_blueprint( user_auth, url_prefix="/api/user" )         # Registers each route for different file for more organized project
-    app.register_blueprint( survey_posting, url_prefix="/api/survey" )
-    app.register_blueprint( oauth_me, url_prefix="/api/oauth" )
-    app.register_blueprint( otp_route, url_prefix="/api/otp")
+    app.config['MAIL_PASSWORD'] = GOOGLE_APP_PSSW
 
     jwt.init_app(app)                                                   # Initializes Each library
     bcrypt.init_app(app)
     oauth.init_app(app)
     mail.init_app(app)
+
     from App import helper_jwt_callback                                 # is like this so i can initialize my global jwt callback messages
+    from .routes.route_auth import user_auth
+    from .routes.route_post_survey import survey_posting
+    from .routes.route_oauth import oauth_me
+    from .routes.route_otp import otp_route
+
+    app.register_blueprint( user_auth, url_prefix="/api/user" )         # Registers each route for different file for more organized project
+    app.register_blueprint( survey_posting, url_prefix="/api/survey" )
+    app.register_blueprint( oauth_me, url_prefix="/api/oauth" )
+    app.register_blueprint( otp_route, url_prefix="/api/otp")
 
     CORS(app, supports_credentials=True)                                # Enables CORS and lets you send JWT through cookie
 

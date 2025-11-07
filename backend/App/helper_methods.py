@@ -76,7 +76,7 @@ def create_access_refresh_tokens(identity):
         identity (sqlalchemy object): sqlalchemy object of the user
 
     Returns:
-        tuple (str, str): Tuple strings of the access and refresh tokens
+        tuple (str, str): Tuple strings of access and refresh tokens
     """
     access_token = create_access_token(identity=identity, 
                                        additional_claims={

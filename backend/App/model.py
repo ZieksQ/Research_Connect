@@ -29,7 +29,6 @@ class Root_User(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_type: Mapped[str] = mapped_column("type", String(64), nullable=False)
-    role: Mapped[str] = mapped_column(String(64), nullable=False)
 
     posts: Mapped[list["Posts"]] = relationship("Posts",
                                                 back_populates="user", 
@@ -42,6 +41,14 @@ class Root_User(Base):
     answers: Mapped[list["Answers"]] = relationship("Answers",
                                                     back_populates="user",
                                                     cascade="all, delete-orphan")
+    
+    otp: Mapped["OTP"] = relationship("OTP", uselist=False,
+                                       back_populates="user",
+                                       cascade="all, delete-orphan")
+    
+    bypass_code: Mapped["Code"] = relationship("Code", uselist=False,
+                                               back_populates="user",
+                                               cascade="all, delete-orphan")
     
     survey: Mapped[list["Surveys"]] =relationship("Surveys",
                                                   secondary=rootUser_survey,
@@ -63,6 +70,7 @@ class Users(Root_User):
     _password: Mapped[str] = mapped_column("password" ,String(256), nullable=False)
     profile_pic_url: Mapped[str] = mapped_column(String(512), nullable=True,
                                                  default=default_profile_pic)
+    role: Mapped[str] = mapped_column(String(64), nullable=False)
     
     __mapper_args__ = {"polymorphic_identity": "local"}
 
@@ -88,6 +96,7 @@ class Oauth_Users(Root_User):
     id: Mapped[int] = mapped_column(ForeignKey("users_root.id"), primary_key=True)
     provider: Mapped[str] = mapped_column(String(128), nullable=False)
     username: Mapped[str] = mapped_column(String(256), nullable=False)
+    role: Mapped[str] = mapped_column(String(64), nullable=False)
     email: Mapped[str] = mapped_column(String(256), nullable=False)
     provider_user_id: Mapped[str] = mapped_column(String(512), nullable=False)
     profile_pic_url: Mapped[str] = mapped_column(String(512), nullable=False)
@@ -113,7 +122,7 @@ class Posts(Base):
     date_created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     date_updated: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
 
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
 
     user: Mapped["Root_User"] = relationship("Root_User", back_populates="posts")
     survey_posts: Mapped["Surveys"] = relationship("Surveys", back_populates="posts_survey",
@@ -138,7 +147,7 @@ class RefreshToken(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     jti: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     revoked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=True)
     user_token: Mapped["Root_User"] = relationship("Root_User", back_populates="refresh_token")
@@ -248,13 +257,25 @@ class Answers(Base):
 # -----------------------------
 
 class OTP(Base):
-    __tablename__ = "OTP"
+    __tablename__ = "otp"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    otp_text: Mapped[str] = mapped_column(String(32), nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
+
+    user: Mapped["Root_User"] = relationship("Root_User", back_populates="otp")
 
 class Code(Base):
     __tablename__ = "post_code"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    otp_text: Mapped[str] = mapped_column(String(32), nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
+
+    user: Mapped["Root_User"] = relationship("Root_User", back_populates="bypass_code")

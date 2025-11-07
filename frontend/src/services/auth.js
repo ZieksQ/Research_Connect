@@ -13,7 +13,7 @@ export const registerUser = async(data) =>
     })
 
 export const logoutUser = async() => 
-    apiFetch('/api/user/logout', {method: "POST"})
+    apiFetch('/api/user/refresh/logout', {method: "POST"})
 
 export const refreshUser = async () => {
   try {

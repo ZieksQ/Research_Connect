@@ -7,7 +7,7 @@
 <br>
 
 #### Missing input fields
-```
+```JSON
 {
 "status": 400,
 "ok": False,
@@ -19,7 +19,7 @@
 ```
 
 #### Missing Requirements
-```
+```JSON
 {
 "status": 422,
 "ok": False,
@@ -31,7 +31,7 @@
 ```
 
 #### Existing Username
-```
+```JSON
 {
 "status": 409,
 "ok": False,
@@ -40,7 +40,7 @@
 ```
 
 #### Database Error
-```
+```JSON
 {
 "status": 500,
 "ok": False,
@@ -49,7 +49,7 @@
 ```
 
 #### Success
-```
+```JSON
 {
 "status": 200,
 "ok": True,
@@ -64,7 +64,7 @@
 <br>
 
 #### Missing input fields
-```
+```JSON
 {
 "status": 400,
 "ok": False,
@@ -76,7 +76,7 @@
 ```
 
 #### Username not found
-```
+```JSON
 {
 "status": 404,
 "ok": False,
@@ -85,7 +85,7 @@
 ```
 
 #### Incorrect password
-```
+```JSON
 {
 "status": 401,
 "ok": False,
@@ -94,7 +94,7 @@
 ```
 
 #### Database Error
-```
+```JSON
 {
 "status": 500,
 "ok": False,
@@ -103,11 +103,12 @@
 ```
 
 #### Success
-```
+```JSON
 {
 "status": 200,
 "ok": True,
-"message": "Login successful"
+"message": "Login successful",
+"login_type": "Inquira"
 }
 ```
 
@@ -117,7 +118,7 @@
 <br>
 
 #### Missing file
-```
+```JSON
 {
 "status": 400,
 "ok": False,
@@ -126,7 +127,7 @@
 ```
 
 #### Upload to supabase error
-```
+```JSON
 {
 "status": 500,
 "ok": False,
@@ -135,7 +136,7 @@
 ```
 
 #### User does not exists
-```
+```JSON
 {
 "status": 400,
 "ok": False,
@@ -144,7 +145,7 @@
 ```
 
 #### Database Error
-```
+```JSON
 {
 "status": 500,
 "ok": False,
@@ -153,7 +154,7 @@
 ```
 
 #### Success
-```
+```JSON
 {
 "status": 200,
 "ok": True,

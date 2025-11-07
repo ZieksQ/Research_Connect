@@ -1,11 +1,11 @@
 from flask import Blueprint, request
 from sqlalchemy import select
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .database import db_session as db
-from .helper_methods import jsonify_template_user, commit_session, logger_setup
-from .model import ( Posts, QuestionType, Root_User,
+from App.database import db_session as db
+from App.helper_methods import jsonify_template_user, commit_session, logger_setup
+from App.model import ( Posts, QuestionType, Root_User,
                      Surveys, Question, Choice, Answers )
-from .helper_user_validation import (handle_post_input_exist, handle_post_requirements, 
+from App.helper_user_validation import (handle_post_input_exist, handle_post_requirements, 
                               handle_survey_input_exists, handle_survey_input_requirements)
 
 
@@ -46,7 +46,7 @@ def get_posts_solo(id):
         logger.error("Someone tried to post wihtout signing in")
         return jsonify_template_user(401, False, "You must log in first in order to post here")
 
-    post = db.get(Posts, id)
+    post = db.get(Posts, int(id))
 
     if not post:
         return jsonify_template_user(404, False, "Post not found")
@@ -62,7 +62,7 @@ def get_posts_solo(id):
 @survey_posting.route("/post/send", methods=["POST"])
 @jwt_required()
 def send_post():
-    """Depracated, use /post/send/questionnaire instead"""
+    """Deprecated, use /post/send/questionnaire instead"""
 
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
@@ -103,7 +103,7 @@ def send_post():
 @survey_posting.route("/post/questionnaire", methods=['POST'])
 @jwt_required()
 def send_survey():
-    """Depracated, use /post/send/questionnaire instead"""
+    """Deprecated, use /post/send/questionnaire instead"""
 
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
@@ -233,7 +233,7 @@ def get_questionnaire(id):
         logger.error("User tried to access get questionnaire without logging in")
         return jsonify_template_user(401, False, "You need to log in to access this")
     
-    post = db.get(Posts, id)
+    post = db.get(Posts, int(id))
     survey = post.survey_posts
 
     sorted_question = sorted(survey.questions_survey, key=lambda x: x.question_number)
@@ -252,10 +252,10 @@ def search():
     post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
 
     user_id = get_jwt_identity()
-    user = db.get(Root_User, user_id)
+    user = db.get(Root_User, int(user_id))
 
     if not user:
-        logger.info("User tried to access search route wihtout logging in")
+        logger.info("User tried to access search route without logging in")
         return jsonify_template_user(401, False, "You need to log in to access this")
 
     stmt = (
@@ -283,7 +283,7 @@ def answer_questionnaire(id):
 
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
-    post = db.get(Posts, id)
+    post = db.get(Posts, int(id))
 
     if not user:
         logger.info("User tried to answer questionnaire wihtout logging it")

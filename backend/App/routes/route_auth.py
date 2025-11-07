@@ -1,17 +1,16 @@
 from App import supabase_client
-from flask import request, current_app, Blueprint
+from flask import request, current_app, Blueprint, jsonify
 from datetime import datetime, timezone
 from sqlalchemy import select, and_, or_
-from .database import db_session as db
-from .helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic
-from .helper_methods import ( commit_session, jsonify_template_user, logger_setup )
-from .model import ( Root_User, Users, Oauth_Users, 
+from App.database import db_session as db
+from App.helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic
+from App.helper_methods import ( commit_session, jsonify_template_user, 
+                                logger_setup, create_access_refresh_tokens )
+from App.model import ( Root_User, Users, Oauth_Users, 
                     RefreshToken, User_Roles )
 from flask_jwt_extended import (
-    create_access_token, create_refresh_token, 
-    set_access_cookies, set_refresh_cookies, 
-    unset_jwt_cookies, get_jti,
-    get_jwt_identity, jwt_required, get_jwt
+    set_access_cookies, set_refresh_cookies, unset_jwt_cookies, 
+    get_jti, get_jwt_identity, jwt_required, get_jwt, get_current_user
 )
 import uuid
 
@@ -19,6 +18,8 @@ import uuid
 logger = logger_setup(__name__, "auth_users.log")
 # Set up a route for each file so it is more organized
 user_auth = Blueprint("user_auth", __name__)
+
+who_user_query = lambda id, utype: db.get(Users, id) if utype == "local" else db.get(Oauth_Users, id)
 
 @user_auth.route("/register", methods=["POST"])
 def user_register():
@@ -81,13 +82,12 @@ def user_login():
         logger.error(msg)
         return jsonify_template_user(401, False, msg)
     
-    access_token = create_access_token(identity=str(user.id))
-    refresh_token = create_refresh_token(identity=str(user.id))
+    access_token, refresh_token = create_access_refresh_tokens(identity=user)
 
     jti = get_jti(refresh_token)
 
-    expires = datetime.now(timezone.utc) + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
-    current_refresh_token = RefreshToken(jti=jti, user_token=user, expires_at=expires)
+    expires: datetime = datetime.now(timezone.utc) + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
+    current_refresh_token = RefreshToken(jti=jti, user_token=user, expires_at=expires )
 
     db.add(current_refresh_token)
 
@@ -101,6 +101,7 @@ def user_login():
     set_access_cookies(response, access_token)
     set_refresh_cookies(response, refresh_token)
 
+    logger.info(response.headers)
     logger.info("Login Succesful")
 
     return response
@@ -112,7 +113,7 @@ def profile_upload():
     profile_pic = request.files.get("profile_pic")
 
     user_id = get_jwt_identity()
-    user = db.get(Users, int(user_id))
+    user = db.get(Root_User, int(user_id))
 
     if not user:
         logger.info("Someone tired to change profile without logging or having a nexisting user")
@@ -125,15 +126,21 @@ def profile_upload():
     
     filename = f"{uuid.uuid4()}_{profile_pic.filename}"
 
-    resp = supabase_client.storage.from_("profile_pic").upload(path=filename, file=profile_pic.read(), 
+    try:
+        resp = supabase_client.storage.from_("profile_pic").upload(path=filename, file=profile_pic.read(), 
                                                                file_options={"content-type": profile_pic.content_type})
-    logger.info(resp)
-    # if resp.error:
-    #     logger.error(resp["error"]["message"])
-    #     return jsonify_template_user(500, False, resp["error"]["message"])
+    except Exception as e:
+        logger.exception(f"Exception type: {type(e).__name__}, message: {e}")
+        return jsonify_template_user(500, False, type(e).__name__)
     
+    logger.info(resp)
+    if hasattr(resp, "error"):
+        logger.error(resp.error)
+        return jsonify_template_user(500, False, resp.error)
+    
+    who_user = who_user_query(int(user_id), user.user_type)
     public_url = supabase_client.storage.from_("profile_pic").get_public_url(path=filename)
-    user.profile_pic_url = public_url
+    who_user.profile_pic_url = public_url
 
     success, error = commit_session()
     if not success:
@@ -145,7 +152,7 @@ def profile_upload():
     return jsonify_template_user(200, True, "Upload successful")
 
 
-@user_auth.route("/logout", methods=["POST"])
+@user_auth.route("/refresh/logout", methods=["POST"])
 @jwt_required(refresh=True)
 def logout():
     jti = get_jwt()["jti"]
@@ -185,10 +192,18 @@ def refresh_access():
         return jsonify_template_user(404, False, "You need to log in again"), 404
     
     user_id = get_jwt_identity()
-    access_token = create_access_token(identity=str(user_id))
+    user = db.get(Root_User, int(user_id))
+    if not user:
+        logger.error("Users tried to refresh wihtout logging in")
+        return jsonify_template_user(401, False,
+                                     "Please log in")
+    
+    access_token, _ = create_access_refresh_tokens(identity=user)
     response = jsonify_template_user(200, True, "Refresh Token successful")
 
     set_access_cookies(response, access_token)
+
+    logger.info(f"{user_id} refresh access cookie")
 
     return response
 
@@ -202,17 +217,18 @@ def get_user_data():
         logger.error("Somehow, someone accessed the fucking route wihtout them being in the database")
         return jsonify_template_user(400, False, "How did you even access this, you are not in the database")
 
-    who_user: Users | Oauth_Users = db.get(Users, int(user_id)) if user.user_type == "local" else db.get(Oauth_Users, int(user_id))
-
+    who_user =  who_user_query(int(user_id), user.user_type)
     user_info = who_user.get_user()
     user_posts = [post.get_post() for post in user.posts]
 
-    data = {"user_indo": user_info, 
+    data = {"user_info": user_info, 
             "user_posts": user_posts,}
+    
+    logger.info("You have got the user data")
 
     return jsonify_template_user(200, True, data)
 
-# Global endpoint message for when the user successfully logs in 
+# Global endpoint message for when the user successfully logs in1 
 @user_auth.route('/login_success', methods=['GET'])
 @jwt_required()
 def login_success():
@@ -223,7 +239,7 @@ def login_success():
         logger.info("User tried to access login successfull wihtout logging in")
         return jsonify_template_user(400, False, "Please log in to access this")
     
-    who_user: Users | Oauth_Users = db.get(Users, int(user_id)) if user.user_type == "local" else db.get(Oauth_Users, int(user_id))
+    who_user = who_user_query(int(user_id), user.user_type)
 
     user_data = {
         "id": who_user.id,
@@ -233,3 +249,11 @@ def login_success():
     }
 
     return jsonify_template_user(200, True, user_data)
+
+@user_auth.route("/debug", methods=['GET'])
+def debug_cookie():
+    logger.info("getting cookies")
+    return jsonify({
+        "cookies": dict(request.cookies),
+        "headers": dict(request.headers)
+    })

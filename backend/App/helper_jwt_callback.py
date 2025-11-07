@@ -3,7 +3,7 @@ from sqlalchemy import select
 from datetime import datetime, timezone
 from .helper_methods import jsonify_template_user, logger_setup
 from .database import db_session as db
-from .model import RefreshToken, Root_User, Users, Oauth_Users
+from .model import RefreshToken
 
 logger = logger_setup(__name__, "JWT_callback.log")
 
@@ -27,11 +27,21 @@ def expired_token_response(jwt_header, jwt_payload):
         token_msg="access token expired"
     )
 
-# Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
+# Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required() and/or the user tampered with the jwt
 @jwt.invalid_token_loader
 def check_unauthorized_access_cookies(err_msg):
     logger.error(err_msg)
 
+    return jsonify_template_user(
+        401, False, 
+        "You need to log in to access this",
+        not_logged_in=True, 
+        logged_in_msg="Please log in to accessing this")
+
+# Customize callback method to send a messaage to the frontend for any unauthorized access e.g. users accessing jwt_required()
+@jwt.unauthorized_loader
+def user_not_logged_in(err_msg):
+    logger.error(err_msg)
     return jsonify_template_user(
         401, False, 
         "You need to log in to access this",
@@ -41,14 +51,23 @@ def check_unauthorized_access_cookies(err_msg):
 # Callback method to check if the token is revoked
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_payload):
+
     jti = jwt_payload["jti"]
+
+    if jwt_payload["type"] != "refresh":
+        return False  # Access tokens are not stored, so not revoked
 
     stmt = select(RefreshToken).where(RefreshToken.jti == jti)
     token = db.execute(stmt).scalars().first() 
 
-    if token is None:
+    if not token:
         return True
-    if token.expires_at < datetime.now(timezone.utc):
+
+    expires_at: datetime = token.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+    if token is None or expires_at < datetime.now(timezone.utc):
         return True
 
     return token.revoked
@@ -56,6 +75,7 @@ def check_if_token_revoked(jwt_header, jwt_payload):
 # cuztomized message when the token is revoked
 @jwt.revoked_token_loader
 def revoked_token_callback(jwt_header, jwt_payload):
+    logger.error("user need to login agian")
     return jsonify_template_user(
         401, False,
         "This token has been revoked. Please log in again.",
@@ -63,21 +83,11 @@ def revoked_token_callback(jwt_header, jwt_payload):
         token_msg="revoked token"
     )
 
-# Callback to automatically add claims to create access/refresh tokens
-@jwt.additional_claims_loader
-def add_claims_to_tokens(user: Root_User | Users | Oauth_Users):
-    return {
-        "role": user.role,
-        "username": user.username,
-        "type": user.user_type
-    }
-
-'''
-# Addiotnally i can use this for when im passing a sqlalchmey object as a arguement in indentity, but im not
+# tandem para sa additional claims loader 
+# additional claims loader didnt work since im also using a refresh token but i devided to keep this if i ever decided to change the user identity
 @jwt.user_identity_loader
-def user_identity_lookup(user: Root_User | Users | Oauth_Users):
-    return user.id
-'''
+def user_identity_lookup(user):
+    return str(getattr(user, "id", None))
 
 
 #-------------------------------------------------------------------------------------------------------
@@ -85,14 +95,14 @@ def user_identity_lookup(user: Root_User | Users | Oauth_Users):
 '''
 jwt_payload
 {
-    "sub": 42,                      # "subject" - usually the user id
-    "iat": 1728463517,              # Issued At (UNIX timestamp)
-    "nbf": 1728463517,              # Not Before
-    "exp": 1728467117,              # Expiration Time
-    "type": "access",               # 'access' or 'refresh'
-    "fresh": True,                  # True for fresh tokens (login), False for refreshed
-    "jti": "e6e7a84a-859b-4c3d...", # JWT ID (unique identifier)
-    "custom_field": "whatever_you_added"  # Any extra data you set in create_access_token()
+    "sub": 42,                              # "subject" - usually the user id
+    "iat": 1728463517,                      # Issued At (UNIX timestamp)
+    "nbf": 1728463517,                      # Not Before
+    "exp": 1728467117,                      # Expiration Time
+    "type": "access",                       # 'access' or 'refresh'
+    "fresh": True,                          # True for fresh tokens (login), False for refreshed
+    "jti": "e6e7a84a-859b-4c3d...",         # JWT ID (unique identifier)
+    "custom_field": "whatever_you_added"    # Any extra data you set in create_access_token()
 }
 
 jwt_header

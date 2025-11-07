@@ -25,8 +25,8 @@ const ProfilePage = () => {
   }, []);
 
   // optional chaining prevents crash before data loads
-  const profilePicUrl = userData?.message?.user_indo?.profile_pic_url;
-  const username = userData?.message?.user_indo?.username;
+  const profilePicUrl = userData?.message?.user_info?.profile_pic_url;
+  const username = userData?.message?.user_info?.username;
 
   return (
     <section className="page-margin lg:mx-auto lg:max-w-4xl">

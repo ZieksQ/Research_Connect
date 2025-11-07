@@ -2,12 +2,12 @@ from flask import jsonify, redirect, make_response, url_for, Blueprint, current_
 from App import oauth
 from sqlalchemy import select, and_
 from datetime import datetime, timezone
-from .database import db_session as db
-from .model import Oauth_Users, User_Roles, RefreshToken
-from .helper_methods import commit_session, logger_setup
-from .env_config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-from flask_jwt_extended import ( create_access_token, create_refresh_token, set_access_cookies, get_jti,
-                                set_refresh_cookies, jwt_required, get_jwt_identity, unset_jwt_cookies )
+from App.database import db_session as db
+from App.model import Oauth_Users, User_Roles, RefreshToken
+from App.helper_methods import commit_session, logger_setup, create_access_refresh_tokens
+from App.env_config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+from flask_jwt_extended import ( set_access_cookies, get_jti, set_refresh_cookies, 
+                                jwt_required, get_jwt_identity, unset_jwt_cookies )
 
 logger = logger_setup(__name__, "user_oauth.log")
 
@@ -53,7 +53,8 @@ def authorize():
 
     url_redirect = session.get("redirect_url")
 
-    stmt = select(Oauth_Users).where(and_(Oauth_Users.provider == "google", Oauth_Users.provider_user_id == user_info["sub"]))
+    stmt = select(Oauth_Users).where(and_(Oauth_Users.provider == "google", 
+                                          Oauth_Users.provider_user_id == user_info["sub"]))
     user = db.execute(stmt).scalar_one_or_none()
     if not user:
         user = Oauth_Users(provider="google", username=user_info["name"], email=user_info["email"],
@@ -62,16 +63,15 @@ def authorize():
         db.add(user)
         success, error = commit_session()
         if not success:
-            logger.error(error)
-            return redirect(f"{url_redirect}?msg=Database_error&reason=Cannot_register_user")
+            logger.exception(error)
+            return redirect(f"{url_redirect}?msg=Database_error")
         logger.info("User added to the database")
 
-    access_token = create_access_token(identity=str(user.id))
-    refresh_token = create_refresh_token(identity=str(user.id))
+    access_token, refresh_token = create_access_refresh_tokens(identity=user)
 
     jti = get_jti(refresh_token)
 
-    expires = datetime.now(timezone.utc) + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
+    expires: datetime = datetime.now(timezone.utc) + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
     current_refresh_token = RefreshToken(jti=jti, user_token=user, expires_at=expires)
 
     db.add(current_refresh_token)
@@ -84,6 +84,8 @@ def authorize():
     resp = make_response(redirect(f"{url_redirect}?msg=Login_successful&login_type=google"))
     set_access_cookies(resp, access_token)
     set_refresh_cookies(resp, refresh_token)
+
+    logger.info(resp.headers)
     
     logger.info("User successfully logged in as google")
 

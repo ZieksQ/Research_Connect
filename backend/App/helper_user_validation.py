@@ -114,7 +114,7 @@ def handle_post_requirements(title: str, content: str, post = True) -> tuple[dic
     extra_flag = []
 
     who_title = "Post title" if post else "Survey title"
-    who_content = "Post title" if post else "Survey description"
+    who_content = "Post description" if post else "Survey description"
     who_limit = 400 if post else 100
 
     title = title.split()

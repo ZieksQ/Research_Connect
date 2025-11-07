@@ -1,11 +1,11 @@
 from flask import Blueprint, request
 from sqlalchemy import select
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .database import db_session as db
-from .helper_methods import jsonify_template_user, commit_session, logger_setup
-from .model import ( Posts, QuestionType, Root_User,
+from App.database import db_session as db
+from App.helper_methods import jsonify_template_user, commit_session, logger_setup
+from App.model import ( Posts, QuestionType, Root_User,
                      Surveys, Question, Choice, Answers )
-from .helper_user_validation import (handle_post_input_exist, handle_post_requirements, 
+from App.helper_user_validation import (handle_post_input_exist, handle_post_requirements, 
                               handle_survey_input_exists, handle_survey_input_requirements)
 
 
@@ -255,7 +255,7 @@ def search():
     user = db.get(Root_User, int(user_id))
 
     if not user:
-        logger.info("User tried to access search route wihtout logging in")
+        logger.info("User tried to access search route without logging in")
         return jsonify_template_user(401, False, "You need to log in to access this")
 
     stmt = (

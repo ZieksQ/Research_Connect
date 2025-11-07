@@ -5,10 +5,10 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from secrets import randbelow, token_hex
 from datetime import datetime, timedelta, timezone
 from App import mail
-from .helper_methods import logger_setup, commit_session, jsonify_template_user
-from .helper_user_validation import handle_validate_requirements
-from .model import OTP, Root_User, Users, Oauth_Users
-from .database import db_session as db
+from App.helper_methods import logger_setup, commit_session, jsonify_template_user
+from App.helper_user_validation import handle_validate_requirements
+from App.model import OTP, Root_User, Users, Oauth_Users
+from App.database import db_session as db
 
 generate_otp = lambda: f"{randbelow(1000000):06}"
 generate_code = lambda: f"{token_hex(3)}"
@@ -34,8 +34,9 @@ def send_otp():
         logger.error("user send a non existing email")
         return jsonify_template_user(400, False, "Please provide an email")
 
-    otp_expiration = datetime.now(timezone.utc) + timedelta(minutes=30)
-    otp_db = OTP( otp_text=generate_code(), expires_at=otp_expiration, is_used = False)
+    generated_otp = generate_otp()
+    otp_expiration = datetime.now() + timedelta(minutes=30)
+    otp_db = OTP( otp_text=generated_otp, expires_at=otp_expiration, is_used = False)
 
     msg = Message(
         subject="From Inquira",
@@ -47,10 +48,10 @@ def send_otp():
         <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px;">
             <h2 style="color: #333;">🔐 Password Reset OTP</h2>
             <p>Hello,</p>
-            <p>Your One-Time Password (OTP) to reset your account is:</p>
-            <h1 style="color: #2c7be5; text-align: center; background-color: black; padding: 15px 0 15px 0; font-weight: bold; border-radius: 7px;">{generate_otp}</h1>
-            <p>This code will expire in <strong>5 minutes</strong>. Please do not share it with anyone.</p>
-            <p style="color: #999; font-size: 12px;">If you dit not request this, you can safely ignore this email.</p>
+            <p>Your One-Time Password (OTP) to reset your account password is:</p>
+            <h1 style="color: #2c7be5; text-align: center; background-color: black; padding: 15px 0 15px 0; font-weight: bold; border-radius: 7px;">{generated_otp}</h1>
+            <p>This code will expire in <strong>30 minutes</strong>. Please do not share it with anyone.</p>
+            <p style="color: #999; font-size: 12px;">If you did not request this, you can safely ignore this email.</p>
         </div>
     </body>
     </html>
@@ -59,7 +60,7 @@ def send_otp():
         mail.send(msg)
     except SMTPException as e:
         logger.exception(str(e))
-        return jsonify_template_user(400, False, "Falsed to send email", mail_error=str(e))
+        return jsonify_template_user(400, False, "Failed to send email", mail_error=str(e))
 
     user.otp = otp_db
 

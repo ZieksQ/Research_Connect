@@ -2,15 +2,15 @@ from App import supabase_client
 from flask import request, current_app, Blueprint, jsonify
 from datetime import datetime, timezone
 from sqlalchemy import select, and_, or_
-from .database import db_session as db
-from .helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic
-from .helper_methods import ( commit_session, jsonify_template_user, logger_setup,
-                             create_access_refresh_tokens )
-from .model import ( Root_User, Users, Oauth_Users, 
+from App.database import db_session as db
+from App.helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic
+from App.helper_methods import ( commit_session, jsonify_template_user, 
+                                logger_setup, create_access_refresh_tokens )
+from App.model import ( Root_User, Users, Oauth_Users, 
                     RefreshToken, User_Roles )
 from flask_jwt_extended import (
-    set_access_cookies, set_refresh_cookies, unset_jwt_cookies, get_jti, get_jwt_identity, jwt_required, get_jwt
-
+    set_access_cookies, set_refresh_cookies, unset_jwt_cookies, 
+    get_jti, get_jwt_identity, jwt_required, get_jwt, get_current_user
 )
 import uuid
 
@@ -86,8 +86,8 @@ def user_login():
 
     jti = get_jti(refresh_token)
 
-    expires = datetime.now(timezone.utc) + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
-    current_refresh_token = RefreshToken(jti=jti, user_token=user, expires_at=expires)
+    expires: datetime = datetime.now(timezone.utc) + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
+    current_refresh_token = RefreshToken(jti=jti, user_token=user, expires_at=expires )
 
     db.add(current_refresh_token)
 

@@ -2,10 +2,10 @@ from flask import jsonify, redirect, make_response, url_for, Blueprint, current_
 from App import oauth
 from sqlalchemy import select, and_
 from datetime import datetime, timezone
-from .database import db_session as db
-from .model import Oauth_Users, User_Roles, RefreshToken
-from .helper_methods import commit_session, logger_setup, create_access_refresh_tokens
-from .env_config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+from App.database import db_session as db
+from App.model import Oauth_Users, User_Roles, RefreshToken
+from App.helper_methods import commit_session, logger_setup, create_access_refresh_tokens
+from App.env_config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 from flask_jwt_extended import ( set_access_cookies, get_jti, set_refresh_cookies, 
                                 jwt_required, get_jwt_identity, unset_jwt_cookies )
 
@@ -53,7 +53,8 @@ def authorize():
 
     url_redirect = session.get("redirect_url")
 
-    stmt = select(Oauth_Users).where(and_(Oauth_Users.provider == "google", Oauth_Users.provider_user_id == user_info["sub"]))
+    stmt = select(Oauth_Users).where(and_(Oauth_Users.provider == "google", 
+                                          Oauth_Users.provider_user_id == user_info["sub"]))
     user = db.execute(stmt).scalar_one_or_none()
     if not user:
         user = Oauth_Users(provider="google", username=user_info["name"], email=user_info["email"],
@@ -70,7 +71,7 @@ def authorize():
 
     jti = get_jti(refresh_token)
 
-    expires = datetime.now(timezone.utc) + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
+    expires: datetime = datetime.now(timezone.utc) + current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
     current_refresh_token = RefreshToken(jti=jti, user_token=user, expires_at=expires)
 
     db.add(current_refresh_token)

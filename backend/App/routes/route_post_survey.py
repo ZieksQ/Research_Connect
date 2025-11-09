@@ -1,9 +1,10 @@
 from flask import Blueprint, request
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from functools import wraps
 from App.database import db_session as db
 from App.helper_methods import jsonify_template_user, commit_session, logger_setup
-from App.model import ( Posts, QuestionType, Root_User,
+from App.model import ( Posts, QuestionType, Root_User, Code,
                      Surveys, Question, Choice, Answers )
 from App.helper_user_validation import (handle_post_input_exist, handle_post_requirements, 
                               handle_survey_input_exists, handle_survey_input_requirements)
@@ -14,19 +15,26 @@ logger = logger_setup(__name__, "post_survey.log")
 # Set up a route for each file so it is more organized
 survey_posting = Blueprint("survey_posting", __name__)
 
+def check_user(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        user_id = get_jwt_identity()
+        user = db.get(Root_User, int(user_id))
+
+        if not user:
+            logger.info(f"{user_id} tried to access a route without logging in")
+            return jsonify_template_user(401, False, "You must log in first in order to post here")
+        
+        return func(*args, **kwargs)
+    return wrapper
+
 @survey_posting.route("/post/get", methods=["GET"])
 @jwt_required()
+@check_user
 def get_posts():
 
-    user_id = get_jwt_identity()
-    user = db.get(Root_User, int(user_id))
-
-    if not user:
-        logger.error("Someone tried to post wihtout signing in")
-        return jsonify_template_user(401, False, "You must log in first in order to post here")
-
     # posts = Posts.query.order_by(order).all()
-    stmt = select(Posts)
+    stmt = select(Posts).where(Posts.approved == True)
     posts = db.scalars(stmt).all()
 
     data = [post.get_post() for post in posts]
@@ -37,14 +45,8 @@ def get_posts():
 
 @survey_posting.route("/post/get/<int:id>", methods=["GET"])
 @jwt_required()
+@check_user
 def get_posts_solo(id):
-
-    user_id = get_jwt_identity()
-    user = db.get(Root_User, int(user_id))
-
-    if not user:
-        logger.error("Someone tried to post wihtout signing in")
-        return jsonify_template_user(401, False, "You must log in first in order to post here")
 
     post = db.get(Posts, int(id))
 
@@ -151,6 +153,7 @@ def send_survey():
 @survey_posting.route("/post/send/questionnaire", methods=["POST"])
 @jwt_required()
 def send_post_survey():
+    """Use this instead of the two depracated method"""
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
 
@@ -164,6 +167,7 @@ def send_post_survey():
     post_content: str = data.get("post_content", "")
     survey_title: str = data.get("survey_title", "")
     survey_content: str = data.get("survey_content", "")
+    post_code: str = data.get("post_code")
     dsurvey: dict[str, dict] = data.get("survey_questions", {})
 
     # Checks if the post and survey title content exists
@@ -198,7 +202,7 @@ def send_post_survey():
         return jsonify_template_user(422, False, "You must meet the requirements for the survey", survey={"survey": svy_exists_msg})
     
     post = Posts(title=post_title, content=post_content, user=user)
-    survey = Surveys()
+    survey = Surveys(title=survey_title, content=survey_content)
 
     for counter, (_, dvalue) in enumerate(dsurvey.items(), start=1):
         
@@ -210,6 +214,18 @@ def send_post_survey():
                 question.choices_question.append( Choice(choice_text=data_choice) )
         
         survey.questions_survey.append(question)
+
+    stmt = select(Code).where(
+        and_(
+            Code.code_text == post_code, 
+            Code.is_used == False 
+            ))
+    code_db = db.scalars(stmt).first()
+
+    if code_db:
+        post.approved = True
+        code_db.is_used = True
+        logger.info(f"{user_id} has entered the code and approved the post")
     
     post.survey_posts = survey
     db.add(post)
@@ -223,15 +239,31 @@ def send_post_survey():
 
     return jsonify_template_user(200, True, "Post added successfully")
 
+@survey_posting.route("/post/archive/<int:id>", methods=['PATCH'])
+@jwt_required()
+@check_user
+def archive_post(id):
+
+    post = db.get(Posts, int(id))
+    if not post:
+        logger.info("User tried to archive as non exixtent post")
+        return jsonify_template_user(404, False, "Post does not exists")
+    
+    post.archived = True
+
+    success, error = commit_session()
+    if not success:
+        logger.error(error)
+        return jsonify_template_user(500, False, "Database Error")
+    
+    logger.info(f"User has archived post No.{id}")
+
+    return jsonify_template_user(200, True, f"You have archived post No.{id}")
+
 @survey_posting.route("/post/get/questionnaire/<int:id>", methods=["GET"])
 @jwt_required()
+@check_user
 def get_questionnaire(id):
-    user_id = get_jwt_identity()
-    user = db.get(Root_User, int(user_id))
-
-    if not user:
-        logger.error("User tried to access get questionnaire without logging in")
-        return jsonify_template_user(401, False, "You need to log in to access this")
     
     post = db.get(Posts, int(id))
     survey = post.survey_posts
@@ -245,18 +277,12 @@ def get_questionnaire(id):
 
 @survey_posting.route("/post/search", methods=["GET"])
 @jwt_required()
+@check_user
 def search():
     query = request.args.get("query", "").strip()
     order = request.args.get("order", "asc").strip()
 
     post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
-
-    user_id = get_jwt_identity()
-    user = db.get(Root_User, int(user_id))
-
-    if not user:
-        logger.info("User tried to access search route without logging in")
-        return jsonify_template_user(401, False, "You need to log in to access this")
 
     stmt = (
         select(Posts)

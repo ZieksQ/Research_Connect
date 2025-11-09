@@ -50,6 +50,15 @@ http://127.0.0.1:5000/api/oauth/logout
 ## /api/otp
 ```bash
 POST - http://127.0.0.1:5000/api/otp/send_otp
+POST - http://127.0.0.1:5000/api/otp/input_otp
+
+THIS only works for Users that have logged in using Inquira/Local
+POST - http://127.0.0.1:5000/api/otp/reset_pssw
+```
+
+## /api/admin
+```bash
+POST - http://127.0.0.1:5000/api/admin/approve_post
 ```
 
 ## JSON

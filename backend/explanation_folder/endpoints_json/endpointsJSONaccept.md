@@ -1,7 +1,6 @@
 # Below is a list of API endpoints and the corresponding JSON data they accept
 
 <br>
-
 # /api/user
 <br>
 
@@ -13,11 +12,10 @@
 "password": "@JohnDoe12345"
 }
 ```
+
 <br>
 
 > #### http://127.0.0.1:5000/api/user/login
-
-  
 
 ```JSON
 {
@@ -25,7 +23,8 @@
 "password": "@JohnDoe12345"
 }
 ```
-<br>  
+
+<br>
 
 > #### http://127.0.0.1:5000/api/user/logout
 
@@ -34,6 +33,7 @@
 Di ko alam bat post dito, pero wala kayong need lagay na data
 }
 ```
+
 <br>
 
 > #### http://127.0.0.1:5000/api/user/profile_upload
@@ -48,17 +48,14 @@ Di ko alam kung pano sa dart/flutter, ask chatgpt
 
 ```
 
-  
-
 > #### http://127.0.0.1:5000/api/user/refresh
-
-  
 
 ```
 explain so sayo sa f2f andy :ey: kakatmad pag sa chat kasi ni explain ko na kay acob to eh
 ```
 
 ---
+
 <br>
 
 # /api/survey
@@ -66,6 +63,8 @@ explain so sayo sa f2f andy :ey: kakatmad pag sa chat kasi ni explain ko na kay 
 <br>
 
 > #### http://127.0.0.1:5000/api/survey/post/send
+>
+> Depracated, i will wait for the finished JSON
 
 ```JSON
 {
@@ -107,6 +106,7 @@ explain so sayo sa f2f andy :ey: kakatmad pag sa chat kasi ni explain ko na kay 
 > #### http://127.0.0.1:5000/api/survey/answer/questionnaire/<int:id>
 
 The <int:id> is the ID of the post itself, not the survey
+
 ```JSON
 {
 	"1": "Paris",
@@ -119,6 +119,7 @@ The <int:id> is the ID of the post itself, not the survey
 <br>
 
 # /api/otp
+
 <br>
 
 > #### http://127.0.0.1:5000/api/otp/send_otp
@@ -126,5 +127,42 @@ The <int:id> is the ID of the post itself, not the survey
 ```JSON
 {
 	"email" : "youremail@gmail.com"
+}
+```
+
+> #### http://127.0.0.1:5000/api/otp/input_otp
+>
+> Six digit string of characters
+
+```JSON
+{
+	"email" : "123456"
+}
+```
+
+> #### http://127.0.0.1:5000/api/otp/input_otp
+>
+> Password must meet the requirements
+> This only works for users who have logged in using Inquira/Local
+
+```JSON
+{
+	"new_password" : "@Acob12345"
+}
+```
+
+<br>
+
+# /api/admin
+
+<br>
+
+> #### http://127.0.0.1:5000/api/admin/approve_post
+>
+> ID of the posts
+
+```JSON
+{
+	"id": "1"
 }
 ```

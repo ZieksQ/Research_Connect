@@ -2,8 +2,9 @@ from App import supabase_client
 from flask import request, current_app, Blueprint, jsonify
 from datetime import datetime, timezone
 from sqlalchemy import select, and_, or_
+from functools import wraps
 from App.database import db_session as db
-from App.helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic
+from App.helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic, handle_password_reset_user
 from App.helper_methods import ( commit_session, jsonify_template_user, 
                                 logger_setup, create_access_refresh_tokens )
 from App.model import ( Root_User, Users, Oauth_Users, 
@@ -251,9 +252,33 @@ def login_success():
     return jsonify_template_user(200, True, user_data)
 
 @user_auth.route("/debug", methods=['GET'])
-def debug_cookie():
+@jwt_required()
+def debug():
     logger.info("getting cookies")
+    payload = get_jwt()
+
+    user_id = get_jwt_identity()
+    user = db.get(Root_User, int(user_id))
+    oauth_user = db.get(Oauth_Users, 3)
+
+    who_user = who_user_query(user.id, user.user_type)
+    user = str(type(who_user)).split(".")
+    oauth_user = str(type(oauth_user)).split(".")
+    user_strped = user[-1].rstrip("'>")
+    oauth_user_strped = oauth_user[-1].rstrip("'>")
+    verify1 = "Users" == user_strped
+    verify2 = "Users" == oauth_user_strped
+    handle_user = handle_password_reset_user(oauth_user)
+
     return jsonify({
-        "cookies": dict(request.cookies),
-        "headers": dict(request.headers)
+        # "cookies": dict(request.cookies),
+        # "headers": dict(request.headers),'
+        "type1": verify1,
+        "type2": verify2,
+        "user_strped": user_strped,
+        "oauth_user_strped": oauth_user_strped,
+        "user": user,
+        "oauth_user": oauth_user,
+        "handle_user": handle_user,
+        "role": payload,
     })

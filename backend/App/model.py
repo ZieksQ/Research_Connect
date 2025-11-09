@@ -46,11 +46,7 @@ class Root_User(Base):
                                        back_populates="user",
                                        cascade="all, delete-orphan")
     
-    bypass_code: Mapped["Code"] = relationship("Code", uselist=False,
-                                               back_populates="user",
-                                               cascade="all, delete-orphan")
-    
-    survey: Mapped[list["Surveys"]] =relationship("Surveys",
+    survey: Mapped[list["Surveys"]] = relationship("Surveys",
                                                   secondary=rootUser_survey,
                                                   back_populates="root_user")
     
@@ -82,6 +78,7 @@ class Users(Root_User):
             "id": self.id,
             "username": self.username,
             "profile_pic_url": self.profile_pic_url,
+            "role": self.role,
         }
 
     def check_password(self, password):
@@ -111,6 +108,7 @@ class Oauth_Users(Root_User):
             "id": self.id,
             "username": self.username,
             "profile_pic_url": self.profile_pic_url,
+            "role": self.role,
         }
 
 class Posts(Base):
@@ -121,6 +119,8 @@ class Posts(Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     date_created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     date_updated: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
+    archived: Mapped[bool] = mapped_column(Boolean, default=False)
+    approved: Mapped[bool] = mapped_column(Boolean, default=False)
 
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
 
@@ -261,7 +261,7 @@ class OTP(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     otp_text: Mapped[str] = mapped_column(String(32), nullable=False)
-    expires_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now)
     is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
@@ -272,10 +272,8 @@ class Code(Base):
     __tablename__ = "post_code"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    otp_text: Mapped[str] = mapped_column(String(32), nullable=False)
-    expires_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    code_text: Mapped[str] = mapped_column(String(32), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now)
     is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
 
-    user: Mapped["Root_User"] = relationship("Root_User", back_populates="bypass_code")

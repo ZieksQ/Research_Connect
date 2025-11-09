@@ -84,10 +84,10 @@ def revoked_token_callback(jwt_header, jwt_payload):
     )
 
 # tandem para sa additional claims loader 
-# additional claims loader didnt work since im also using a refresh token but i devided to keep this if i ever decided to change the user identity
+# additional claims loader didnt work since im also using a refresh token but i decided to keep this if i ever decided to change the user identity
 @jwt.user_identity_loader
 def user_identity_lookup(user):
-    return str(getattr(user, "id", None))
+    return str(getattr(user, "id"))
 
 
 #-------------------------------------------------------------------------------------------------------

@@ -303,6 +303,32 @@ def handle_password_reset_user(user):
     user_striped = user_type_list[-1].rstrip("'>")
     return "Users" == user_striped
 
+def handle_category_requirements(category: str) -> tuple[str, bool]:
+    """Helper method to check category requirements e.g. category must be at least x char long
+
+    Args:
+        category (str): category input of the admin e.g. technology
+
+    Returns:
+        tuple(str, bool): message and bool checker, if bool is True trhere will be a message
+    """
+
+    category_rules = [
+        (lambda ctgry: len(ctgry) >= 3,     "Category must be at least 3 characters long"),
+        (lambda ctgry: len(ctgry) <= 64,    "Category must not exceed 64 characters"),
+        (lambda ctgry: ctgry.split() <= 5),  "Category must not exceed 5 words"
+    ]
+
+    message: str = ""
+    flag: bool = False
+
+    for check, msg in category_rules:
+        if not check(category):
+            message = msg
+            flag = True
+
+    return message, flag
+
 '''
 Decided to review it and the badwords from the txt file contains words that are not actually bad and may hinder users from effectively using the app itself
 Will add this if the txt file is fixed(will not too much word)

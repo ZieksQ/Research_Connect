@@ -5,7 +5,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from secrets import randbelow
 from datetime import datetime, timedelta, timezone
 from App import mail
-from App.helper_methods import logger_setup, commit_session, jsonify_template_user
+from App.helper_methods import logger_setup, commit_session, jsonify_template_user, datetime_return_tzinfo
 from App.helper_user_validation import handle_validate_requirements, handle_password_reset_user
 from App.model import OTP, Root_User, Users, Oauth_Users
 from App.database import db_session as db
@@ -144,10 +144,7 @@ def reset_pssw():
         logger.error(user_valid_req)
         return jsonify_template_user(422, False, user_valid_flag)
     
-    expires_at: datetime = otp_db.expires_at
-    if expires_at.tzinfo is None:
-        expires_at = expires_at.replace(tzinfo=timezone.utc)
-
+    expires_at: datetime = datetime_return_tzinfo(otp_db.expires_at)
     if expires_at < datetime.now(timezone.utc):
         logger.info("User tried to reest pasword but the OTP is expired")
         return jsonify_template_user(400, False, "Your otp has expired, please use it within 30 mins")

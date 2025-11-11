@@ -117,6 +117,7 @@ class Posts(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(512), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    category: Mapped[str] = mapped_column(String(64), nullable=True)
     date_created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     date_updated: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
     archived: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -140,6 +141,12 @@ class Posts(Base):
             "date_created": self.date_created,
             "date_updated": self.date_updated,
         }
+    
+class Category(Base):
+    __tablename__ = "users_posts_category"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    category_text: Mapped[str] = mapped_column(String(64), nullable=False)
 
 class RefreshToken(Base):
     __tablename__ = "user_refreshtoken"

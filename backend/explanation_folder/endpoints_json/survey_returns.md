@@ -2,11 +2,12 @@
 
 <br>
 
-> ### POST -  http://127.0.0.1:5000/api/survey/post/send/questionnaire
+> ### POST - http://127.0.0.1:5000/api/survey/post/send/questionnaire
 
 <br>
 
 #### Missing Post/Survey input
+
 ```JSON
 {
 "status": 400,
@@ -19,6 +20,7 @@
 ```
 
 #### Missing user
+
 ```JSON
 {
 "status": 401,
@@ -28,6 +30,7 @@
 ```
 
 #### Missing Requirements Post/Survey title and content
+
 ```JSON
 {
 "status": 422,
@@ -40,6 +43,7 @@
 ```
 
 #### Missing Survey questions
+
 ```JSON
 {
 "status": 400,
@@ -52,18 +56,40 @@
 ```
 
 #### Missing Requirements for Survey questions
+
 ```JSON
 {
 "status": 422,
 "ok": False,
-"message": You must meet the requirements for the survey
+"message": "You must meet the requirements for the survey",
 "survey": {
 		"i only have checker for question and question_type so, but still a fuckton of key-value pair"
 	}
 }
 ```
 
+#### Code is used or non-existent
+
+```JSON
+{
+"status": 404,
+"ok": False,
+"message": "The code you have entered is either used or non-existent"
+}
+```
+
+#### Code is expired
+
+```JSON
+{
+"status": 400,
+"ok": False,
+"message": "The code you have entered is expired"
+}
+```
+
 #### Database Error
+
 ```JSON
 {
 "status": 500,
@@ -73,6 +99,7 @@
 ```
 
 #### Success
+
 ```JSON
 {
 "status": 200,
@@ -82,13 +109,15 @@
 ```
 
 ---
+
 <br>
 
-> ### POST -  http://127.0.0.1:5000/api/survey/post/search?query=health&order=asc
+> ### POST - http://127.0.0.1:5000/api/survey/post/search?query=health&order=asc
 
 <br>
 
 #### Not logged in
+
 ```JSON
 {
 "status": 401,
@@ -98,6 +127,7 @@
 ```
 
 #### Nothing in search
+
 ```JSON
 {
 "status": 204,
@@ -106,8 +136,8 @@
 }
 ```
 
-
 #### Database Error
+
 ```JSON
 {
 "status": 500,
@@ -117,6 +147,7 @@
 ```
 
 #### Success
+
 ```JSON
 {
 "status": 200,
@@ -131,11 +162,12 @@
 
 <br>
 
-> ### POST -  http://127.0.0.1:5000/api/survey/answer/questionnaire/<int:id>
+> ### POST - http://127.0.0.1:5000/api/survey/answer/questionnaire/<int:id>
 
 <br>
 
 #### Not logged in
+
 ```JSON
 {
 "status": 401,
@@ -145,6 +177,7 @@
 ```
 
 #### Missing Posts, or there is no post
+
 ```JSON
 {
 "status": 400,
@@ -154,6 +187,7 @@
 ```
 
 #### User already answered the survey
+
 ```JSON
 {
 "status": 409,
@@ -162,8 +196,8 @@
 }
 ```
 
-
 #### Database Error
+
 ```JSON
 {
 "status": 500,
@@ -173,6 +207,7 @@
 ```
 
 #### Success
+
 ```JSON
 {
 "status": 200,
@@ -182,3 +217,49 @@
 ```
 
 ---
+
+<br>
+
+> ### GET - http://127.0.0.1:5000/api/survey/post/archive
+
+<br>
+
+#### Missing user
+
+```JSON
+{
+	"status": 401,
+	"ok": False,
+	"message": "You must log in first in order to post here"
+}
+```
+
+#### Missing post
+
+```JSON
+{
+	"status": 404,
+	"ok": False,
+	"message": "Post does not exists"
+}
+```
+
+#### Database Error
+
+```JSON
+{
+	"status": 500,
+	"ok": False,
+	"message": "Database error"
+}
+```
+
+#### Success
+
+```JSON
+{
+	"status": 200,
+	"ok": True,
+	"message": "You have archived Post No.1"
+}
+```

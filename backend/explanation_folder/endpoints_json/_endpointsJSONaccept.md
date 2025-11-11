@@ -166,3 +166,11 @@ The <int:id> is the ID of the post itself, not the survey
 	"id": "1"
 }
 ```
+
+> #### http://127.0.0.1:5000/api/admin/approve_post
+> Category can be health, mental, psychology, etc
+```JSON
+{
+	"category": "technology"
+}
+```

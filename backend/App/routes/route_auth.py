@@ -1,16 +1,16 @@
-from App import supabase_client
+from App import supabase_client, limiter
 from flask import request, current_app, Blueprint, jsonify
 from datetime import datetime, timezone
 from sqlalchemy import select, and_, or_
 from App.database import db_session as db
-from App.helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic
+from App.helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic, handle_password_reset_user
 from App.helper_methods import ( commit_session, jsonify_template_user, 
                                 logger_setup, create_access_refresh_tokens )
 from App.model import ( Root_User, Users, Oauth_Users, 
                     RefreshToken, User_Roles )
 from flask_jwt_extended import (
     set_access_cookies, set_refresh_cookies, unset_jwt_cookies, 
-    get_jti, get_jwt_identity, jwt_required, get_jwt, get_current_user
+    get_jti, get_jwt_identity, jwt_required, get_jwt
 )
 import uuid
 
@@ -22,6 +22,7 @@ user_auth = Blueprint("user_auth", __name__)
 who_user_query = lambda id, utype: db.get(Users, id) if utype == "local" else db.get(Oauth_Users, id)
 
 @user_auth.route("/register", methods=["POST"])
+@limiter.limit("2 per minute;30 per hour;200 per day")
 def user_register():
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
@@ -59,6 +60,7 @@ def user_register():
 
 
 @user_auth.route("/login", methods=["POST"])
+@limiter.limit("2 per minutes;30 per hour;200 per day")
 def user_login():
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
@@ -106,9 +108,9 @@ def user_login():
 
     return response
 
-
 @user_auth.route("/profile_upload", methods=["POST"])
 @jwt_required()
+@limiter.limit("2 per minute;10 per hour;50 per day", key_func=get_jwt_identity)
 def profile_upload():
     profile_pic = request.files.get("profile_pic")
 
@@ -154,6 +156,7 @@ def profile_upload():
 
 @user_auth.route("/refresh/logout", methods=["POST"])
 @jwt_required(refresh=True)
+@limiter.limit("2 per minutes;30 per hour;200 per day", key_func=get_jwt_identity)
 def logout():
     jti = get_jwt()["jti"]
     stmt = select(RefreshToken).where(RefreshToken.jti == jti)
@@ -183,6 +186,7 @@ def logout():
 # If the refresh token expires the user needs to log in again
 @user_auth.route("/refresh", methods=["POST"])
 @jwt_required(refresh=True)
+@limiter.limit("2 per minute;30 per hour;500 per day", key_func=get_jwt_identity)
 def refresh_access():
     jti = get_jwt()["jti"]
     stmt = select(RefreshToken).where(and_(RefreshToken.jti == jti, RefreshToken.revoked == False))
@@ -209,6 +213,7 @@ def refresh_access():
 
 @user_auth.route('/user_data', methods=['GET'])
 @jwt_required()
+@limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
 def get_user_data():
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
@@ -231,6 +236,7 @@ def get_user_data():
 # Global endpoint message for when the user successfully logs in1 
 @user_auth.route('/login_success', methods=['GET'])
 @jwt_required()
+@limiter.limit("2 per minute;30 per hour;200 per day", key_func=get_jwt_identity)
 def login_success():
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
@@ -251,9 +257,33 @@ def login_success():
     return jsonify_template_user(200, True, user_data)
 
 @user_auth.route("/debug", methods=['GET'])
-def debug_cookie():
+@jwt_required()
+def debug():
     logger.info("getting cookies")
+    payload = get_jwt()
+
+    user_id = get_jwt_identity()
+    user = db.get(Root_User, int(user_id))
+    oauth_user = db.get(Oauth_Users, 3)
+
+    who_user = who_user_query(user.id, user.user_type)
+    user = str(type(who_user)).split(".")
+    oauth_user = str(type(oauth_user)).split(".")
+    user_strped = user[-1].rstrip("'>")
+    oauth_user_strped = oauth_user[-1].rstrip("'>")
+    verify1 = "Users" == user_strped
+    verify2 = "Users" == oauth_user_strped
+    handle_user = handle_password_reset_user(oauth_user)
+
     return jsonify({
-        "cookies": dict(request.cookies),
-        "headers": dict(request.headers)
+        # "cookies": dict(request.cookies),
+        # "headers": dict(request.headers),'
+        "type1": verify1,
+        "type2": verify2,
+        "user_strped": user_strped,
+        "oauth_user_strped": oauth_user_strped,
+        "user": user,
+        "oauth_user": oauth_user,
+        "handle_user": handle_user,
+        "role": payload,
     })

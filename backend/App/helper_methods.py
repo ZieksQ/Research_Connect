@@ -1,6 +1,8 @@
 from flask import jsonify
 from pathlib import Path
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity
+from datetime import datetime, timezone
+from flask_limiter.util import get_remote_address
 from .database import db_session as db
 import logging
 # from .model import Users, Oauth_Users
@@ -87,3 +89,26 @@ def create_access_refresh_tokens(identity):
     refresh_token = create_refresh_token(identity=identity)
 
     return access_token, refresh_token
+
+def datetime_return_tzinfo(date: datetime):
+    """Helper method to convert timezone utc since even storing the date as utc in database and comparing it to utc still raises a naive error
+
+    Args:
+        date (datetime): datetime you want to convert to utc
+
+    Returns:
+        datetime: converted utc time
+    """
+    if date.tzinfo is None:
+        date = date.replace(tzinfo=timezone.utc)
+    return date
+
+def limter_key_func():
+    """Use in routes where i have @jwt_required(optional=True)"""
+    try:
+        identity = get_jwt_identity()
+        if identity:
+            return identity
+    except Exception:
+        pass
+    return get_remote_address()

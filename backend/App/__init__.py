@@ -3,23 +3,27 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_limiter.errors import RateLimitExceeded
 from datetime import timedelta
 from authlib.integrations.flask_client import OAuth
 from supabase import create_client
 from .database import db_session
-from .helper_methods import logger_setup
+from .helper_methods import logger_setup, jsonify_template_user
 from .env_config import ( FLASK_SECRET_KEY, JWT_SECRET_KEY, GOOGLE_APP_PSSW,
-                         SPBS_PROJECT_URL, SPBS_SERVICE_ROLE_KEY )
+                         SPBS_PROJECT_URL, SPBS_SERVICE_ROLE_KEY, REDIS_HOST, REDIS_PSSW )
 
 jwt = JWTManager()
 bcrypt = Bcrypt()
 oauth = OAuth()
 mail = Mail()
+limiter = Limiter(get_remote_address)
 
 def run_app():
     app = Flask(__name__)
     
-    logger_setup(__name__, "dunder_init.log")
+    logger = logger_setup(__name__, "dunder_init.log")
 
     app.config["SECRET_KEY"] = FLASK_SECRET_KEY
 
@@ -43,21 +47,27 @@ def run_app():
     app.config['MAIL_DEFAULT_SENDER'] = 'cas092125@gmail.com'
     app.config['MAIL_PASSWORD'] = GOOGLE_APP_PSSW
 
+    app.config["RATELIMIT_DEFAULT"] = "5 per minute"
+    app.config["RATELIMIT_STORAGE_URI"] = F"rediss://default:{REDIS_PSSW}@{REDIS_HOST}:6379" if REDIS_HOST and REDIS_PSSW else "memory://"
+
     jwt.init_app(app)                                                   # Initializes Each library
     bcrypt.init_app(app)
     oauth.init_app(app)
     mail.init_app(app)
+    limiter.init_app(app)
 
     from App import helper_jwt_callback                                 # is like this so i can initialize my global jwt callback messages
     from .routes.route_auth import user_auth
     from .routes.route_post_survey import survey_posting
     from .routes.route_oauth import oauth_me
     from .routes.route_otp import otp_route
+    from .routes.route_admin import admin
 
     app.register_blueprint( user_auth, url_prefix="/api/user" )         # Registers each route for different file for more organized project
     app.register_blueprint( survey_posting, url_prefix="/api/survey" )
     app.register_blueprint( oauth_me, url_prefix="/api/oauth" )
     app.register_blueprint( otp_route, url_prefix="/api/otp")
+    app.register_blueprint( admin, url_prefix="/api/admin")
 
     CORS(app, supports_credentials=True)                                # Enables CORS and lets you send JWT through cookie
 
@@ -65,6 +75,12 @@ def run_app():
     @app.teardown_appcontext
     def shut_down_sessions(exception=None):
         db_session.remove()
+
+    @app.errorhandler(RateLimitExceeded)
+    def handle_rate_limit(e):
+        error_msg = str(e).split(":")
+        _, msg = error_msg
+        return jsonify_template_user(429, False, f"Too many request, you can only try{msg}")
 
     return app
 

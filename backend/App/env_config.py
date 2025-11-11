@@ -34,3 +34,6 @@ SPBS_SERVICE_ROLE_KEY =     os.environ.get("SPBS_SERVICE_ROLE_KEY")
 GOOGLE_CLIENT_ID =          os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET =      os.environ.get("GOOGLE_CLIENT_SECRET")
 GOOGLE_APP_PSSW =           os.environ.get("GOOGLE_APP_PSSW", "abcd efgh ijkl mnop")
+
+REDIS_PSSW =                os.environ.get("REDIS_PSSW")
+REDIS_HOST =                os.environ.get("REDIS_HOST")

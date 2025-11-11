@@ -132,6 +132,8 @@ def handle_post_requirements(title: str, content: str, post = True) -> tuple[dic
         (lambda content: len(" ".join(content)) <= 5000,    f"{who_content} must not exceed 5000 characters"),
     ]
 
+
+
     for check, msg in title_rules:
         if not check(title):
             result["title"] = msg
@@ -215,6 +217,10 @@ def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
         (lambda qtype: qtype in qtype_list, f"Wrong question type, please choose within [{", ".join(qtype_list)}]"),
     ]
 
+    choices_text_rules = [
+        (lambda c_text: len(c_text) >= 1, "Choise text must be at least 1 character long"),
+    ]
+
     qflag = []
     qcheck = [] 
 
@@ -236,6 +242,16 @@ def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
                 result["type"] = msg
                 q_each_flag.append(True)
                 break
+        
+        # I will need to re check this again after the survey JSON updates
+        if qvalue.get("type") == QuestionType.MULTIPLE_CHOICE.value:
+            choices = qvalue.get("choice")
+            for choice in choices:
+                for check, msg in choices_text_rules:
+                    if not check(choice):
+                        result["choices"] = msg
+                        q_each_flag.append(True)
+                        break
             
         if result:
             qflag.append({f"Question {qcounter}" : result})
@@ -272,6 +288,46 @@ def handle_profile_pic(file) -> tuple[str | None, bool]:
 
     return None, False
 
+def handle_password_reset_user(user):
+    """Helper method for password reset to only change it when the user is signed it within local login. 
+    It compares the type of the current user to the sqlalchemy name of the 'Users' e.g.  '<class 'App.model.Users'>'
+
+    Args:
+        user (Users | Oauth_Users): _description_
+
+    Returns:
+        Bool: returns true if the user is signed in using local, otherwise false
+    """
+    user_type = str(type(user))
+    user_type_list = user_type.split(".")
+    user_striped = user_type_list[-1].rstrip("'>")
+    return "Users" == user_striped
+
+def handle_category_requirements(category: str) -> tuple[str, bool]:
+    """Helper method to check category requirements e.g. category must be at least x char long
+
+    Args:
+        category (str): category input of the admin e.g. technology
+
+    Returns:
+        tuple(str, bool): message and bool checker, if bool is True trhere will be a message
+    """
+
+    category_rules = [
+        (lambda ctgry: len(ctgry) >= 3,     "Category must be at least 3 characters long"),
+        (lambda ctgry: len(ctgry) <= 64,    "Category must not exceed 64 characters"),
+        (lambda ctgry: ctgry.split() <= 5),  "Category must not exceed 5 words"
+    ]
+
+    message: str = ""
+    flag: bool = False
+
+    for check, msg in category_rules:
+        if not check(category):
+            message = msg
+            flag = True
+
+    return message, flag
 
 '''
 Decided to review it and the badwords from the txt file contains words that are not actually bad and may hinder users from effectively using the app itself

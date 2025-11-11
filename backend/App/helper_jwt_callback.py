@@ -1,7 +1,7 @@
 from App import jwt
 from sqlalchemy import select
 from datetime import datetime, timezone
-from .helper_methods import jsonify_template_user, logger_setup
+from .helper_methods import jsonify_template_user, logger_setup, datetime_return_tzinfo
 from .database import db_session as db
 from .model import RefreshToken
 
@@ -63,10 +63,7 @@ def check_if_token_revoked(jwt_header, jwt_payload):
     if not token:
         return True
 
-    expires_at: datetime = token.expires_at
-    if expires_at.tzinfo is None:
-        expires_at = expires_at.replace(tzinfo=timezone.utc)
-
+    expires_at: datetime = datetime_return_tzinfo(token.expires_at)
     if token is None or expires_at < datetime.now(timezone.utc):
         return True
 
@@ -84,10 +81,10 @@ def revoked_token_callback(jwt_header, jwt_payload):
     )
 
 # tandem para sa additional claims loader 
-# additional claims loader didnt work since im also using a refresh token but i devided to keep this if i ever decided to change the user identity
+# additional claims loader didnt work since im also using a refresh token but i decided to keep this if i ever decided to change the user identity
 @jwt.user_identity_loader
 def user_identity_lookup(user):
-    return str(getattr(user, "id", None))
+    return str(getattr(user, "id"))
 
 
 #-------------------------------------------------------------------------------------------------------

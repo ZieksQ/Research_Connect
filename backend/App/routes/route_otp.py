@@ -2,20 +2,21 @@ from flask import Blueprint, request, session
 from flask_mail import Message
 from smtplib import SMTPException
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from secrets import randbelow, token_hex
+from secrets import randbelow
 from datetime import datetime, timedelta, timezone
 from App import mail
-from App.helper_methods import logger_setup, commit_session, jsonify_template_user
-from App.helper_user_validation import handle_validate_requirements
+from App.helper_methods import logger_setup, commit_session, jsonify_template_user, datetime_return_tzinfo
+from App.helper_user_validation import handle_validate_requirements, handle_password_reset_user
 from App.model import OTP, Root_User, Users, Oauth_Users
 from App.database import db_session as db
 
 generate_otp = lambda: f"{randbelow(1000000):06}"
-generate_code = lambda: f"{token_hex(3)}"
 
 logger = logger_setup(__name__, "otp.log")
 
 otp_route = Blueprint("otp_route", __name__)
+
+who_user_query = lambda id, utype: db.get(Users, id) if utype == "local" else db.get(Oauth_Users, id)
 
 @otp_route.route("/send_otp", methods=['POST'])
 @jwt_required()
@@ -26,7 +27,7 @@ def send_otp():
     user = db.get(Root_User, int(user_id))
 
     if not user:
-        logger.error("User trued to access send otp wihtout logging in")
+        logger.error("User tried to access send otp without logging in")
         return jsonify_template_user(401, False, "You need to log in to access this")
 
     email = data.get("email")
@@ -35,7 +36,7 @@ def send_otp():
         return jsonify_template_user(400, False, "Please provide an email")
 
     generated_otp = generate_otp()
-    otp_expiration = datetime.now() + timedelta(minutes=30)
+    otp_expiration = datetime.now(timezone.utc) + timedelta(minutes=30)
     otp_db = OTP( otp_text=generated_otp, expires_at=otp_expiration, is_used = False)
 
     msg = Message(
@@ -84,17 +85,22 @@ def input_otp():
 
     if not user:
         logger.error("Someone tried to access the reset password without logging in")
-        return jsonify_template_user(401, False, "Holy fuck, how dod you access this, please log in")
+        return jsonify_template_user(401, False, 
+                                     "Holy fuck, how did you access this, please log in")
     
     if not otp:
         logger.error(f"{user.id} did not provide an otp")
-        return jsonify_template_user(400, False, "Please input the OTP we provided")
+        return jsonify_template_user(400, False, "Missing OTP, please input the OTP we provided")
 
     otp_db: OTP = user.otp
 
     if otp_db.otp_text != otp:
         logger.error(f"{user.id} inputed the wrong OTP")
-        return jsonify_template_user(400, False, "Please iput the right OTP")
+        return jsonify_template_user(400, False, "Please iput the correct OTP")
+
+    if otp_db.is_used:
+        logger.info("User tried to input a used OTP")
+        return jsonify_template_user(409, False, "This OTP have been used")
     
     otp_db.is_used = True
     session["otp"] = otp
@@ -112,18 +118,44 @@ def reset_pssw():
 
     if not user:
         logger.error("Someone tried to access the reset password without logging in")
-        return jsonify_template_user(401, False, "Holy fuck, how dod you access this, please log in")
+        return jsonify_template_user(401, False, "Holy fuck, how did you access this, please log in")
 
-    who_user = db.get(Users, int(user_id)) if user.user_type == "local" else db.get(Oauth_Users, int(user_id))
+    who_user = who_user_query(user.id, user.user_type)
+    otp_db = who_user.otp
+    user_check = handle_password_reset_user(who_user)
     otp = session.get("otp")
     new_pssw = data.get("new_password")
+
+    if not user_check:
+        logger.info("User tried to change password but not logged in using local")
+        return jsonify_template_user(403, False, 
+                                     "You cannot change password using this account type. Only users logged in using Inquira will be able to change password")
+    
+    if otp != otp_db.otp_text:
+        logger.error("User tampered with the session OTP")
+        return jsonify_template_user(400, False, "Look man, please dont tamper with the session's OTP")
     
     if not new_pssw:
         logger.error(f"{user.id} accessed otp wihout providing a password")
         return jsonify_template_user(400, False, "Please enter the new password you want")
     
-    user_valid_req, user_valid_flag =  handle_validate_requirements(who_user.username, new_pssw )
+    user_valid_req, user_valid_flag = handle_validate_requirements(who_user.username, new_pssw )
     if user_valid_flag:
         logger.error(user_valid_req)
         return jsonify_template_user(422, False, user_valid_flag)
     
+    expires_at: datetime = datetime_return_tzinfo(otp_db.expires_at)
+    if expires_at < datetime.now(timezone.utc):
+        logger.info("User tried to reest pasword but the OTP is expired")
+        return jsonify_template_user(400, False, "Your otp has expired, please use it within 30 mins")
+
+    who_user.set_password(new_pssw)
+
+    success, error = commit_session()
+    if not success:
+        logger.error(error)
+        return jsonify_template_user(500, False, "Database Error")
+    
+    logger.info(f"{user.id} has changed their password")
+
+    return jsonify_template_user(200, True, "Password reset successfully")

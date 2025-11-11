@@ -122,7 +122,7 @@
 {
 "status": 400,
 "ok": False,
-"message": File does no exists. or No file name. or invalid file extension
+"message": "File does no exists. or No file name. or invalid file extension"
 }
 ```
 
@@ -131,7 +131,7 @@
 {
 "status": 500,
 "ok": False,
-"message": supbase will provide this, i dont know the message
+"message": "supbase will provide this, i dont know the message"
 }
 ```
 

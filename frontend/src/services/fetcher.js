@@ -23,7 +23,7 @@ export const apiFetch = async (url, options = {}) => {
 
     let data = await res.json();
 
-     // 🔴 If token expired — refresh & retry once
+     // If token expired — refresh & retry once
     if (data?.token_expired) {
       console.warn("Access token expired. Refreshing...");
 

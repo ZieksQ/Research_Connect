@@ -334,12 +334,16 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
 
   const handleFile = (file) => {
     if (mediaType === 'image' && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        updateQuestion(currentSectionId, currentQuestionId, 'image', e.target.result);
-        closeMediaModal();
+      // Store the actual File object for FormData submission
+      const imageData = {
+        file: file, // Store the actual File object
+        preview: URL.createObjectURL(file), // Create preview URL for display
+        name: file.name,
+        type: file.type,
+        size: file.size
       };
-      reader.readAsDataURL(file);
+      updateQuestion(currentSectionId, currentQuestionId, 'image', imageData);
+      closeMediaModal();
     }
   };
 
@@ -720,7 +724,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                             {question.image && (
                               <div className="mt-3 relative">
                                 <img
-                                  src={question.image}
+                                  src={question.image.preview}
                                   alt="Question"
                                   className="max-w-full h-auto rounded-lg"
                                   style={{ maxHeight: '200px' }}

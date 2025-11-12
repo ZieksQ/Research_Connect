@@ -39,14 +39,75 @@ export default function SurveyWizard() {
   };
 
   const handlePublish = () => {
-    console.log(JSON.stringify([surveyData], null, 2));
-    alert('Survey published! Check the console for JSON data.');
+    // Create FormData to handle images
+    const formData = new FormData();
+    
+    // Prepare survey data for JSON (without File objects)
+    const surveyDataForJson = {
+      surveyTitle: surveyData.surveyTitle,
+      surveyDescription: surveyData.surveyDescription,
+      surveyApproxTime: surveyData.surveyApproxTime,
+      surveyTags: surveyData.surveyTags,
+      target: surveyData.target,
+      data: surveyData.data.map((section) => ({
+        ...section,
+        questions: section.questions.map((question) => {
+          const questionData = { ...question };
+          
+          // Replace image object with metadata (file will be in FormData)
+          if (question.image) {
+            questionData.image = {
+              name: question.image.name,
+              type: question.image.type,
+              size: question.image.size,
+              fieldName: `image_${question.id}` // Reference to FormData field
+            };
+          }
+          
+          return questionData;
+        })
+      }))
+    };
+    
+    // Add survey JSON data to FormData
+    formData.append('surveyData', JSON.stringify(surveyDataForJson));
+    
+    // Add all image files to FormData
+    surveyData.data.forEach((section) => {
+      section.questions.forEach((question) => {
+        if (question.image && question.image.file) {
+          formData.append(`image_${question.id}`, question.image.file);
+        }
+      });
+    });
+    
+    // Log FormData contents
+    console.log('=== SURVEY PUBLISHED WITH FORMDATA ===');
+    console.log('\nSurvey JSON Data:');
+    console.log(JSON.stringify(surveyDataForJson, null, 2));
+    console.log('\nFormData Contents:');
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`${key}: [File] ${value.name} (${value.type}, ${value.size} bytes)`);
+      } else {
+        console.log(`${key}: ${value}`);
+      }
+    }
+    console.log('\n=== END ===');
+    
+    alert('Survey published! Check the console for FormData contents.');
+    
+    // Example: How to send to server
+    // fetch('/api/survey', {
+    //   method: 'POST',
+    //   body: formData
+    // });
   };
 
   const CurrentStepComponent = steps[currentStep].component;
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <div className="max-w-5xl mx-auto p-6">
         {/* Header */}
         <div className="rounded-xl shadow-lg p-6 mb-6" style={{ backgroundColor: 'var(--color-secondary-background)' }}>

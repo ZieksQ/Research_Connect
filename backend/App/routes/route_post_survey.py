@@ -297,7 +297,7 @@ def survey_is_answered():
     data: dict = request.get_json()
 
     user_id = get_jwt_identity()
-    user = db.get(Root_User, int(id))
+    user = db.get(Root_User, int(user_id))
 
     survey_id = data.get("survey_id")
 

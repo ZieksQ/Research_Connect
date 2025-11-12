@@ -21,7 +21,7 @@ who_user_query = lambda id, utype: db.get(Users, id) if utype == "local" else db
 
 @otp_route.route("/send_otp", methods=['POST'])
 @jwt_required()
-@limiter.limiter("3 per 10 minute;10 per hour;30 per day")
+@limiter.limit("3 per 10 minute;10 per hour;30 per day")
 def send_otp():
     data = request.get_json() or {}
 
@@ -78,7 +78,7 @@ def send_otp():
 
 @otp_route.route("/input_otp", methods=['POST'])
 @jwt_required()
-@limiter.limiter("3 per 10 minute;10 per hour;30 per day")
+@limiter.limit("3 per 10 minute;10 per hour;30 per day")
 def input_otp():
     data: dict = request.get_json()
     otp = data.get("otp")
@@ -113,7 +113,7 @@ def input_otp():
 
 @otp_route.route("/reset_pssw", methods=['PATCH'])
 @jwt_required()
-@limiter.limiter("3 per 10 minute;10 per hour;30 per day")
+@limiter.limit("3 per 10 minute;10 per hour;30 per day")
 def reset_pssw():
     data: dict = request.get_json()
 

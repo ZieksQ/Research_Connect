@@ -105,7 +105,7 @@
 
 <br>
 
-> ### POST -  http://127.0.0.1:5000/api/otp/reset_pssw
+> ### PATCH -  http://127.0.0.1:5000/api/otp/reset_pssw
 > This only works for users who have logged in using Inquira/Local
 <br>
 

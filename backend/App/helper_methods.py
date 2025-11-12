@@ -40,7 +40,7 @@ def jsonify_template_user(status: int, ok: bool, message: str | dict, **extra_fl
         { "status": status, 
          "ok": ok, 
          "message": message, 
-         **extra_flag }
+         **extra_flag, }
         )
     resp.status_code = status
 

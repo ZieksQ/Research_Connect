@@ -4,7 +4,7 @@
 ```bash
 POST - http://127.0.0.1:5000/api/user/register
 POST - http://127.0.0.1:5000/api/user/login
-POST - http://127.0.0.1:5000/api/user/profile_upload
+PATCH - http://127.0.0.1:5000/api/user/profile_upload
 POST - http://127.0.0.1:5000/api/user/refresh/logout
 GET - http://127.0.0.1:5000/api/user/login_success
 GET - http://127.0.0.1:5000/api/user/user_data
@@ -26,6 +26,7 @@ GET - http://127.0.0.1:5000/api/survey/post/get/questionnaire/<int:id>
 
 POST - http://127.0.0.1:5000/api/survey/post/send/questionnaire
 POST - http://127.0.0.1:5000/api/survey/answer/questionnaire
+POST - http://127.0.0.1:5000/api/survey/questionnaire/is_answered
 
 PATCH - http://127.0.0.1:5000/api/survey/post/archive
 
@@ -58,7 +59,7 @@ POST - http://127.0.0.1:5000/api/otp/send_otp
 POST - http://127.0.0.1:5000/api/otp/input_otp
 
 THIS only works for Users that have logged in using Inquira/Local
-POST - http://127.0.0.1:5000/api/otp/reset_pssw
+PATCH - http://127.0.0.1:5000/api/otp/reset_pssw
 ```
 
 ## /api/admin

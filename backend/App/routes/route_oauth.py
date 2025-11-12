@@ -1,5 +1,5 @@
+from App import oauth, limiter
 from flask import jsonify, redirect, make_response, url_for, Blueprint, current_app, request, session
-from App import oauth
 from sqlalchemy import select, and_
 from datetime import datetime, timezone
 from App.database import db_session as db
@@ -35,6 +35,7 @@ is_valid_redirect = lambda url: url in ALLOWED_REDIRECTS
 get_url = lambda url: ALLOWED_REDIRECTS.get(url)
 
 @oauth_me.route("/login")
+@limiter.limit("2 per minutes;30 per hour;200 per day")
 def login():
     redirect_url = request.args.get("redirect_url")
     if not redirect_url or not is_valid_redirect(redirect_url):
@@ -45,6 +46,7 @@ def login():
     return google.authorize_redirect(redirect_uri)
 
 @oauth_me.route("/authorized/google")
+@limiter.limit("2 per minutes;30 per hour;200 per day")
 def authorize():
     # or store this using a variable, im not using it so im just initializing it
     _ = google.authorize_access_token()
@@ -94,6 +96,7 @@ def authorize():
 
 @oauth_me.route("/protected")
 @jwt_required()
+@limiter.limit("1 per day", key_func=get_jwt_identity)
 def protected():
     current_user = get_jwt_identity()
     return jsonify({"message": current_user})
@@ -101,6 +104,7 @@ def protected():
 
 @oauth_me.route("/logout", methods=['POST'])
 @jwt_required()
+@limiter.limit("1 per day", key_func=get_jwt_identity)
 def logout():
     """Deprecated dont use this"""
     resp = jsonify({"message": "You are logged out"})

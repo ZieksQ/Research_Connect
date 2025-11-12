@@ -140,7 +140,7 @@ The <int:id> is the ID of the post itself, not the survey
 }
 ```
 
-> #### http://127.0.0.1:5000/api/otp/input_otp
+> #### http://127.0.0.1:5000/api/otp/reset_pssw
 >
 > Password must meet the requirements
 > This only works for users who have logged in using Inquira/Local

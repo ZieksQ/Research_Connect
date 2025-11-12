@@ -1,3 +1,4 @@
+from App import limiter
 from flask import request, Blueprint
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from secrets import token_hex
@@ -36,6 +37,7 @@ def check_user_admin(func):
 @admin.route("/approve_post", methods=['PATCH'])
 @jwt_required()
 @check_user_admin
+@limiter.limit("20 per minute;300 per hour;5000 per day")
 def approve_post():
     data: dict = request.get_json()
 
@@ -66,6 +68,7 @@ def approve_post():
 @admin.route("/generate/post_code", methods=['GET'])
 @jwt_required()
 @check_user_admin
+@limiter.limit("20 per minute;300 per hour;5000 per day")
 def generate_post_code():
     user_id = get_jwt_identity()
 
@@ -88,6 +91,7 @@ def generate_post_code():
 @admin.route("/generate/post/category", methods=['POST'])
 @jwt_required()
 @check_user_admin
+@limiter.limit("1 per minute;20 per hour;200 per day")
 def generate_post_category():
     data: dict = request.get_json()
     user_id = get_jwt_identity()

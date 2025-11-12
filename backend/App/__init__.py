@@ -47,7 +47,8 @@ def run_app():
     app.config['MAIL_DEFAULT_SENDER'] = 'cas092125@gmail.com'
     app.config['MAIL_PASSWORD'] = GOOGLE_APP_PSSW
 
-    app.config["RATELIMIT_DEFAULT"] = "5 per minute"
+    # flask-limiter and redis ipstash
+    app.config["RATELIMIT_DEFAULT"] = "10 per minute"
     app.config["RATELIMIT_STORAGE_URI"] = F"rediss://default:{REDIS_PSSW}@{REDIS_HOST}:6379" if REDIS_HOST and REDIS_PSSW else "memory://"
 
     jwt.init_app(app)                                                   # Initializes Each library

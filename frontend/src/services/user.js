@@ -6,7 +6,7 @@ export const postProfilePicture = async (file) => {
   formData.append("profile_pic", file); // must match Flask key
 
   return apiFetch("/api/user/profile_upload", {
-    method: "POST",
+    method: "PATCH",
     body: formData,
   });
 };

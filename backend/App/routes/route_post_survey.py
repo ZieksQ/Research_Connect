@@ -66,6 +66,7 @@ def get_posts_solo(id):
 
 @survey_posting.route("/post/send/questionnaire", methods=["POST"])
 @jwt_required()
+@limiter.limit("1 per minute;20 per hour;100 per day", key_func=get_jwt_identity)
 def send_post_survey():
     """Use this instead of the two depracated method"""
     user_id = get_jwt_identity()
@@ -175,7 +176,7 @@ def send_post_survey():
 @survey_posting.route("/post/archive", methods=['PATCH'])
 @jwt_required()
 @check_user
-@limiter.limit("10 per minute;40 per hour;500 per day", key_func=get_jwt_identity)
+@limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
 def archive_post():
     data: dict = request.get_json()
     post_id = data.get("id")
@@ -210,12 +211,12 @@ def get_questionnaire(id):
 
     logger.info(f"{post} {survey}")
 
-    return jsonify_template_user(200, True, {"survey" : survey.id, "questions": questions})
+    return jsonify_template_user(200, True, {"survey" : survey.get_survey(), "questions": questions})
 
 @survey_posting.route("/post/search", methods=["GET"])
 @jwt_required()
 @check_user
-@limiter.limit("100 per minute;500 per hour;5000 per day", key_func=get_jwt_identity)
+@limiter.limit("100 per minute;5000 per day", key_func=get_jwt_identity)
 def search():
     query = request.args.get("query", "").strip()
     order = request.args.get("order", "asc").strip()
@@ -242,6 +243,7 @@ def search():
 
 @survey_posting.route("/answer/questionnaire/<int:id>", methods=['POST'])
 @jwt_required()
+@limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
 def answer_questionnaire(id):
     data: dict = request.get_json()
 
@@ -279,7 +281,6 @@ def answer_questionnaire(id):
 @survey_posting.route("/category/get", methods=['GET'])
 @jwt_required()
 @check_user
-#Fix this, do the same limiter for send post survey and this route and answer survey
 @limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
 def get_category():
     stmt = select(Category)
@@ -288,6 +289,38 @@ def get_category():
     data = [ category.category_text for category in categories]
 
     return jsonify_template_user(200, True, data)
+
+@survey_posting.route("/questionnaire/is_answered", methods=['POST'])
+@jwt_required()
+@limiter.limit("20 per minute;300 per hour;5000 per day")
+def survey_is_answered():
+    data: dict = request.get_json()
+
+    user_id = get_jwt_identity()
+    user = db.get(Root_User, int(id))
+
+    survey_id = data.get("survey_id")
+
+    if not user:
+        logger.info("User tried to access survey_is_answered without registering")
+        return jsonify_template_user(404, False, "Please log in to use this")
+
+    if not survey_id:
+        logger.info(f"User {user_id} tampered with the json")
+        return jsonify_template_user(404, False, "Please do not tamper with the JSON")
+    
+    survey = db.get(Surveys, int(survey_id))
+
+    if not survey:
+        logger.info(f"User {user_id} search for a non existant survey")
+        return jsonify_template_user(404, False, "the survey you have search for did not exists")
+    
+    if user in survey.root_user:
+        logger.info(f"User {user_id} has already answered survey {survey_id}")
+        return jsonify_template_user(409, False, "You have already answered this survey")
+    
+    return jsonify_template_user(200, True, "You have not answered this yet")
+
 
 # Do not use this route, i still havent removed this for some reason i do not know will remove once the system is finished
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------

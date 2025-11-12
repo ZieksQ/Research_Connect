@@ -113,7 +113,7 @@
 ```
 
 ---
-> ### POST -  http://127.0.0.1:5000/api/user/profile_upload
+> ### PATCH -  http://127.0.0.1:5000/api/user/profile_upload
 
 <br>
 

@@ -108,7 +108,7 @@ def user_login():
 
     return response
 
-@user_auth.route("/profile_upload", methods=["POST"])
+@user_auth.route("/profile_upload", methods=["PATCH"])
 @jwt_required()
 @limiter.limit("2 per minute;10 per hour;50 per day", key_func=get_jwt_identity)
 def profile_upload():

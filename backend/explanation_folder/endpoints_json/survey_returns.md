@@ -263,3 +263,78 @@
 	"message": "You have archived Post No.1"
 }
 ```
+
+---
+
+<br>
+
+> ### GET - http://127.0.0.1:5000/api/survey/questionnaire/is_answered
+
+<br>
+
+#### Success 
+```JSON
+{
+	"status": 200,
+	"ok": True,
+	"message": "list of category text"
+}
+```
+
+---
+
+<br>
+
+> ### GET - http://127.0.0.1:5000/api/survey/questionnaire/is_answered
+
+<br>
+
+#### Missing user
+
+```JSON
+{
+	"status": 404,
+	"ok": False,
+	"message": "Please log in to use this"
+}
+```
+
+#### Missing survey id
+
+```JSON
+{
+	"status": 404,
+	"ok": False,
+	"message": "Please do not tamper with the JSON"
+}
+```
+
+#### Missing survey
+
+```JSON
+{
+	"status": 404,
+	"ok": False,
+	"message": "the survey you have search for did not exists"
+}
+```
+
+#### User already answered the survey
+
+```JSON
+{
+	"status": 409,
+	"ok": False,
+	"message": "You have already answered this survey"
+}
+```
+
+#### Success
+
+```JSON
+{
+	"status": 200,
+	"ok": True,
+	"message": "You have not answered this yet"
+}
+```

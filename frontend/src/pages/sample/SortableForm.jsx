@@ -256,6 +256,29 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
     }
   };
 
+  const handleSectionDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (!over || !active || active.id === over.id) {
+      return;
+    }
+
+    try {
+      setSections((prevSections) => {
+        const oldIndex = prevSections.findIndex((s) => s.id === active.id);
+        const newIndex = prevSections.findIndex((s) => s.id === over.id);
+        
+        if (oldIndex !== -1 && newIndex !== -1) {
+          return arrayMove(prevSections, oldIndex, newIndex);
+        }
+        
+        return prevSections;
+      });
+    } catch (error) {
+      console.error('Error during section drag:', error);
+    }
+  };
+
   const handleOptionDragEnd = (event, sectionId, questionId) => {
     const { active, over } = event;
 
@@ -396,397 +419,409 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
         </div>
       </div>
 
-      {sections.map((section, sectionIndex) => (
-        <div
-          key={section.id}
-          className="rounded-xl shadow-lg mb-4"
-          style={{ backgroundColor: '#ffffff', border: '1px solid var(--color-shade-primary)' }}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleSectionDragEnd}
+      >
+        <SortableContext
+          items={sections.map((s) => s.id)}
+          strategy={verticalListSortingStrategy}
         >
-          <div className="p-4 flex items-center justify-between border-b" style={{ borderColor: 'var(--color-shade-primary)' }}>
-            <div className="flex-1 flex items-center gap-3">
-              <button
-                onClick={() => toggleSection(section.id)}
-                className="btn btn-ghost btn-sm btn-square"
-                style={{ color: 'var(--color-shade-primary)' }}
+          {sections.map((section, sectionIndex) => (
+            <SortableItem key={section.id} id={section.id} className="mb-4">
+              <div
+                className="rounded-xl shadow-lg"
+                style={{ backgroundColor: '#ffffff', border: '1px solid var(--color-shade-primary)' }}
               >
-                {section.collapsed ? <MdExpandMore className="text-xl" /> : <MdExpandLess className="text-xl" />}
-              </button>
-              <div className="flex-1">
-                <input
-                  type="text"
-                  value={section.title}
-                  onChange={(e) => updateSection(section.id, 'title', e.target.value)}
-                  className="input input-sm w-full border-0 p-0"
-                  style={{ 
-                    backgroundColor: 'transparent',
-                    color: 'var(--color-primary-color)',
-                    fontWeight: '600'
-                  }}
-                  placeholder="Section Title"
-                />
-                <input
-                  type="text"
-                  value={section.description}
-                  onChange={(e) => updateSection(section.id, 'description', e.target.value)}
-                  className="input input-sm w-full border-0 p-0 mt-1"
-                  style={{ 
-                    backgroundColor: 'transparent',
-                    color: 'var(--color-text-secondary)',
-                    fontSize: '0.875rem'
-                  }}
-                  placeholder="Section Description (optional)"
-                />
-              </div>
-            </div>
-            {sections.length > 1 && (
-              <button
-                onClick={() => deleteSection(section.id)}
-                className="btn btn-ghost btn-sm"
-                style={{ color: '#dc2626' }}
-              >
-                <MdDelete className="text-xl" />
-              </button>
-            )}
-          </div>
-
-          {!section.collapsed && (
-            <div className="p-4"
-              style={{ backgroundColor: 'var(--color-background)' }}
-            >
-
-              {section.questions.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-3" style={{ color: 'var(--color-shade-primary)', opacity: '0.3' }}>📝</div>
-                  <p style={{ color: 'var(--color-text-secondary)' }}>No questions in this section</p>
-                  <button
-                    onClick={() => addQuestion(section.id)}
-                    className="btn btn-sm mt-4"
-                    style={{ 
-                      backgroundColor: 'var(--color-primary-color)',
-                      borderColor: 'var(--color-primary-color)',
-                      color: '#ffffff'
-                    }}
-                  >
-                    <MdAdd className="text-lg" /> Add Question
-                  </button>
+                <div className="p-4 flex items-center justify-between border-b" style={{ borderColor: 'var(--color-shade-primary)', paddingLeft: '2.5rem' }}>
+                  <div className="flex-1 flex items-center gap-3">
+                    <button
+                      onClick={() => toggleSection(section.id)}
+                      className="btn btn-ghost btn-sm btn-square"
+                      style={{ color: 'var(--color-shade-primary)' }}
+                    >
+                      {section.collapsed ? <MdExpandMore className="text-xl" /> : <MdExpandLess className="text-xl" />}
+                    </button>
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={section.title}
+                        onChange={(e) => updateSection(section.id, 'title', e.target.value)}
+                        className="input input-sm w-full border-0 p-0"
+                        style={{ 
+                          backgroundColor: 'transparent',
+                          color: 'var(--color-primary-color)',
+                          fontWeight: '600'
+                        }}
+                        placeholder="Section Title"
+                      />
+                      <input
+                        type="text"
+                        value={section.description}
+                        onChange={(e) => updateSection(section.id, 'description', e.target.value)}
+                        className="input input-sm w-full border-0 p-0 mt-1"
+                        style={{ 
+                          backgroundColor: 'transparent',
+                          color: 'var(--color-text-secondary)',
+                          fontSize: '0.875rem'
+                        }}
+                        placeholder="Section Description (optional)"
+                      />
+                    </div>
+                  </div>
+                  {sections.length > 1 && (
+                    <button
+                      onClick={() => deleteSection(section.id)}
+                      className="btn btn-ghost btn-sm"
+                      style={{ color: '#dc2626' }}
+                    >
+                      <MdDelete className="text-xl" />
+                    </button>
+                  )}
                 </div>
-              ) : (
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={(e) => handleQuestionDragEnd(e, section.id)}
-                >
-                  <SortableContext
-                    items={section.questions.map((q) => q.id)}
-                    strategy={verticalListSortingStrategy}
+
+                {!section.collapsed && (
+                  <div className="p-4"
+                    style={{ backgroundColor: 'var(--color-background)' }}
                   >
-                    {section.questions.map((question, qIndex) => (
-                      <SortableItem key={question.id} id={question.id} className="mb-3">
-                        <div className="card shadow-sm rounded-lg" style={{ 
-                          backgroundColor: '#ffffff', 
-                          border: '1px solid var(--color-shade-primary)',
-                          paddingLeft: '2.5rem'
-                        }}>
-                          <div className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="badge badge-sm" style={{ 
-                                backgroundColor: 'var(--color-secondary-background)',
-                                color: 'var(--color-primary-color)',
-                                border: 'none'
+
+                    {section.questions.length === 0 ? (
+                      <div className="text-center py-12">
+                        <div className="text-6xl mb-3" style={{ color: 'var(--color-shade-primary)', opacity: '0.3' }}>📝</div>
+                        <p style={{ color: 'var(--color-text-secondary)' }}>No questions in this section</p>
+                        <button
+                          onClick={() => addQuestion(section.id)}
+                          className="btn btn-sm mt-4"
+                          style={{ 
+                            backgroundColor: 'var(--color-primary-color)',
+                            borderColor: 'var(--color-primary-color)',
+                            color: '#ffffff'
+                          }}
+                        >
+                          <MdAdd className="text-lg" /> Add Question
+                        </button>
+                      </div>
+                    ) : (
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={(e) => handleQuestionDragEnd(e, section.id)}
+                      >
+                        <SortableContext
+                          items={section.questions.map((q) => q.id)}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          {section.questions.map((question, qIndex) => (
+                            <SortableItem key={question.id} id={question.id} className="mb-3">
+                              <div className="card shadow-sm rounded-lg" style={{ 
+                                backgroundColor: '#ffffff', 
+                                border: '1px solid var(--color-shade-primary)',
+                                paddingLeft: '2.5rem'
                               }}>
-                                {question.type.toUpperCase()}
-                              </div>
-                              <button
-                                onClick={() => deleteQuestion(section.id, question.id)}
-                                className="btn btn-ghost btn-xs"
-                                style={{ color: '#dc2626' }}
-                              >
-                                <MdDelete className="text-lg" />
-                              </button>
-                            </div>
-
-                            <input
-                              type="text"
-                              value={question.title}
-                              onChange={(e) =>
-                                updateQuestion(
-                                  section.id,
-                                  question.id,
-                                  'title',
-                                  e.target.value
-                                )
-                              }
-                              className="input input-bordered input-sm w-full mb-3"
-                              style={{ 
-                                backgroundColor: 'var(--color-background)',
-                                borderColor: 'var(--color-shade-primary)',
-                                color: 'var(--color-primary-color)'
-                              }}
-                              placeholder="Enter your question"
-                            />
-
-                            <select
-                              value={question.type}
-                              onChange={(e) =>
-                                updateQuestion(
-                                  section.id,
-                                  question.id,
-                                  'type',
-                                  e.target.value
-                                )
-                              }
-                              className="select select-bordered select-sm w-full mb-3"
-                              style={{ 
-                                backgroundColor: 'var(--color-background)',
-                                borderColor: 'var(--color-shade-primary)',
-                                color: 'var(--color-primary-color)'
-                              }}
-                            >
-                              {questionTypes.map((type) => (
-                                <option key={type} value={type}>
-                                  {type}
-                                </option>
-                              ))}
-                            </select>
-
-                            {question.type === 'Multiple Choice' && (
-                              <div className="grid grid-cols-2 gap-3 mb-3">
-                                <div>
-                                  <label className="label py-1">
-                                    <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Min Choices</span>
-                                  </label>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    value={question.minChoices}
-                                    onChange={(e) =>
-                                      updateQuestion(
-                                        section.id,
-                                        question.id,
-                                        'minChoices',
-                                        parseInt(e.target.value) || 1
-                                      )
-                                    }
-                                    className="input input-bordered input-sm w-full"
-                                    style={{ 
-                                      backgroundColor: 'var(--color-background)',
-                                      borderColor: 'var(--color-shade-primary)',
-                                      color: 'var(--color-primary-color)'
-                                    }}
-                                  />
-                                </div>
-                                <div>
-                                  <label className="label py-1">
-                                    <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Max Choices (max: {question.options.length || 0})</span>
-                                  </label>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    max={question.options.length || 1}
-                                    value={question.maxChoices}
-                                    onChange={(e) =>
-                                      updateQuestion(
-                                        section.id,
-                                        question.id,
-                                        'maxChoices',
-                                        parseInt(e.target.value) || 1
-                                      )
-                                    }
-                                    className="input input-bordered input-sm w-full"
-                                    style={{ 
-                                      backgroundColor: 'var(--color-background)',
-                                      borderColor: 'var(--color-shade-primary)',
-                                      color: 'var(--color-primary-color)'
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                            )}
-
-                            {['Single Choice', 'Multiple Choice', 'Dropdown'].includes(
-                              question.type
-                            ) && (
-                              <div className="mb-3">
-                                <label className="label py-1">
-                                  <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Options</span>
-                                </label>
-                                <DndContext
-                                  sensors={sensors}
-                                  collisionDetection={closestCenter}
-                                  onDragEnd={(e) => handleOptionDragEnd(e, section.id, question.id)}
-                                >
-                                  <SortableContext
-                                    items={question.options.map((o) => o.id)}
-                                    strategy={verticalListSortingStrategy}
-                                  >
-                                    {question.options.map((option, optionIndex) => (
-                                      <SortableItem
-                                        key={option.id}
-                                        id={option.id}
-                                        className="mb-2"
-                                      >
-                                        <div className="flex items-center gap-2" style={{ paddingLeft: '2rem' }}>
-                                          <div className="w-5 h-5 rounded-full border-2 flex-shrink-0" style={{ borderColor: 'var(--color-shade-primary)' }}></div>
-                                          <input
-                                            type="text"
-                                            value={option.text || ''}
-                                            onChange={(e) =>
-                                              updateOption(
-                                                section.id,
-                                                question.id,
-                                                option.id,
-                                                e.target.value
-                                              )
-                                            }
-                                            className="input input-sm flex-1 border-0 border-b rounded-none"
-                                            style={{ 
-                                              backgroundColor: 'transparent',
-                                              borderColor: 'var(--color-shade-primary)',
-                                              color: 'var(--color-primary-color)'
-                                            }}
-                                            placeholder={`Option ${optionIndex + 1}`}
-                                          />
-                                          <button
-                                            onClick={() =>
-                                              deleteOption(section.id, question.id, option.id)
-                                            }
-                                            className="btn btn-ghost btn-xs"
-                                            style={{ color: '#dc2626' }}
-                                          >
-                                            <MdClose />
-                                          </button>
-                                        </div>
-                                      </SortableItem>
-                                    ))}
-                                  </SortableContext>
-                                </DndContext>
-                                <button
-                                  onClick={() => addOption(section.id, question.id)}
-                                  className="btn btn-ghost btn-xs mt-2"
-                                  style={{ 
-                                    color: 'var(--color-accent-100)',
-                                    paddingLeft: '2rem'
-                                  }}
-                                >
-                                  <MdAdd /> Add Option
-                                </button>
-                              </div>
-                            )}
-
-                            <div className="flex items-center justify-between border-t pt-3 mt-3" style={{ borderColor: 'var(--color-shade-primary)' }}>
-                              <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-1">
-                                  <input
-                                    type="checkbox"
-                                    checked={question.required}
-                                    onChange={(e) =>
-                                      updateQuestion(
-                                        section.id,
-                                        question.id,
-                                        'required',
-                                        e.target.checked
-                                      )
-                                    }
-                                    className="toggle toggle-sm"
-                                  />
-                                  <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Required</span>
-                                </div>
-                              </div>
-                              
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() =>
-                                    openMediaModal('image', section.id, question.id)
-                                  }
-                                  className="btn btn-ghost btn-xs"
-                                  style={{ 
-                                    color: 'var(--color-shade-primary)'
-                                  }}
-                                  title="Add Image"
-                                >
-                                  <MdImage className="text-lg" />
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    openMediaModal('video', section.id, question.id)
-                                  }
-                                  className="btn btn-ghost btn-xs"
-                                  style={{ 
-                                    color: 'var(--color-shade-primary)'
-                                  }}
-                                  title="Add Video Link"
-                                >
-                                  <FaLink className="text-base" />
-                                </button>
-                              </div>
-                            </div>
-
-                            {question.image && (
-                              <div className="mt-3 relative">
-                                <img
-                                  src={question.image.preview}
-                                  alt="Question"
-                                  className="max-w-full h-auto rounded-lg"
-                                  style={{ maxHeight: '200px' }}
-                                />
-                                <button
-                                  onClick={() =>
-                                    updateQuestion(section.id, question.id, 'image', null)
-                                  }
-                                  className="btn btn-xs btn-circle absolute top-2 right-2"
-                                  style={{ backgroundColor: '#dc2626', borderColor: '#dc2626', color: '#ffffff' }}
-                                >
-                                  <MdClose />
-                                </button>
-                              </div>
-                            )}
-
-                            {question.video && (
-                              <div className="mt-3 relative">
-                                <div className="p-3 rounded-lg flex items-center justify-between" style={{ backgroundColor: 'var(--color-background)' }}>
-                                  <div className="flex items-center gap-2">
-                                    <FaLink style={{ color: 'var(--color-accent-100)' }} />
-                                    <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                                      Video Link Added
-                                    </span>
+                                <div className="p-4">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <div className="badge badge-sm" style={{ 
+                                      backgroundColor: 'var(--color-secondary-background)',
+                                      color: 'var(--color-primary-color)',
+                                      border: 'none'
+                                    }}>
+                                      {question.type.toUpperCase()}
+                                    </div>
+                                    <button
+                                      onClick={() => deleteQuestion(section.id, question.id)}
+                                      className="btn btn-ghost btn-xs"
+                                      style={{ color: '#dc2626' }}
+                                    >
+                                      <MdDelete className="text-lg" />
+                                    </button>
                                   </div>
-                                  <button
-                                    onClick={() =>
-                                      updateQuestion(section.id, question.id, 'video', null)
+
+                                  <input
+                                    type="text"
+                                    value={question.title}
+                                    onChange={(e) =>
+                                      updateQuestion(
+                                        section.id,
+                                        question.id,
+                                        'title',
+                                        e.target.value
+                                      )
                                     }
-                                    className="btn btn-ghost btn-xs"
-                                    style={{ color: '#dc2626' }}
+                                    className="input input-bordered input-sm w-full mb-3"
+                                    style={{ 
+                                      backgroundColor: 'var(--color-background)',
+                                      borderColor: 'var(--color-shade-primary)',
+                                      color: 'var(--color-primary-color)'
+                                    }}
+                                    placeholder="Enter your question"
+                                  />
+
+                                  <select
+                                    value={question.type}
+                                    onChange={(e) =>
+                                      updateQuestion(
+                                        section.id,
+                                        question.id,
+                                        'type',
+                                        e.target.value
+                                      )
+                                    }
+                                    className="select select-bordered select-sm w-full mb-3"
+                                    style={{ 
+                                      backgroundColor: 'var(--color-background)',
+                                      borderColor: 'var(--color-shade-primary)',
+                                      color: 'var(--color-primary-color)'
+                                    }}
                                   >
-                                    <MdClose />
-                                  </button>
+                                    {questionTypes.map((type) => (
+                                      <option key={type} value={type}>
+                                        {type}
+                                      </option>
+                                    ))}
+                                  </select>
+
+                                  {question.type === 'Multiple Choice' && (
+                                    <div className="grid grid-cols-2 gap-3 mb-3">
+                                      <div>
+                                        <label className="label py-1">
+                                          <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Min Choices</span>
+                                        </label>
+                                        <input
+                                          type="number"
+                                          min="1"
+                                          value={question.minChoices}
+                                          onChange={(e) =>
+                                            updateQuestion(
+                                              section.id,
+                                              question.id,
+                                              'minChoices',
+                                              parseInt(e.target.value) || 1
+                                            )
+                                          }
+                                          className="input input-bordered input-sm w-full"
+                                          style={{ 
+                                            backgroundColor: 'var(--color-background)',
+                                            borderColor: 'var(--color-shade-primary)',
+                                            color: 'var(--color-primary-color)'
+                                          }}
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="label py-1">
+                                          <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Max Choices (max: {question.options.length || 0})</span>
+                                        </label>
+                                        <input
+                                          type="number"
+                                          min="1"
+                                          max={question.options.length || 1}
+                                          value={question.maxChoices}
+                                          onChange={(e) =>
+                                            updateQuestion(
+                                              section.id,
+                                              question.id,
+                                              'maxChoices',
+                                              parseInt(e.target.value) || 1
+                                            )
+                                          }
+                                          className="input input-bordered input-sm w-full"
+                                          style={{ 
+                                            backgroundColor: 'var(--color-background)',
+                                            borderColor: 'var(--color-shade-primary)',
+                                            color: 'var(--color-primary-color)'
+                                          }}
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {['Single Choice', 'Multiple Choice', 'Dropdown'].includes(
+                                    question.type
+                                  ) && (
+                                    <div className="mb-3">
+                                      <label className="label py-1">
+                                        <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Options</span>
+                                      </label>
+                                      <DndContext
+                                        sensors={sensors}
+                                        collisionDetection={closestCenter}
+                                        onDragEnd={(e) => handleOptionDragEnd(e, section.id, question.id)}
+                                      >
+                                        <SortableContext
+                                          items={question.options.map((o) => o.id)}
+                                          strategy={verticalListSortingStrategy}
+                                        >
+                                          {question.options.map((option, optionIndex) => (
+                                            <SortableItem
+                                              key={option.id}
+                                              id={option.id}
+                                              className="mb-2"
+                                            >
+                                              <div className="flex items-center gap-2" style={{ paddingLeft: '2rem' }}>
+                                                <div className="w-5 h-5 rounded-full border-2 flex-shrink-0" style={{ borderColor: 'var(--color-shade-primary)' }}></div>
+                                                <input
+                                                  type="text"
+                                                  value={option.text || ''}
+                                                  onChange={(e) =>
+                                                    updateOption(
+                                                      section.id,
+                                                      question.id,
+                                                      option.id,
+                                                      e.target.value
+                                                    )
+                                                  }
+                                                  className="input input-sm flex-1 border-0 border-b rounded-none"
+                                                  style={{ 
+                                                    backgroundColor: 'transparent',
+                                                    borderColor: 'var(--color-shade-primary)',
+                                                    color: 'var(--color-primary-color)'
+                                                  }}
+                                                  placeholder={`Option ${optionIndex + 1}`}
+                                                />
+                                                <button
+                                                  onClick={() =>
+                                                    deleteOption(section.id, question.id, option.id)
+                                                  }
+                                                  className="btn btn-ghost btn-xs"
+                                                  style={{ color: '#dc2626' }}
+                                                >
+                                                  <MdClose />
+                                                </button>
+                                              </div>
+                                            </SortableItem>
+                                          ))}
+                                        </SortableContext>
+                                      </DndContext>
+                                      <button
+                                        onClick={() => addOption(section.id, question.id)}
+                                        className="btn btn-ghost btn-xs mt-2"
+                                        style={{ 
+                                          color: 'var(--color-accent-100)',
+                                          paddingLeft: '2rem'
+                                        }}
+                                      >
+                                        <MdAdd /> Add Option
+                                      </button>
+                                    </div>
+                                  )}
+
+                                  <div className="flex items-center justify-between border-t pt-3 mt-3" style={{ borderColor: 'var(--color-shade-primary)' }}>
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-1">
+                                        <input
+                                          type="checkbox"
+                                          checked={question.required}
+                                          onChange={(e) =>
+                                            updateQuestion(
+                                              section.id,
+                                              question.id,
+                                              'required',
+                                              e.target.checked
+                                            )
+                                          }
+                                          className="toggle toggle-sm"
+                                        />
+                                        <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Required</span>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={() =>
+                                          openMediaModal('image', section.id, question.id)
+                                        }
+                                        className="btn btn-ghost btn-xs"
+                                        style={{ 
+                                          color: 'var(--color-shade-primary)'
+                                        }}
+                                        title="Add Image"
+                                      >
+                                        <MdImage className="text-lg" />
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          openMediaModal('video', section.id, question.id)
+                                        }
+                                        className="btn btn-ghost btn-xs"
+                                        style={{ 
+                                          color: 'var(--color-shade-primary)'
+                                        }}
+                                        title="Add Video Link"
+                                      >
+                                        <FaLink className="text-base" />
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  {question.image && (
+                                    <div className="mt-3 relative">
+                                      <img
+                                        src={question.image.preview}
+                                        alt="Question"
+                                        className="max-w-full h-auto rounded-lg"
+                                        style={{ maxHeight: '200px' }}
+                                      />
+                                      <button
+                                        onClick={() =>
+                                          updateQuestion(section.id, question.id, 'image', null)
+                                        }
+                                        className="btn btn-xs btn-circle absolute top-2 right-2"
+                                        style={{ backgroundColor: '#dc2626', borderColor: '#dc2626', color: '#ffffff' }}
+                                      >
+                                        <MdClose />
+                                      </button>
+                                    </div>
+                                  )}
+
+                                  {question.video && (
+                                    <div className="mt-3 relative">
+                                      <div className="p-3 rounded-lg flex items-center justify-between" style={{ backgroundColor: 'var(--color-background)' }}>
+                                        <div className="flex items-center gap-2">
+                                          <FaLink style={{ color: 'var(--color-accent-100)' }} />
+                                          <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                            Video Link Added
+                                          </span>
+                                        </div>
+                                        <button
+                                          onClick={() =>
+                                            updateQuestion(section.id, question.id, 'video', null)
+                                          }
+                                          className="btn btn-ghost btn-xs"
+                                          style={{ color: '#dc2626' }}
+                                        >
+                                          <MdClose />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-                            )}
-                          </div>
-                        </div>
-                      </SortableItem>
-                    ))}
-                  </SortableContext>
-                </DndContext>
-              )}
+                            </SortableItem>
+                          ))}
+                        </SortableContext>
+                      </DndContext>
+                    )}
 
-              {section.questions.length > 0 && (
-                <button
-                  onClick={() => addQuestion(section.id)}
-                  className="btn btn-sm mt-3 w-full"
-                  style={{ 
-                    backgroundColor: 'transparent',
-                    borderColor: 'var(--color-primary-color)',
-                    color: 'var(--color-primary-color)'
-                  }}
-                >
-                  <MdAdd className="text-lg" /> Add Question
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      ))}
+                    {section.questions.length > 0 && (
+                      <button
+                        onClick={() => addQuestion(section.id)}
+                        className="btn btn-sm mt-3 w-full"
+                        style={{ 
+                          backgroundColor: 'transparent',
+                          borderColor: 'var(--color-primary-color)',
+                          color: 'var(--color-primary-color)'
+                        }}
+                      >
+                        <MdAdd className="text-lg" /> Add Question
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </SortableItem>
+          ))}
+        </SortableContext>
+      </DndContext>
 
       {/* Navigation Buttons */}
       <div className="flex gap-3 mt-6">

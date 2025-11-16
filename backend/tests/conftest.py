@@ -1,6 +1,6 @@
 import pytest
 from App import run_app
-from App.model import Users, RefreshToken, Posts
+from App.models.model import Users, RefreshToken, Posts
 from App.database import SessionLocal, db_session, Base, engine
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
 from datetime import datetime, timezone

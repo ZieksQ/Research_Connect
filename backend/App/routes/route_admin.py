@@ -7,7 +7,10 @@ from datetime import datetime, timedelta, timezone
 from App.database import db_session as db
 from App.helper_methods import logger_setup, commit_session, jsonify_template_user
 from App.helper_user_validation import handle_category_requirements
-from App.model import User_Roles, Posts, Root_User, Code, Category
+from App.models.model_enums import User_Roles
+from App.models.model_post import Posts, Category
+from App.models.model_users import Root_User
+from App.models.model_otp import Code
 
 admin = Blueprint("admin", __name__)
 

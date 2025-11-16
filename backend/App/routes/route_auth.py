@@ -23,7 +23,7 @@ user_auth = Blueprint("user_auth", __name__)
 who_user_query = lambda id, utype: db.get(Users, id) if utype == "local" else db.get(Oauth_Users, id)
 
 @user_auth.route("/register", methods=["POST"])
-@limiter.limit("2 per minute;30 per hour;200 per day")
+@limiter.limit("10 per minute;100 per hour;200 per day")
 def user_register():
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
@@ -61,7 +61,7 @@ def user_register():
 
 
 @user_auth.route("/login", methods=["POST"])
-@limiter.limit("2 per minutes;30 per hour;200 per day")
+@limiter.limit("10 per minute;100 per hour;200 per day")
 def user_login():
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 

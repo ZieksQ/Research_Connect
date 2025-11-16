@@ -32,7 +32,6 @@ POST - http://127.0.0.1:5000/api/survey/post/send/questionnaire/mobile
 POST - http://127.0.0.1:5000/api/survey/post/send/questionnaire/web
 
 
-
 POST - http://127.0.0.1:5000/api/survey/answer/questionnaire
 POST - http://127.0.0.1:5000/api/survey/questionnaire/is_answered
 

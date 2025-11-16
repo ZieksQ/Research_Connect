@@ -14,7 +14,7 @@ class Surveys(Base):
     content: Mapped[str] = mapped_column(Text, nullable=True)
 
     tags: Mapped[list[str]] = mapped_column(JSON, nullable=False)
-    approx_time: Mapped[str] = mapped_column(String(512), nullable=False)
+    approx_time: Mapped[str] = mapped_column(String(128), nullable=False)
     target_audience: Mapped[str] = mapped_column(String(256), nullable=False)
     section: Mapped[list[str]] = mapped_column(JSON, nullable=False)
 
@@ -41,13 +41,13 @@ class Question(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     question_number: Mapped[str] = mapped_column(Integer, nullable=False)
-    question_text: Mapped[str] = mapped_column(Text, nullable=False)
+    question_text: Mapped[str] = mapped_column(String(512), nullable=False)
     q_type: Mapped[str] = mapped_column(String(64), nullable=False)
     answer_required = mapped_column(Boolean, default=False, nullable=False)
     url: Mapped[str] = mapped_column(String(512), nullable=True)
     min_choice: Mapped[int] = mapped_column(Integer, nullable=True)
     max_choice: Mapped[int] = mapped_column(Integer, nullable=True)
-    section_title: Mapped[str] = mapped_column(String(512), nullable=False)
+    section_title: Mapped[str] = mapped_column(String(256), nullable=False)
     section_desc: Mapped[str] = mapped_column(String(512), nullable=False)
 
 

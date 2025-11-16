@@ -2,7 +2,7 @@ from App import run_app
 from App.database import Base, engine
 from time import sleep
 
-RESET = True
+RESET = False
 app = run_app()
 if __name__ == "__main__":
     if RESET:

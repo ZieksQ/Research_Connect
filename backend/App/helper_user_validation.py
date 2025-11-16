@@ -460,6 +460,61 @@ def handle_mobile_survey_input_requirements(svy_questions: list[dict[str, Any]])
 
     return qflag, any(qcheck)
 
+def handle_survey_misc_input_exists(approx_time: str, tags: str, target_audicne: str) -> tuple[dict, bool]:
+    result = {}
+    extra_flag = []
+
+    if not approx_time:
+        result["approx_time"] = "Missing approx time"
+        extra_flag.append(True)
+
+    if not tags:
+        result["tags"] = "Missing tags"
+        extra_flag.append(True)
+
+    if not target_audicne:
+        result["target_audicne"] = "Missing target audicne"
+        extra_flag.append(True)
+
+    return result, any(extra_flag)
+
+def handle_survey_misc_input_requirements(approx_time: str, tags: str, target_audicne: str) -> tuple[dict, bool]:
+    result = {}
+    extra_flag = []
+
+    approx_time_rules = [
+        (lambda at: len(at) >= 1, "Approx time must be at least 1 character long"),
+        (lambda at: len(at) <= 128, "Approx time must must not exceed 128 character"),
+    ]
+
+    tags_rules = [
+        (lambda at: len(at) >= 1, "Approx time must be at least 1 character long"),
+        (lambda at: len(at) <= 128, "Approx time must must not exceed 128 character"),
+    ]
+
+    target_audience_rules = [
+        (lambda at: len(at) >= 1, "Approx time must be at least 1 character long"),
+        (lambda at: len(at) <= 256, "Approx time must must not exceed 256 character"),
+    ]
+
+    for check, msg in approx_time_rules:
+        if not check(approx_time):
+            result["approx_time"] = msg
+            extra_flag.append(True)
+            break
+    for check, msg in tags_rules:
+        if not check(tags):
+            result["tags"] = msg
+            extra_flag.append(True)
+            break
+    for check, msg in target_audience_rules:
+        if not check(target_audicne):
+            result["target_audicne"] = "Missing target audicne"
+            extra_flag.append(True)
+            break
+
+    return result, any(extra_flag)
+
 def handle_password_reset_user(user):
     """Helper method for password reset to only change it when the user is signed it within local login. 
     It compares the type of the current user to the sqlalchemy name of the 'Users' e.g.  '<class 'App.model.Users'>'

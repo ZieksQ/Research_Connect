@@ -15,7 +15,9 @@ from App.models.model_enums import QuestionType, Question_type_inter
 from App.helper_methods import ( jsonify_template_user, commit_session, 
                                 logger_setup, datetime_return_tzinfo )
 from App.helper_user_validation import (handle_post_input_exist, handle_post_requirements, handle_web_survey_input_exist, 
-                                        handle_web_survey_input_requirements, handle_Mobile_survey_input_exist, handle_mobile_survey_input_requirements)
+                                        handle_web_survey_input_requirements, handle_Mobile_survey_input_exist, 
+                                        handle_mobile_survey_input_requirements, handle_survey_misc_input_requirements,
+                                        handle_survey_misc_input_exists)
 
 
 # Sets up the logger from my helper file
@@ -291,6 +293,17 @@ def send_post_survey_web():
         logger.error(svy_req_msg)
         return jsonify_template_user(422, False, "You must meet the requirements for the survey", survey={"survey": svy_exists_msg})
     
+    svy_misc_msg, svy_misc_exists = handle_survey_misc_input_exists(approx_time, tags, target_audience)
+    if svy_misc_exists:
+        logger.info(svy_misc_msg)
+        return jsonify_template_user(404, False, svy_misc_msg)
+    
+    svy_misc_msg_req, svy_misc_req = handle_survey_misc_input_requirements(approx_time, tags, target_audience)
+    if svy_misc_req:
+        logger.info(svy_misc_msg_req)
+        return jsonify_template_user(404, False, svy_misc_msg_req)
+
+
     post = Posts(title=survey_title, content=survey_content, user=user)
     survey = Surveys(title=survey_title, content=survey_content, 
                      approx_time=approx_time, target_audience=target_audience)
@@ -421,6 +434,16 @@ def send_post_survey_mobile():
         logger.error(svy_req_msg)
         return jsonify_template_user(422, False, "You must meet the requirements for the survey", survey={"survey": svy_exists_msg})
     
+    svy_misc_msg, svy_misc_exists = handle_survey_misc_input_exists(approx_time, tags, target_audience)
+    if svy_misc_exists:
+        logger.info(svy_misc_msg)
+        return jsonify_template_user(404, False, svy_misc_msg)
+    
+    svy_misc_msg_req, svy_misc_req = handle_survey_misc_input_requirements(approx_time, tags, target_audience)
+    if svy_misc_req:
+        logger.info(svy_misc_msg_req)
+        return jsonify_template_user(404, False, svy_misc_msg_req)
+    
     post = Posts(title=survey_title, content=survey_caption, user=user)
     survey = Surveys(title=survey_title, content=survey_content, 
                      approx_time=approx_time, target_audience=target_audience)
@@ -430,7 +453,7 @@ def send_post_survey_mobile():
         question = Question(
             question_text=svy_questions.get("text"),
             question_number=svy_questions.get("order"),
-            q_type=svy_questions.get("rype"),
+            q_type=svy_questions.get("type"),
             answer_required=svy_questions.get("required"),
             section_title=svy_questions.get("sectionId"),
             section_desc="Empty",
@@ -472,121 +495,6 @@ def send_post_survey_mobile():
         post.category.append(t)
         survey.tags.append(t)
 
-    post.survey_posts = survey
-    db.add(post)
-
-    success, error = commit_session()
-    if not success:
-        logger.exception(error)
-        return jsonify_template_user(500, False, "Database error")
-
-    logger.info(f"{user.id} Succesfully added Post")
-
-    return jsonify_template_user(200, True, "Post added successfully")
-
-
-@survey_posting.route("/post/send/questionnaire", methods=["POST"])
-@jwt_required()
-@limiter.limit("1 per minute;20 per hour;100 per day", key_func=get_jwt_identity)
-def send_post_survey():
-    """Use this instead of the two depracated method. I commented the validatation for post title and content since im catering this for the web for now"""
-    user_id = get_jwt_identity()
-    user = db.get(Root_User, int(user_id))
-
-    if not user:
-        logger.error("Someone tried to post without signing in")
-        return jsonify_template_user(401, False, "You must log in first in order to post here")
-
-    data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
-
-    # post_title: str = data.get("post_title", "")
-    # post_content: str = data.get("post_content", "")
-
-    survey_title: str = data.get("surveyTitle", "")
-    survey_content: str = data.get("surveyDescription", "")
-
-    approx_time: str = data.get("surveyApproxTime")
-    tags: list = data.get("surveyTags")
-    target_audience: list = data.get("target")
-    
-    post_code: str = data.get("post_code")
-    svy_questions: dict[str, dict] = data.get("data", {})
-
-    # Checks if the post and survey title content exists
-    # post_input_validate, post_exist_flag = handle_post_input_exist(post_title, post_content)
-    survey_input_validate, survey_exist_flag = handle_post_input_exist(survey_title, survey_content, False)
-    # if post_exist_flag:
-    #     logger.error(post_input_validate)
-    #     return jsonify_template_user(400, False, post_input_validate)
-    if survey_exist_flag:
-        logger.error(survey_input_validate)
-        return jsonify_template_user(400, False, survey_requirements)
-    
-    # Checks if the post and survey title content is wihtin the requirements
-    # post_requirements, post_req_flag = handle_post_requirements(post_title, post_content)
-    survey_requirements, survey_req_flag = handle_post_requirements(survey_title, survey_content, False)
-    # if post_req_flag:
-    #     logger.error(post_requirements)
-    #     return jsonify_template_user(422, False, post_requirements)
-    if survey_req_flag:
-        logger.error(survey_requirements)
-        return jsonify_template_user(422, False, survey_requirements)
-    
-    # Checks each question on the survey if it exist or not
-    svy_exists_msg, svy_exists_flag = handle_survey_input_exists(svy_questions)
-    if svy_exists_flag:
-        msg = "Survey is missing data"
-        logger.error(msg)
-        return jsonify_template_user(400, False, msg, survey={"survey": svy_exists_msg})
-    
-    # Checks each question on the survey if it reachers the requirements e.g. question must be at least x long
-    svy_req_msg, svy_req_flag = handle_survey_input_requirements(survey)
-    if svy_req_flag:
-        logger.error(svy_req_msg)
-        return jsonify_template_user(422, False, "You must meet the requirements for the survey", survey={"survey": svy_exists_msg})
-    
-    post = Posts(title=survey_title, content=survey_content, user=user)
-    survey = Surveys(title=survey_title, content=survey_content)
-
-    for counter, (_, dvalue) in enumerate(svy_questions.items(), start=1):
-        
-        question = Question(question_text=dvalue.get("question"), q_type=dvalue.get("type"), answer_required=dvalue.get("required"),
-                            answer_key=dvalue.get("answer"), question_number=counter)
-
-        if dvalue["type"] == QuestionType.MULTIPLE_CHOICE.value:
-            for data_choice in dvalue.get("choice"):
-                question.choices_question.append( Choice(choice_text=data_choice) )
-        
-        survey.questions_survey.append(question)
-
-    if post_code:
-        stmt = select(Code).where(
-            and_( Code.code_text == post_code, 
-                 Code.is_used == False ))
-        code_db = db.scalars(stmt).first()
-
-        if not code_db:
-            logger.info(f"{user_id} has inputed a used or non existent code")
-            return jsonify_template_user(404, False, "The code you have entered is either used or non-existent")
-
-        expires_at = datetime_return_tzinfo(code_db.expires_at)
-        if expires_at < datetime.now(timezone.utc):
-            logger.info("User tried to use an expired code")
-            return jsonify_template_user(400, False, "The code you have entered is expired")
-
-        post.approved = True
-        code_db.is_used = True
-        logger.info(f"{user_id} has entered the code and approved the post")
-
-    if tags:
-        stmt = select(Category).where(Category.category_text == tags)
-        category_db = db.scalars(stmt).first()
-        if not category_db:
-            logger.info(f"User{user_id} tampered with the JSON category")
-            return jsonify_template_user(400, False, "Please do not tamper with the JSON of the category")
-        
-        post.category = category_db.category_text
-    
     post.survey_posts = survey
     db.add(post)
 

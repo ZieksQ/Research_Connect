@@ -14,7 +14,7 @@ class Surveys(Base):
     content: Mapped[str] = mapped_column(Text, nullable=True)
 
     tags: Mapped[list[str]] = mapped_column(JSON, nullable=False)
-    approx_time: Mapped[str] = mapped_column(String(512), nullable=False)
+    approx_time: Mapped[str] = mapped_column(String(128), nullable=False)
     target_audience: Mapped[str] = mapped_column(String(256), nullable=False)
     section: Mapped[list[str]] = mapped_column(JSON, nullable=False)
 

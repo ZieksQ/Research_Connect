@@ -3,11 +3,12 @@ from flask import request, current_app, Blueprint, jsonify
 from datetime import datetime, timezone
 from sqlalchemy import select, and_, or_
 from App.database import db_session as db
-from App.helper_user_validation import handle_user_input_exist, handle_validate_requirements, handle_profile_pic, handle_password_reset_user
+from App.models.model_users import Root_User, Users, Oauth_Users, RefreshToken
+from App.models.model_enums import User_Roles
+from App.helper_user_validation import ( handle_user_input_exist, handle_validate_requirements, 
+                                        handle_profile_pic, handle_password_reset_user )
 from App.helper_methods import ( commit_session, jsonify_template_user, 
                                 logger_setup, create_access_refresh_tokens )
-from App.model import ( Root_User, Users, Oauth_Users, 
-                    RefreshToken, User_Roles )
 from flask_jwt_extended import (
     set_access_cookies, set_refresh_cookies, unset_jwt_cookies, 
     get_jti, get_jwt_identity, jwt_required, get_jwt
@@ -22,7 +23,7 @@ user_auth = Blueprint("user_auth", __name__)
 who_user_query = lambda id, utype: db.get(Users, id) if utype == "local" else db.get(Oauth_Users, id)
 
 @user_auth.route("/register", methods=["POST"])
-@limiter.limit("2 per minute;30 per hour;200 per day")
+@limiter.limit("10 per minute;100 per hour;200 per day")
 def user_register():
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
@@ -60,7 +61,7 @@ def user_register():
 
 
 @user_auth.route("/login", methods=["POST"])
-@limiter.limit("2 per minutes;30 per hour;200 per day")
+@limiter.limit("10 per minute;100 per hour;200 per day")
 def user_login():
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
@@ -193,7 +194,7 @@ def refresh_access():
     token = db.execute(stmt).scalar_one_or_none()
 
     if not token:
-        return jsonify_template_user(404, False, "You need to log in again"), 404
+        return jsonify_template_user(404, False, "You need to log in again")
     
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))

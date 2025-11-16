@@ -18,7 +18,7 @@ jwt = JWTManager()
 bcrypt = Bcrypt()
 oauth = OAuth()
 mail = Mail()
-limiter = Limiter(get_remote_address)
+limiter = Limiter(key_func=get_remote_address, enabled=False)
 
 def run_app():
     app = Flask(__name__)
@@ -57,6 +57,7 @@ def run_app():
     mail.init_app(app)
     limiter.init_app(app)
 
+    from App import models
     from App import helper_jwt_callback                                 # is like this so i can initialize my global jwt callback messages
     from .routes.route_auth import user_auth
     from .routes.route_post_survey import survey_posting
@@ -87,7 +88,7 @@ def run_app():
 
 # To connect to supabase to host my users profile pic
 supabase_client = create_client(SPBS_PROJECT_URL, SPBS_SERVICE_ROLE_KEY)
-default_profile_pic = "https://siqejctaztvawzceuhrw.supabase.co/storage/v1/object/public/profile_pic/Jane_Silksong.jpg"
+default_profile_pic = "https://siqejctaztvawzceuhrw.supabase.co/storage/v1/object/public/profile_pic/GigiMurin2.png"
 
 '''
 def logging_set_up():

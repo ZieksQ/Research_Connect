@@ -1,5 +1,35 @@
-from .model import QuestionType
+from typing import Any
 import os, string
+from App.models.model_enums import QuestionType, Question_type_inter
+
+def handle_profile_pic(file) -> tuple[str | None, bool]:
+    """Helper method to validate the profile pic sent
+
+    Args:
+        file (_type_): the file
+
+    Returns:
+        tuple (list[str], bool): List of messages and a flag
+    """
+    
+    allowed_extensions = ( "jpg", "jpeg", "png" )
+
+    if not file:
+        return "File does not exist, please upload a file.", True
+
+    filename = file.filename
+    if not filename:
+        return "No filename provided.", True
+
+    # Extract extension safely
+    _, ext = os.path.splitext(filename)
+    ext = ext.lower().lstrip(".")
+
+    if ext not in allowed_extensions:
+        return f"Invalid file extension: .{ext}. Allowed: {', '.join(allowed_extensions)}", True
+
+    return None, False
+
 
 def handle_user_input_exist(username: str, password: str) -> tuple[dict, bool]:
     """validate user input whether it exist or not
@@ -148,8 +178,8 @@ def handle_post_requirements(title: str, content: str, post = True) -> tuple[dic
 
     return result, any(extra_flag)
 
-def handle_survey_input_exists(svy_questions: dict) -> tuple[list, bool]:
-    """Method to check if each input in the dict of questionnaire exists.
+def handle_survey_input_exists(svy_questions: dict[str, dict | Any]) -> tuple[list, bool]: # deprecated
+    """Deprecated: Method to check if each input in the dict of questionnaire exists.
 
     Args:
         svy_questions (dict): Suvey questionnaire
@@ -196,6 +226,66 @@ def handle_survey_input_exists(svy_questions: dict) -> tuple[list, bool]:
         each_qcheck.append(any(each_qdata))
 
     return qflag, any(each_qcheck)
+
+def handle_web_survey_input_exist(svy_questions: dict[str, dict | Any]) -> tuple[list, bool]:
+    """Web version: Method to check if each input in the dict of questionnaire exists.
+
+    Args:
+        svy_questions (dict): Suvey questionnaire
+
+    Returns:
+        tuple (list, bool): Returns a list of missing fields and a flag indicating if any are missing.
+    """
+
+    qflag = {}
+    each_qcheck_bool = []
+
+    if not svy_questions:
+        return ["Survey is empty"], True
+    
+    for scounter, (skey, svalue) in enumerate(svy_questions.items(), start=1):
+        result = {}
+        each_qdata_bool = []
+
+        if not skey:
+            result[f"section{scounter}"] =  f"Section {scounter} is missing"
+            each_qdata_bool.append(True)
+            continue
+        
+        if not svalue.get("description"):
+            result[f"description{scounter}"] = f"Section {scounter}: Description is missing"
+            each_qdata_bool.append(True)
+
+        if not svalue.get("questions"):
+            result[f"questions{scounter}"] = f"Section {scounter}: Quesitons is missing"
+            each_qdata_bool.append(True)
+            continue
+
+        for qcounter, (qkey, qvalue) in enumerate(svalue.get("questions").items(), start=1):
+            
+            if not qkey:
+                result[f"question{qcounter}"] = f"Question {qcounter} is missing"
+                each_qdata_bool.append(True)
+                continue
+
+            if not qvalue.get("title"):
+                result[f"title{qcounter}"] = f"Question {qcounter}: Title is missing"
+                each_qdata_bool.append(True)
+
+            if not qvalue.get("type"):
+                result[f"type{qcounter}"] = f"Question {qcounter}: Type is missing"
+
+            if qvalue.get("type") in Question_type_inter.CHOICES_TYPE:
+                if not qvalue.get("options"):
+                    result[f"options{qcounter}"] = f"Question {qcounter}: Options is missing"
+                    each_qdata_bool.append(True)
+
+        if result:
+            qflag[f"Section{scounter}"] = result
+            each_qcheck_bool.append(any(each_qdata_bool))
+
+    return qflag, any(each_qcheck_bool)
+
 
 def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
     """validate each survey questionnaire so each data meets the desired output
@@ -260,33 +350,6 @@ def handle_survey_input_requirements(svy_question: dict) -> tuple[list, bool]:
 
     return qflag, any(qcheck)
 
-def handle_profile_pic(file) -> tuple[str | None, bool]:
-    """Helper method to validate the profile pic sent
-
-    Args:
-        file (_type_): the file
-
-    Returns:
-        tuple (list[str], bool): List of messages and a flag
-    """
-    
-    allowed_extensions = ( "jpg", "jpeg", "png" )
-
-    if not file:
-        return "File does not exist, please upload a file.", True
-
-    filename = file.filename
-    if not filename:
-        return "No filename provided.", True
-
-    # Extract extension safely
-    _, ext = os.path.splitext(filename)
-    ext = ext.lower().lstrip(".")
-
-    if ext not in allowed_extensions:
-        return f"Invalid file extension: .{ext}. Allowed: {', '.join(allowed_extensions)}", True
-
-    return None, False
 
 def handle_password_reset_user(user):
     """Helper method for password reset to only change it when the user is signed it within local login. 

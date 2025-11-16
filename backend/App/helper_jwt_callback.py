@@ -3,13 +3,13 @@ from sqlalchemy import select
 from datetime import datetime, timezone
 from .helper_methods import jsonify_template_user, logger_setup, datetime_return_tzinfo
 from .database import db_session as db
-from .model import RefreshToken
+from App.models.model_users import RefreshToken
 
 logger = logger_setup(__name__, "JWT_callback.log")
 
 # Callback method to return as response to expired token
 @jwt.expired_token_loader
-def expired_token_response(jwt_header, jwt_payload):
+def expired_token_response(jwt_header: dict, jwt_payload: dict):
     token_type = jwt_payload.get("type", "access")  # default to 'access'
 
     if token_type == "refresh":

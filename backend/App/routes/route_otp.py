@@ -8,7 +8,8 @@ from datetime import datetime, timedelta, timezone
 from App import mail
 from App.helper_methods import logger_setup, commit_session, jsonify_template_user, datetime_return_tzinfo
 from App.helper_user_validation import handle_validate_requirements, handle_password_reset_user
-from App.model import OTP, Root_User, Users, Oauth_Users
+from App.models.model_users import Root_User, Users, Oauth_Users
+from App.models.model_otp import OTP
 from App.database import db_session as db
 
 generate_otp = lambda: f"{randbelow(1000000):06}"
@@ -97,6 +98,10 @@ def input_otp():
 
     otp_db: OTP = user.otp
 
+    if not otp_db:
+        logger.info(f"{user_id} tried to input with a non existant otp")
+        return jsonify_template_user(404, False, "You havent requested an OTP yet")
+        
     if otp_db.otp_text != otp:
         logger.error(f"{user.id} inputed the wrong OTP")
         return jsonify_template_user(400, False, "Please iput the correct OTP")
@@ -107,6 +112,11 @@ def input_otp():
     
     otp_db.is_used = True
     session["otp"] = otp
+
+    success, error = commit_session()
+    if not success:
+        logger.info(error)
+        return jsonify_template_user(500, False, "Database Error")
 
     return jsonify_template_user(200, True, "Please proceed to changing your password now")
     
@@ -125,7 +135,7 @@ def reset_pssw():
         return jsonify_template_user(401, False, "Holy fuck, how did you access this, please log in")
 
     who_user = who_user_query(user.id, user.user_type)
-    otp_db = who_user.otp
+    otp_db: OTP = who_user.otp
     user_check = handle_password_reset_user(who_user)
     otp = session.get("otp")
     new_pssw = data.get("new_password")
@@ -134,6 +144,9 @@ def reset_pssw():
         logger.info("User tried to change password but not logged in using local")
         return jsonify_template_user(403, False, 
                                      "You cannot change password using this account type. Only users logged in using Inquira will be able to change password")
+    if not otp_db:
+        logger.info(f"{user_id} tried to input with a non existant otp")
+        return jsonify_template_user(404, False, "You havent requested an OTP yet")
     
     if otp != otp_db.otp_text:
         logger.error("User tampered with the session OTP")

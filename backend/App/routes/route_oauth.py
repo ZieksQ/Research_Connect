@@ -3,10 +3,10 @@ from flask import jsonify, redirect, make_response, url_for, Blueprint, current_
 from sqlalchemy import select, and_
 from datetime import datetime, timezone
 from App.database import db_session as db
-from App.model import Oauth_Users, User_Roles, RefreshToken
+from App.models.model_users import Oauth_Users, RefreshToken
+from App.models.model_enums import User_Roles
 from App.helper_methods import commit_session, logger_setup, create_access_refresh_tokens
 from App.env_config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-
 from flask_jwt_extended import ( set_access_cookies, get_jti, set_refresh_cookies, 
                                 jwt_required, get_jwt_identity, unset_jwt_cookies )
 

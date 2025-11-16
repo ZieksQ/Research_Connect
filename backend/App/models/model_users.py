@@ -102,7 +102,7 @@ class RefreshToken(Base):
     revoked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
     user_token: Mapped["Root_User"] = relationship("Root_User", back_populates="refresh_token")
 
     def __repr__(self):

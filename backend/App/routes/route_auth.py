@@ -157,7 +157,7 @@ def profile_upload():
 
 @user_auth.route("/refresh/logout", methods=["POST"])
 @jwt_required(refresh=True)
-@limiter.limit("2 per minutes;30 per hour;200 per day", key_func=get_jwt_identity)
+@limiter.limit("10 per minute;100 per hour;200 per day", key_func=get_jwt_identity)
 def logout():
     jti = get_jwt()["jti"]
     stmt = select(RefreshToken).where(RefreshToken.jti == jti)

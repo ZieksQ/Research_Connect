@@ -14,8 +14,8 @@ from App.models.model_otp import Code
 from App.models.model_enums import QuestionType, Question_type_inter
 from App.helper_methods import ( jsonify_template_user, commit_session, 
                                 logger_setup, datetime_return_tzinfo )
-from App.helper_user_validation import (handle_post_input_exist, handle_post_requirements, 
-                              handle_survey_input_exists, handle_survey_input_requirements)
+from App.helper_user_validation import (handle_post_input_exist, handle_post_requirements, handle_web_survey_input_exist, 
+                                        handle_web_survey_input_requirements, handle_Mobile_survey_input_exist, handle_mobile_survey_input_requirements)
 
 
 # Sets up the logger from my helper file
@@ -279,14 +279,14 @@ def send_post_survey_web():
         return jsonify_template_user(422, False, survey_requirements)
     
     # Checks each question on the survey if it exist or not
-    svy_exists_msg, svy_exists_flag = handle_survey_input_exists(svy_questions)
+    svy_exists_msg, svy_exists_flag = handle_web_survey_input_exist(svy_questions)
     if svy_exists_flag:
         msg = "Survey is missing data"
         logger.error(msg)
         return jsonify_template_user(400, False, msg, survey={"survey": svy_exists_msg})
     
     # Checks each question on the survey if it reachers the requirements e.g. question must be at least x long
-    svy_req_msg, svy_req_flag = handle_survey_input_requirements(survey)
+    svy_req_msg, svy_req_flag = handle_web_survey_input_requirements(svy_questions)
     if svy_req_flag:
         logger.error(svy_req_msg)
         return jsonify_template_user(422, False, "You must meet the requirements for the survey", survey={"survey": svy_exists_msg})
@@ -409,14 +409,14 @@ def send_post_survey_mobile():
         return jsonify_template_user(422, False, survey_requirements)
     
     # Checks each question on the survey if it exist or not
-    svy_exists_msg, svy_exists_flag = handle_survey_input_exists(svy_questions)
+    svy_exists_msg, svy_exists_flag = handle_Mobile_survey_input_exist(svy_questions)
     if svy_exists_flag:
         msg = "Survey is missing data"
         logger.error(msg)
         return jsonify_template_user(400, False, msg, survey={"survey": svy_exists_msg})
     
     # Checks each question on the survey if it reachers the requirements e.g. question must be at least x long
-    svy_req_msg, svy_req_flag = handle_survey_input_requirements(survey)
+    svy_req_msg, svy_req_flag = handle_mobile_survey_input_requirements(svy_questions)
     if svy_req_flag:
         logger.error(svy_req_msg)
         return jsonify_template_user(422, False, "You must meet the requirements for the survey", survey={"survey": svy_exists_msg})

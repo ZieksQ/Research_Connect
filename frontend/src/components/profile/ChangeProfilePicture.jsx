@@ -49,6 +49,7 @@ export default function ChangeProfilePicture() {
     console.log("Uploading file:", file);
     
     handleClose();
+    window.location.reload();
   };
 
   return (

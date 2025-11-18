@@ -5,9 +5,9 @@ from datetime import datetime, timezone
 from App.database import db_session as db
 from App.models.model_users import Oauth_Users, RefreshToken
 from App.models.model_enums import User_Roles
-from App.helper_methods import commit_session, logger_setup, create_access_refresh_tokens
+from App.helper_methods import commit_session, logger_setup, create_access_refresh_tokens, flush_session
 from App.env_config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-from flask_jwt_extended import ( set_access_cookies, get_jti, set_refresh_cookies, 
+from flask_jwt_extended import ( set_access_cookies, get_jti, set_refresh_cookies,
                                 jwt_required, get_jwt_identity, unset_jwt_cookies )
 
 logger = logger_setup(__name__, "user_oauth.log")
@@ -35,7 +35,7 @@ is_valid_redirect = lambda url: url in ALLOWED_REDIRECTS
 get_url = lambda url: ALLOWED_REDIRECTS.get(url)
 
 @oauth_me.route("/login")
-@limiter.limit("2 per minutes;30 per hour;200 per day")
+@limiter.limit("20 per minutes;100 per hour;200 per day")
 def login():
     redirect_url = request.args.get("redirect_url")
     if not redirect_url or not is_valid_redirect(redirect_url):
@@ -46,7 +46,7 @@ def login():
     return google.authorize_redirect(redirect_uri)
 
 @oauth_me.route("/authorized/google")
-@limiter.limit("2 per minutes;30 per hour;200 per day")
+@limiter.limit("20 per minutes;100 per hour;200 per day")
 def authorize():
     # or store this using a variable, im not using it so im just initializing it
     _ = google.authorize_access_token()
@@ -64,7 +64,7 @@ def authorize():
                         provider_user_id=user_info["sub"], profile_pic_url=user_info["picture"])
         user.role = User_Roles.USER.value
         db.add(user)
-        success, error = commit_session()
+        success, error = flush_session()
         if not success:
             logger.exception(error)
             return redirect(f"{url_redirect}?msg=Database_error")

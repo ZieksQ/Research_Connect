@@ -59,7 +59,6 @@ def user_register():
     
     return jsonify_template_user(200, True, "User registered successful")
 
-
 @user_auth.route("/login", methods=["POST"])
 @limiter.limit("10 per minute;100 per hour;200 per day")
 def user_login():

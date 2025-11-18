@@ -3,7 +3,6 @@ from datetime import datetime
 from App import bcrypt, default_profile_pic
 from App.database import Base
 from sqlalchemy import String, Integer, ForeignKey, Boolean, DateTime
-from App.models.model_association import rootUser_survey
 
 # To unifiy both user since i have two way to log in
 class Root_User(Base):
@@ -28,9 +27,9 @@ class Root_User(Base):
                                        back_populates="user",
                                        cascade="all, delete-orphan")
     
-    survey: Mapped[list["Surveys"]] = relationship("Surveys", uselist=True,
-                                                  secondary=rootUser_survey,
-                                                  back_populates="root_user")
+    link_survey: Mapped["RootUser_Survey"] = relationship("RootUser_Survey",
+                                                          back_populates="user",
+                                                          cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"User {self.id}"

@@ -9,7 +9,7 @@ class Posts(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(512), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    category: Mapped[list[str]] = mapped_column(JSON, nullable=True)
+    category: Mapped[list[str]] = mapped_column(JSON, default=[], nullable=False)
     date_created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     date_updated: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
     archived: Mapped[bool] = mapped_column(Boolean, default=False)

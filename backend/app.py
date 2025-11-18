@@ -2,12 +2,12 @@ from App import run_app
 from App.database import Base, engine
 from time import sleep
 
-RESET = False
+RESET = True
 app = run_app()
 if __name__ == "__main__":
     if RESET:
         Base.metadata.drop_all(engine)
-        sleep(5.0)
+        sleep(2.0)
         Base.metadata.create_all(engine)
     else:
         Base.metadata.create_all(engine)

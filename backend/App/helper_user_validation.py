@@ -113,10 +113,10 @@ def handle_post_input_exist(title: str, content: str, post: bool = True) -> tupl
     """
     
     who_title = "post title" if post else "survey title"
-    who_content = "post content" if post else "survey content"
+    who_content = "post description" if post else "survey description"
 
     result = {}
-    extra_flag = []
+    extra_flag = [False]
 
     if not title:
         result["title"] = f"Missing {who_title}"
@@ -157,7 +157,7 @@ def handle_post_requirements(title: str, content: str, post = True) -> tuple[dic
     ]
 
     content_rules = [
-        (lambda content: len(content) >= 20,                f"{who_content} should be atleast 20 words"),
+        (lambda content: len(content) >= 10,                f"{who_content} should be atleast 10 words"),
         (lambda content: len(content) <= who_limit,         f"{who_content} must not exceed {who_limit} words"),
         (lambda content: len(" ".join(content)) <= 5000,    f"{who_content} must not exceed 5000 characters"),
     ]
@@ -178,7 +178,7 @@ def handle_post_requirements(title: str, content: str, post = True) -> tuple[dic
 
     return result, any(extra_flag)
 
-def handle_web_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tuple[list, bool]:
+def handle_web_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tuple[dict, bool]:
     """Web version: Method to check if each input in the dict of questionnaire exists.
 
     Args:
@@ -189,7 +189,7 @@ def handle_web_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tuple[
     """
 
     qflag = {}
-    each_qcheck_bool = []
+    each_qcheck_bool = [False]
 
     if not svy_questions:
         return ["Survey is empty"], True
@@ -202,19 +202,19 @@ def handle_web_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tuple[
             return ["Survey questions is missing"], True
         
         if not svy_section.get("title"):
-            result[f"description{scounter}"] = f"Section {scounter}: Title is missing"
+            result[f"description"] = f"Section {scounter}: Title is missing"
             each_qdata_bool.append(True)
 
         if not svy_section.get("description"):
-            result[f"description{scounter}"] = f"Section {scounter}: Description is missing"
+            result[f"description"] = f"Section {scounter}: Description is missing"
             each_qdata_bool.append(True)
 
         if not svy_section.get("questions"):
-            result[f"questions{scounter}"] = f"Section {scounter}: Quesitons is missing"
+            result[f"questions"] = f"Section {scounter}: Quesitons is missing"
             each_qdata_bool.append(True)
             continue
 
-        for qcounter, q_dict in enumerate(svy_questions, start=1):
+        for qcounter, q_dict in enumerate(svy_section.get("questions"), start=1):
             
             if not q_dict:
                 result[f"question{qcounter}"] = f"Question {qcounter} is missing"
@@ -222,34 +222,34 @@ def handle_web_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tuple[
                 continue
 
             if not q_dict.get("title"):
-                result[f"title{qcounter}"] = f"Question {qcounter}: Title is missing"
+                result[f"title"] = f"Question {qcounter}: Title is missing"
                 each_qdata_bool.append(True)
 
             if not q_dict.get("minChoices"):
-                result[f"minChoices{qcounter}"] = f"Question {qcounter}: Min Choices is missing"
+                result[f"minChoices"] = f"Question {qcounter}: Min Choices is missing"
                 each_qdata_bool.append(True)
                 
             if not q_dict.get("maxChoices"):
-                result[f"maxChoices{qcounter}"] = f"Question {qcounter}: Max Choices is missing"
+                result[f"maxChoices"] = f"Question {qcounter}: Max Choices is missing"
                 each_qdata_bool.append(True)
 
             if not q_dict.get("type"):
-                result[f"type{qcounter}"] = f"Question {qcounter}: Type is missing"
+                result[f"type"] = f"Question {qcounter}: Type is missing"
                 each_qdata_bool.append(True)
 
             if q_dict.get("type") in Question_type_inter.CHOICES_TYPE_WEB:
                 if not q_dict.get("options"):
-                    result[f"options{qcounter}"] = f"Question {qcounter}: Options is missing"
+                    result[f"options"] = f"Question {qcounter}: Options is missing"
                     each_qdata_bool.append(True)
 
         if result:
             qflag[f"Section{scounter}"] = result
             each_qcheck_bool.append(any(each_qdata_bool))
 
-    return qflag, any(each_qcheck_bool)
+    return (qflag, any(each_qcheck_bool))
 
 
-def handle_Mobile_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tuple[list, bool]:
+def handle_Mobile_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tuple[dict, bool]:
     """Mobiloe version: Method to check if each input in the dict of questionnaire exists.
 
     Args:
@@ -265,28 +265,28 @@ def handle_Mobile_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tup
     if not svy_questions:
         return ["Survey is empty"], True
     
-    for qcounter, svy_questions in enumerate(svy_questions, start=1):
+    for qcounter, svy_question in enumerate(svy_questions, start=1):
         result = {}
         each_qdata_bool = []
 
-        if not svy_questions:
+        if not svy_question:
             return ["Survey Questions is missing"], True
 
-        if not svy_questions.get("title"):
-            result[f"title{qcounter}"] = f"Question {qcounter}: Title is missing"
+        if not svy_question.get("title"):
+            result[f"title"] = f"Question {qcounter}: Title is missing"
             each_qdata_bool.append(True)
 
-        if not svy_questions.get("type"):
-            result[f"type{qcounter}"] = f"Question {qcounter}: Type is missing"
+        if not svy_question.get("type"):
+            result[f"type"] = f"Question {qcounter}: Type is missing"
             each_qdata_bool.append(True)
 
-        if svy_questions.get("type") in Question_type_inter.CHOICES_TYPE_MOBILE:
-            if not svy_questions.get("options"):
-                result[f"options{qcounter}"] = f"Question {qcounter}: Options is missing"
+        if svy_question.get("type") in Question_type_inter.CHOICES_TYPE_MOBILE:
+            if not svy_question.get("options"):
+                result[f"options"] = f"Question {qcounter}: Options is missing"
                 each_qdata_bool.append(True)
 
-        if not svy_questions.get("sectionId"): 
-            result[f"sectionId{qcounter}"] = f"Question {qcounter}: Seciton ID is missing"
+        if not svy_question.get("sectionId"): 
+            result[f"sectionId"] = f"Question {qcounter}: Seciton ID is missing"
 
         if result:
             qflag[f"Question{qcounter}"] = result
@@ -305,14 +305,14 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]]) ->
         tuple (list, bool): (violations, has_violations_flag)
     """
     
-    qtype_list = [qt.value for qt in Question_type_inter.CHOICES_TYPE_WEB]
+    qtype_list = [qt for qt in Question_type_inter.CHOICES_TYPE]
     question_text_rules=[
         (lambda question: len(question) >= 4, "Question must be at least 4 words"),
         (lambda question: len(question) <= 150, "Question must not exceed 150 words"),
         (lambda question: len(" ".join(question)) <= 2000, "Question must not exceed 2000 characters"),
     ]
     type_rules=[
-        (lambda qtype: qtype in qtype_list, f"Wrong question type, please choose within [{", ".join(qtype_list)}]"),
+        (lambda qtype: qtype in Question_type_inter.Q_TYPE_WEB, f"Wrong question type, please choose within [{", ".join(Question_type_inter.Q_TYPE_WEB)}]"),
     ]
 
     choices_text_rules = [
@@ -326,12 +326,12 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]]) ->
     ]
 
     section_desc_rules = [  
-        (lambda text: len(text) >= 5, "Section title must be at least 5 characters long"),
-        (lambda text: len(text) <= 512, "Section title must not exceed 512 characters"),
+        (lambda text: len(text) >= 5, "Section description must be at least 5 characters long"),
+        (lambda text: len(text) <= 512, "Section description must not exceed 512 characters"),
     ]
 
-    qflag = []
-    qcheck = [] 
+    qflag = {}
+    qcheck = [False] 
 
     for scounter, svy_section in enumerate(svy_questions, start=1):
         result = {}
@@ -347,12 +347,12 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]]) ->
                 result[f"description{scounter}"] = msg
                 each_qdata_bool.append(True)
 
-        for qcounter, q_dict in enumerate(svy_questions, start=1):
+        for qcounter, q_dict in enumerate(svy_section.get("questions"), start=1):
             
             if not q_dict:
                 result[f"question{qcounter}"] = f"Question {qcounter} is missing"
                 each_qdata_bool.append(True)
-                break
+                continue
             
             for check, msg in question_text_rules:
                 if not check(q_dict.get("title")):
@@ -362,24 +362,23 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]]) ->
 
             for check, msg in type_rules:
                 if not check(q_dict.get("type")):
-                    result[f"type{qcounter}"] = msg
+                    result[f"type"] = msg
                     each_qdata_bool.append(True)
                     break
 
             if q_dict.get("type") in Question_type_inter.CHOICES_TYPE_WEB:
                 for check, msg in choices_text_rules:
                     if not check(q_dict.get("options")):
-                        result[f"options{qcounter}"] = msg
+                        result[f"options"] = msg
                         each_qdata_bool.append(True)
                         break
 
             if q_dict.get("image"):
-                img_file = q_dict["image"]["fieldname"]
+                img_file = q_dict["image"]["fieldName"]
                 img_msg, img_flag = handle_profile_pic(img_file)
                 if img_flag:
                     result[f"img{qcounter}"] = img_msg
                     each_qdata_bool.append(True)
-                    break
 
         if result:
             qflag[f"Section{scounter}"] = result
@@ -397,14 +396,14 @@ def handle_mobile_survey_input_requirements(svy_questions: list[dict[str, Any]])
         tuple (list, bool): (violations, has_violations_flag)
     """
     
-    qtype_list = [qt.value for qt in Question_type_inter.CHOICES_TYPE_MOBILE]
+    qtype_list = [qt for qt in Question_type_inter.CHOICES_TYPE_MOBILE]
     question_text_rules=[
         (lambda question: len(question) >= 4, "Question must be at least 4 words"),
         (lambda question: len(question) <= 150, "Question must not exceed 150 words"),
         (lambda question: len(" ".join(question)) <= 2000, "Question must not exceed 2000 characters"),
     ]
     type_rules=[
-        (lambda qtype: qtype in qtype_list, f"Wrong question type, please choose within [{", ".join(qtype_list)}]"),
+        (lambda qtype: qtype in Question_type_inter.Q_TYPE_MOBILE, f"Wrong question type, please choose within [{", ".join(Question_type_inter.Q_TYPE_MOBILE)}]"),
     ]
 
     choices_text_rules = [
@@ -422,34 +421,34 @@ def handle_mobile_survey_input_requirements(svy_questions: list[dict[str, Any]])
         (lambda text: len(text) <= 512, "Section title must not exceed 512 characters"),
     ]
 
-    qflag = []
+    qflag = {}
     qcheck = []
 
-    for qcounter, svy_questions in enumerate(svy_questions, start=1):
+    for qcounter, svy_question in enumerate(svy_questions, start=1):
         result = {}
         each_qdata_bool = []
 
         for check, msg in question_text_rules:
-            if not check(svy_questions.get("title")):
+            if not check(svy_question.get("title")):
                 result[f"title{qcounter}"] = msg
                 each_qdata_bool.append(True)
                 break
 
         for check, msg in type_rules:
-            if not check(svy_questions.get("type")):
+            if not check(svy_question.get("type")):
                 result[f"type{qcounter}"] = msg
                 each_qdata_bool.append(True)
                 break
 
-        if svy_questions.get("type") in Question_type_inter.CHOICES_TYPE_MOBILE:
+        if svy_question.get("type") in Question_type_inter.CHOICES_TYPE_MOBILE:
             for check, msg in choices_text_rules:
-                if not svy_questions.get("options"):
+                if not svy_question.get("options"):
                     result[f"options{qcounter}"] = msg
                     each_qdata_bool.append(True)
                     break
 
         for check, msg in section_title_rules:
-            if not check(svy_questions.get("sectionId")): 
+            if not check(svy_question.get("sectionId")): 
                 result[f"sectionId{qcounter}"] = msg
                 each_qdata_bool.append(True)
                 break

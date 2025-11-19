@@ -6,6 +6,7 @@ export default function ChangeProfilePicture() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { setNodeRef, isOver } = useDroppable({ id: "dropzone" });
 
   const handleFile = (f) => {
@@ -40,13 +41,15 @@ export default function ChangeProfilePicture() {
     setIsOpen(false);
     setFile(null);
     setPreview(null);
+    setIsLoading(false);
   };
 
   const handleUpload = async () => {
     // Add your upload logic here
     const response = await postProfilePicture(file);
-    console.log(response.data)
-    console.log("Uploading file:", file);
+    setIsLoading(true);
+    // console.log(response.data)
+    // console.log("Uploading file:", file);
     
     handleClose();
     window.location.reload();
@@ -157,10 +160,10 @@ export default function ChangeProfilePicture() {
               </button>
               <button 
                 onClick={handleUpload}
-                className="btn btn-primary flex-1" 
+                className="btn btn-primary flex-1 " 
                 disabled={!file}
               >
-                Upload
+                {isLoading ? <span className="loading loading-dots loading-md"></span> : "Upload"}
               </button>
             </div>
           </div>

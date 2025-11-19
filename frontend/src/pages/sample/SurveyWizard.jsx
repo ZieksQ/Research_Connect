@@ -4,6 +4,7 @@ import TargetAudiencePage from './TargetAudiencePage';
 import SortableForm from './SortableForm';
 import SurveyPreviewPage from './SurveyPreviewPage';
 import { MdCheck } from 'react-icons/md';
+import { publishSurvey } from '../../services/survey.services';
 
 export default function SurveyWizard() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -38,9 +39,24 @@ export default function SurveyWizard() {
     setCurrentStep(prev => Math.max(prev - 1, 0));
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     // Create FormData to handle images
     const formData = new FormData();
+    
+    // Helper function to convert type to camelCase
+    const typeToCamelCase = (type) => {
+      const typeMap = {
+        'Short Text': 'shortText',
+        'Long Text': 'longText',
+        'Single Choice': 'singleChoice',
+        'Multiple Choice': 'multipleChoice',
+        'Rating': 'rating',
+        'Dropdown': 'dropdown',
+        'Date': 'date',
+        'Email': 'email'
+      };
+      return typeMap[type] || type.toLowerCase();
+    };
     
     // Prepare survey data for JSON (without File objects)
     const surveyDataForJson = {
@@ -52,7 +68,10 @@ export default function SurveyWizard() {
       data: surveyData.data.map((section) => ({
         ...section,
         questions: section.questions.map((question) => {
-          const questionData = { ...question };
+          const questionData = { 
+            ...question,
+            type: typeToCamelCase(question.type) // Convert type to camelCase
+          };
           
           // Replace image object with metadata (file will be in FormData)
           if (question.image) {
@@ -102,6 +121,8 @@ export default function SurveyWizard() {
     //   method: 'POST',
     //   body: formData
     // });
+
+    publishSurvey(formData);
   };
 
   const CurrentStepComponent = steps[currentStep].component;

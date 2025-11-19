@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { MdPeople, MdBusiness, MdSchool, MdLocalHospital, MdEdit } from 'react-icons/md';
+import { MdPeople, MdBusiness, MdSchool, MdLocalHospital, MdEdit, MdCheck } from 'react-icons/md';
 
 export default function TargetAudiencePage({ data, onNext, onBack }) {
-  const [selectedAudience, setSelectedAudience] = useState(data.target || '');
+  const [selectedAudiences, setSelectedAudiences] = useState(
+    Array.isArray(data.target) ? data.target : data.target ? [data.target] : []
+  );
   const [customAudience, setCustomAudience] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
 
@@ -14,48 +16,78 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
     { id: 'general-public', label: 'General Public', icon: MdPeople }
   ];
 
-  const handleAudienceSelect = (audienceId) => {
-    setSelectedAudience(audienceId);
-    setShowCustomInput(false);
-    setCustomAudience('');
+  const handleAudienceToggle = (audienceId) => {
+    setSelectedAudiences((prev) => {
+      if (prev.includes(audienceId)) {
+        // Remove if already selected
+        return prev.filter((id) => id !== audienceId);
+      } else {
+        // Add if not selected and under limit
+        if (prev.length < 5) {
+          return [...prev, audienceId];
+        } else {
+          alert('You can select a maximum of 5 target audiences');
+          return prev;
+        }
+      }
+    });
   };
 
   const handleCustomAudience = () => {
     if (customAudience.trim()) {
-      setSelectedAudience(customAudience.trim());
-      setShowCustomInput(false);
+      if (selectedAudiences.length < 5) {
+        setSelectedAudiences((prev) => [...prev, customAudience.trim()]);
+        setShowCustomInput(false);
+        setCustomAudience('');
+      } else {
+        alert('You can select a maximum of 5 target audiences');
+      }
     }
   };
 
+  const removeCustomAudience = (customAud) => {
+    setSelectedAudiences((prev) => prev.filter((aud) => aud !== customAud));
+  };
+
   const handleContinue = () => {
-    if (!selectedAudience) {
-      alert('Please select a target audience');
+    if (selectedAudiences.length === 0) {
+      alert('Please select at least one target audience');
       return;
     }
 
     onNext({
-      target: selectedAudience
+      target: selectedAudiences
     });
   };
+
+  // Get custom audiences (those not in the predefined list)
+  const customAudiences = selectedAudiences.filter(
+    (aud) => !audiences.find((a) => a.id === aud)
+  );
 
   return (
     <div className="rounded-xl shadow-lg p-6" style={{ backgroundColor: '#ffffff' }}>
       <div className="mb-6">
         <h2 className="mb-2" style={{ color: 'var(--color-primary-color)' }}>Target Audience</h2>
         <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-          Select the audience you want to target with this survey
+          Select the audiences you want to target with this survey (max 5)
         </p>
+        {selectedAudiences.length > 0 && (
+          <p className="text-sm mt-2" style={{ color: 'var(--color-accent-100)' }}>
+            {selectedAudiences.length} of 5 selected
+          </p>
+        )}
       </div>
 
       <div className="space-y-3 mb-6">
         {audiences.map((audience) => {
           const Icon = audience.icon;
-          const isSelected = selectedAudience === audience.id;
+          const isSelected = selectedAudiences.includes(audience.id);
           
           return (
             <div
               key={audience.id}
-              onClick={() => handleAudienceSelect(audience.id)}
+              onClick={() => handleAudienceToggle(audience.id)}
               className="flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all"
               style={{
                 backgroundColor: isSelected ? 'var(--color-secondary-background)' : 'var(--color-background)',
@@ -78,63 +110,79 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
               </div>
               {isSelected && (
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center"
+                  className="w-6 h-6 rounded flex items-center justify-center"
                   style={{ backgroundColor: 'var(--color-primary-color)' }}
                 >
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#ffffff' }}></div>
+                  <MdCheck className="text-white" />
                 </div>
               )}
             </div>
           );
         })}
 
-        {/* Other Option */}
-        <div
-          onClick={() => setShowCustomInput(true)}
-          className="flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all"
-          style={{
-            backgroundColor: showCustomInput || (selectedAudience && !audiences.find(a => a.id === selectedAudience)) 
-              ? 'var(--color-secondary-background)' 
-              : 'var(--color-background)',
-            border: `2px solid ${showCustomInput || (selectedAudience && !audiences.find(a => a.id === selectedAudience))
-              ? 'var(--color-primary-color)' 
-              : 'transparent'}`,
-          }}
-        >
+        {/* Custom Audiences Display */}
+        {customAudiences.map((customAud) => (
           <div
-            className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+            key={customAud}
+            className="flex items-center gap-4 p-4 rounded-lg transition-all"
             style={{
-              backgroundColor: showCustomInput || (selectedAudience && !audiences.find(a => a.id === selectedAudience))
-                ? 'var(--color-primary-color)' 
-                : 'var(--color-secondary-background)',
-              color: showCustomInput || (selectedAudience && !audiences.find(a => a.id === selectedAudience))
-                ? '#ffffff' 
-                : 'var(--color-primary-color)'
+              backgroundColor: 'var(--color-secondary-background)',
+              border: `2px solid var(--color-primary-color)`,
             }}
           >
-            <MdEdit className="text-2xl" />
-          </div>
-          <div className="flex-1">
-            <p style={{ 
-              color: 'var(--color-primary-color)', 
-              fontWeight: showCustomInput || (selectedAudience && !audiences.find(a => a.id === selectedAudience)) 
-                ? '600' 
-                : '400' 
-            }}>
-              {selectedAudience && !audiences.find(a => a.id === selectedAudience) 
-                ? selectedAudience 
-                : 'Other (Specify)'}
-            </p>
-          </div>
-          {(showCustomInput || (selectedAudience && !audiences.find(a => a.id === selectedAudience))) && (
             <div
-              className="w-6 h-6 rounded-full flex items-center justify-center"
+              className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{
+                backgroundColor: 'var(--color-primary-color)',
+                color: '#ffffff'
+              }}
+            >
+              <MdEdit className="text-2xl" />
+            </div>
+            <div className="flex-1">
+              <p style={{ color: 'var(--color-primary-color)', fontWeight: '600' }}>
+                {customAud}
+              </p>
+            </div>
+            <button
+              onClick={() => removeCustomAudience(customAud)}
+              className="w-6 h-6 rounded flex items-center justify-center"
               style={{ backgroundColor: 'var(--color-primary-color)' }}
             >
-              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#ffffff' }}></div>
+              <MdCheck className="text-white" />
+            </button>
+          </div>
+        ))}
+
+        {/* Add Other Option */}
+        {selectedAudiences.length < 5 && (
+          <div
+            onClick={() => setShowCustomInput(true)}
+            className="flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all"
+            style={{
+              backgroundColor: showCustomInput ? 'var(--color-secondary-background)' : 'var(--color-background)',
+              border: `2px solid ${showCustomInput ? 'var(--color-primary-color)' : 'transparent'}`,
+            }}
+          >
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{
+                backgroundColor: showCustomInput ? 'var(--color-primary-color)' : 'var(--color-secondary-background)',
+                color: showCustomInput ? '#ffffff' : 'var(--color-primary-color)'
+              }}
+            >
+              <MdEdit className="text-2xl" />
             </div>
-          )}
-        </div>
+            <div className="flex-1">
+              <p style={{ 
+                color: 'var(--color-primary-color)', 
+                fontWeight: showCustomInput ? '600' : '400' 
+              }}>
+                Other (Specify)
+              </p>
+            </div>
+          </div>
+        )}
 
         {showCustomInput && (
           <div className="flex gap-2 px-4">

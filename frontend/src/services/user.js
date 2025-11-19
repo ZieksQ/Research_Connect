@@ -13,6 +13,6 @@ export const postProfilePicture = async (file) => {
 
 // user get user data
 export const getUserData = async () =>
-  apiFetch('/api/user/user_data', {
+  apiFetch("/api/user/user_data", {
     method: "GET",
   });

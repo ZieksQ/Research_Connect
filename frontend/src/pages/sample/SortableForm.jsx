@@ -61,8 +61,8 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
   );
 
   const questionTypes = [
-    'Text',
-    'Essay',
+    'Short Text',
+    'Long Text',
     'Single Choice',
     'Multiple Choice',
     'Rating',
@@ -104,7 +104,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
     const newQuestion = {
       id: `question-${Date.now()}`,
       title: '',
-      type: 'Text',
+      type: 'Short Text',
       required: false,
       options: [],
       image: null,

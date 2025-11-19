@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { sampleSurveyData } from './sampleSurveyData.js';
+import { sampleSurveyData } from './sampleSurveyData';
 import { MdArrowBack, MdArrowForward, MdStar, MdStarBorder } from 'react-icons/md';
 
 export default function SurveyPage() {
@@ -15,7 +15,10 @@ export default function SurveyPage() {
   const handleInputChange = (questionId, value) => {
     setResponses(prev => ({
       ...prev,
-      [questionId]: value
+      [questionId]: {
+        answer: value,
+        section: currentSection.id
+      }
     }));
     // Clear error when user starts typing
     if (errors[questionId]) {
@@ -28,7 +31,7 @@ export default function SurveyPage() {
   };
 
   const handleMultipleChoiceChange = (questionId, optionId, question) => {
-    const currentAnswers = responses[questionId] || [];
+    const currentAnswers = responses[questionId]?.answer || [];
     let newAnswers;
 
     if (currentAnswers.includes(optionId)) {
@@ -46,7 +49,10 @@ export default function SurveyPage() {
 
     setResponses(prev => ({
       ...prev,
-      [questionId]: newAnswers
+      [questionId]: {
+        answer: newAnswers,
+        section: currentSection.id
+      }
     }));
 
     // Clear error
@@ -64,7 +70,7 @@ export default function SurveyPage() {
     
     currentSection.questions.forEach(question => {
       if (question.required) {
-        const answer = responses[question.id];
+        const answer = responses[question.id]?.answer;
         
         if (!answer || 
             (Array.isArray(answer) && answer.length === 0) || 
@@ -99,11 +105,24 @@ export default function SurveyPage() {
 
   const handleSubmit = () => {
     if (validateSection()) {
+      // Transform responses to group by section
+      const responsesBySection = {};
+      
+      Object.entries(responses).forEach(([questionId, responseData]) => {
+        const sectionId = responseData.section;
+        
+        if (!responsesBySection[sectionId]) {
+          responsesBySection[sectionId] = {};
+        }
+        
+        responsesBySection[sectionId][questionId] = responseData.answer;
+      });
+      
       const submissionData = {
         surveyTitle: surveyData.surveyTitle,
         surveyDescription: surveyData.surveyDescription,
         submittedAt: new Date().toISOString(),
-        responses: responses
+        responses: responsesBySection
       };
       
       console.log('=== SURVEY SUBMISSION ===');
@@ -122,7 +141,7 @@ export default function SurveyPage() {
         return (
           <input
             type="text"
-            value={responses[question.id] || ''}
+            value={responses[question.id]?.answer || ''}
             onChange={(e) => handleInputChange(question.id, e.target.value)}
             className={`input input-bordered w-full ${hasError ? 'input-error' : ''}`}
             style={{
@@ -137,7 +156,7 @@ export default function SurveyPage() {
       case 'Essay':
         return (
           <textarea
-            value={responses[question.id] || ''}
+            value={responses[question.id]?.answer || ''}
             onChange={(e) => handleInputChange(question.id, e.target.value)}
             className={`textarea textarea-bordered w-full ${hasError ? 'textarea-error' : ''}`}
             rows="5"
@@ -154,7 +173,7 @@ export default function SurveyPage() {
         return (
           <input
             type="email"
-            value={responses[question.id] || ''}
+            value={responses[question.id]?.answer || ''}
             onChange={(e) => handleInputChange(question.id, e.target.value)}
             className={`input input-bordered w-full ${hasError ? 'input-error' : ''}`}
             style={{
@@ -170,7 +189,7 @@ export default function SurveyPage() {
         return (
           <input
             type="date"
-            value={responses[question.id] || ''}
+            value={responses[question.id]?.answer || ''}
             onChange={(e) => handleInputChange(question.id, e.target.value)}
             className={`input input-bordered w-full ${hasError ? 'input-error' : ''}`}
             style={{
@@ -192,16 +211,16 @@ export default function SurveyPage() {
                 className="btn btn-ghost btn-lg p-0"
                 style={{ color: 'var(--color-accent-100)' }}
               >
-                {responses[question.id] >= star ? (
+                {responses[question.id]?.answer >= star ? (
                   <MdStar className="text-4xl" />
                 ) : (
                   <MdStarBorder className="text-4xl" />
                 )}
               </button>
             ))}
-            {responses[question.id] && (
+            {responses[question.id]?.answer && (
               <span className="ml-3 self-center" style={{ color: 'var(--color-text-secondary)' }}>
-                {responses[question.id]} / 5
+                {responses[question.id]?.answer} / 5
               </span>
             )}
           </div>
@@ -215,7 +234,7 @@ export default function SurveyPage() {
                 key={option.id}
                 className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-opacity-50 transition-colors"
                 style={{
-                  backgroundColor: responses[question.id] === option.id
+                  backgroundColor: responses[question.id]?.answer === option.id
                     ? 'rgba(80, 87, 233, 0.1)'
                     : 'var(--color-background)'
                 }}
@@ -223,7 +242,7 @@ export default function SurveyPage() {
                 <input
                   type="radio"
                   name={question.id}
-                  checked={responses[question.id] === option.id}
+                  checked={responses[question.id]?.answer === option.id}
                   onChange={() => handleInputChange(question.id, option.id)}
                   className="radio"
                   style={{ borderColor: 'var(--color-accent-100)' }}
@@ -235,7 +254,7 @@ export default function SurveyPage() {
         );
 
       case 'Multiple Choice':
-        const selectedCount = (responses[question.id] || []).length;
+        const selectedCount = (responses[question.id]?.answer || []).length;
         return (
           <div>
             {question.maxChoices > 1 && (
@@ -248,7 +267,7 @@ export default function SurveyPage() {
             )}
             <div className="space-y-2">
               {question.options.map((option) => {
-                const isSelected = (responses[question.id] || []).includes(option.id);
+                const isSelected = (responses[question.id]?.answer || []).includes(option.id);
                 return (
                   <label
                     key={option.id}
@@ -277,7 +296,7 @@ export default function SurveyPage() {
       case 'Dropdown':
         return (
           <select
-            value={responses[question.id] || ''}
+            value={responses[question.id]?.answer || ''}
             onChange={(e) => handleInputChange(question.id, e.target.value)}
             className={`select select-bordered w-full ${hasError ? 'select-error' : ''}`}
             style={{
@@ -307,10 +326,10 @@ export default function SurveyPage() {
         {isFirstSection && (
           <div className="rounded-xl shadow-lg p-8 mb-6" style={{ backgroundColor: '#ffffff' }}>
             <div className="border-t-8 rounded-t-xl -mt-8 -mx-8 mb-6" style={{ borderColor: 'var(--color-accent-100)' }}></div>
-            <h2 className="mb-4 font-bold" style={{ color: 'var(--color-primary-color)' }}>
+            <h1 className="mb-4" style={{ color: 'var(--color-primary-color)' }}>
               {surveyData.surveyTitle}
-            </h2>
-            <p className="mb-4 leading-tight" style={{ color: 'var(--color-text-secondary)' }}>
+            </h1>
+            <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>
               {surveyData.surveyDescription}
             </p>
             {surveyData.surveyApproxTime && (

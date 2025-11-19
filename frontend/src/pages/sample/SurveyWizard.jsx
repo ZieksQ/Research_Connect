@@ -4,6 +4,7 @@ import TargetAudiencePage from './TargetAudiencePage';
 import SortableForm from './SortableForm';
 import SurveyPreviewPage from './SurveyPreviewPage';
 import { MdCheck } from 'react-icons/md';
+import { publishSurvey } from '../../services/survey.services';
 
 export default function SurveyWizard() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -38,10 +39,22 @@ export default function SurveyWizard() {
     setCurrentStep(prev => Math.max(prev - 1, 0));
   };
 
-  const handlePublish = () => {
-    // Create FormData to handle images
-    const formData = new FormData();
-    
+  const handlePublish = async () => {
+    // Helper function to convert type to camelCase
+    const typeToCamelCase = (type) => {
+      const typeMap = {
+        'Short Text': 'shortText',
+        'Long Text': 'longText',
+        'Single Choice': 'singleChoice',
+        'Multiple Choice': 'multipleChoice',
+        'Rating': 'rating',
+        'Dropdown': 'dropdown',
+        'Date': 'date',
+        'Email': 'email'
+      };
+      return typeMap[type] || type.toLowerCase();
+    };
+
     // Prepare survey data for JSON (without File objects)
     const surveyDataForJson = {
       surveyTitle: surveyData.surveyTitle,
@@ -52,56 +65,34 @@ export default function SurveyWizard() {
       data: surveyData.data.map((section) => ({
         ...section,
         questions: section.questions.map((question) => {
-          const questionData = { ...question };
-          
-          // Replace image object with metadata (file will be in FormData)
-          if (question.image) {
+          const questionData = { 
+            ...question,
+            type: typeToCamelCase(question.type) // Convert type to camelCase
+          };
+
+          // Replace image File object with metadata only
+          if (question.image && question.image.file) {
             questionData.image = {
               name: question.image.name,
               type: question.image.type,
               size: question.image.size,
-              fieldName: `image_${question.id}` // Reference to FormData field
+              fieldName: `image_${question.id}`,
             };
           }
-          
+
           return questionData;
-        })
-      }))
+        }),
+      })),
     };
-    
-    // Add survey JSON data to FormData
-    formData.append('surveyData', JSON.stringify(surveyDataForJson));
-    
-    // Add all image files to FormData
-    surveyData.data.forEach((section) => {
-      section.questions.forEach((question) => {
-        if (question.image && question.image.file) {
-          formData.append(`image_${question.id}`, question.image.file);
-        }
-      });
-    });
-    
-    // Log FormData contents
-    console.log('=== SURVEY PUBLISHED WITH FORMDATA ===');
-    console.log('\nSurvey JSON Data:');
+
+    // Log what we're sending
+    console.log("=== SURVEY PUBLISHED ===");
     console.log(JSON.stringify(surveyDataForJson, null, 2));
-    console.log('\nFormData Contents:');
-    for (let [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`${key}: [File] ${value.name} (${value.type}, ${value.size} bytes)`);
-      } else {
-        console.log(`${key}: ${value}`);
-      }
-    }
-    console.log('\n=== END ===');
-    
-    alert('Survey published! Check the console for FormData contents.');
-    
-    // Example: How to send to server
-    // fetch('/api/survey', {
-    //   method: 'POST',
-    //   body: formData
-    // });
+    console.log("=== END ===");
+
+    alert("Survey published! Check the console for data being sent.");
+
+    await publishSurvey(surveyDataForJson);
   };
 
   const CurrentStepComponent = steps[currentStep].component;
@@ -152,3 +143,12 @@ export default function SurveyWizard() {
     </div>
   );
 }
+
+// Mock function to simulate survey publishing
+// async function publishSurvey(surveyData) {
+//   return new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve({ success: true, message: 'Survey published successfully!' });
+//     }, 1000);
+//   });
+// }

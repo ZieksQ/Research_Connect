@@ -7,7 +7,7 @@ app = run_app()
 if __name__ == "__main__":
     if RESET:
         Base.metadata.drop_all(engine)
-        sleep(5.0)
+        sleep(2.0)
         Base.metadata.create_all(engine)
     else:
         Base.metadata.create_all(engine)

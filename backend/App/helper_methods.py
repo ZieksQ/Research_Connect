@@ -22,6 +22,20 @@ def commit_session() -> tuple[bool, str | None]:
     except Exception as e:
         db.rollback()
         return (False, str(e))
+    
+def flush_session() -> tuple[bool, str | None]:
+    """Helper method to reduce try-except for database flush.
+
+    Returns:
+        tuple: Boolean flag indicating success, and an error message or None.
+    """
+
+    try:
+        db.flush()
+        return (True, None)
+    except Exception as e:
+        db.rollback()
+        return (False, str(e))
 
 def jsonify_template_user(status: int, ok: bool, message: str | dict, **extra_flag):
     """Helper method to simplify jsonify usage for endpoint responses. 

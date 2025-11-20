@@ -7,6 +7,7 @@ import TopOrganizationsPage from "./home/TopOrganizationsPage.jsx";
 
 // This is where we fetch post
 // !TODO: Fetch data from the Backend/Database
+// ! This is working but temporary
 const PostPage = () => {
   const [posts, setPosts] = useState([]);
 
@@ -34,47 +35,36 @@ const PostPage = () => {
   }, []);
 
   return (
-    <section className=" mb-24 grid gap-4 md:grid-cols-12 md:grid-rows-6 px-3 lg:px-10">
-  {/* Left Sidebar */}
-  <aside
-    className="hidden md:flex flex-col gap-4 md:col-span-3 lg:row-span-6 
-               border-r border-gray-200 pr-4"
-  >
-    <MySurveysListPage />
-    <TopOrganizationsPage />
-  </aside>
+    <section className="mb-24 grid gap-4 px-3 md:grid-cols-12 md:grid-rows-6 lg:px-10">
+      {/* Left Sidebar */}
+      <aside className="hidden flex-col gap-4 border-r border-gray-200 pr-4 md:col-span-3 md:flex lg:row-span-6">
+        <MySurveysListPage />
+        <TopOrganizationsPage />
+      </aside>
 
-  {/* Main Feed */}
-  <main
-    className="md:col-start-4 md:col-span-9 lg:col-span-6 row-span-6 lg:col-start-4
-               border-x border-gray-200 bg-white"
-  >
-
-    <div className="p-5 border-b border-gray-200">
-      <CreateNewSurveyPage />
-    </div>
-
-    <div className="flex flex-col">
-      {posts.map((e, index) => (
-        <div
-          key={index}
-          className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
-        >
-          <CardPost Title={e.title} Description={e.content} />
+      {/* Main Feed */}
+      <main className="row-span-6 border-x border-gray-200 bg-white md:col-span-9 md:col-start-4 lg:col-span-6 lg:col-start-4">
+        <div className="border-b border-gray-200 p-5">
+          <CreateNewSurveyPage />
         </div>
-      ))}
-    </div>
-  </main>
 
-  {/* Right Sidebar */}
-  <aside
-    className="hidden lg:flex flex-col gap-4 lg:col-span-3 lg:row-span-6 lg:col-start-10 
-               border-l border-gray-200 pl-4"
-  >
-    <MySurveysListPage />
-  </aside>
-</section>
+        <div className="flex flex-col">
+          {posts.map((e, index) => (
+            <div
+              key={index}
+              className="border-b border-gray-200 transition-colors hover:bg-gray-50"
+            >
+              <CardPost Title={e.title} Description={e.content} />
+            </div>
+          ))}
+        </div>
+      </main>
 
+      {/* Right Sidebar */}
+      <aside className="hidden flex-col gap-4 border-l border-gray-200 pl-4 lg:col-span-3 lg:col-start-10 lg:row-span-6 lg:flex">
+        <MySurveysListPage />
+      </aside>
+    </section>
   );
 };
 

@@ -9,14 +9,16 @@ import {
 } from "react-router-dom";
 import PostPage from "./pages/PostPage.jsx";
 import LoginPage from "./pages/user/LoginPage.jsx";
-import RootRoute from "./routes/RootRoute.jsx";
-import SurveyRoute from "./routes/SurveyRoute.jsx";
+import RootRoute from "./layout/RootLayout.jsx";
+import SurveyRoute from "./layout/SurveyLayout.jsx";
 import SurveyPage from "./pages/survey/survey_respondent/SurveyPage.jsx";
 import SignupPage from "./pages/user/SignupPage.jsx";
 import ProfilePage from "./pages/profile/ProfilePage.jsx";
 import ProfileAboutPage from "./pages/profile/ProfileAboutPage.jsx";
 import LandingPage from "./pages/landingPage/landingPage.jsx";
-import SortableList from "./pages/sample/SurveyWizard.jsx";
+import SurveyBuilder from "./pages/survey/survey_builder/SurveyWizard.jsx";
+import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+import RootLayout from "./layout/RootLayout.jsx";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -38,19 +40,21 @@ const App = () => {
               <Route path="posts" element={<h1>Hello World!</h1>} />
               <Route path="about" element={<ProfileAboutPage />} />
             </Route>
-
-            {/* Sample Route - For testing components */}
-            <Route path="sample" element={<SortableList />} />
           </Route>
 
           {/* Auth routes (no RootRoute layout) */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="signup" element={<SignupPage />} />
 
           {/* Survey routes (no RootRoute layout) */}
-          <Route path="/form" element={<SurveyRoute />}>
+          <Route path="form" element={<SurveyRoute />}>
             <Route path="response" element={<SurveyPage />} />
-            <Route path="new" element={<SortableList />} />
+            <Route path="new" element={<SurveyBuilder />} />
+          </Route>
+
+          {/* Admin routes */}
+          <Route path="admin" element={<RootLayout />}>
+            <Route index element={<AdminDashboard />}/>
           </Route>
         </Route>
       </>,

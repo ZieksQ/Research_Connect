@@ -16,7 +16,7 @@ class Surveys(Base):
 
     tags: Mapped[list[str]] = mapped_column(JSON, default=[], nullable=False)
     approx_time: Mapped[str] = mapped_column(String(128), nullable=False)
-    target_audience: Mapped[str] = mapped_column(String(256), nullable=False)
+    target_audience: Mapped[list[str]] = mapped_column(JSON, nullable=False)
 
     posts_survey: Mapped["Posts"] = relationship("Posts", back_populates="survey_posts")
     section_survey: Mapped[list["Section"]] = relationship( "Section", back_populates="survey_section", uselist=True,
@@ -31,13 +31,13 @@ class Surveys(Base):
     
     def get_survey(self):
         return {
-            "id": self.id,
-            "title": self.title,
-            "content": self.content,
-            "approx_time": self.approx_time,
-            "target_audience" : self.target_audience,
-            "section" : [s.get_date() for s in self.section_survey],
-            "tags" : [s for s in self.tags],
+            "pk_survey_id": self.id,
+            "survey_title": self.title,
+            "survey_content": self.content,
+            "survey_approx_time": self.approx_time,
+            "survey_target_audience" : self.target_audience,
+            "survey_section" : [s.get_date() for s in self.section_survey],
+            "survey_tags" : self.tags,
         }
 
 class Section(Base):
@@ -56,11 +56,10 @@ class Section(Base):
     
     def get_date(self):
         return {
-            "id": self.id,
-            "another_id": self.another_id,
-            "title": self.title,
-            "description": self.desc,
-            "survey_id": self.survey_id,
+            "pk_section_id": self.id,
+            "section_id": self.another_id,
+            "section_title": self.title,
+            "section_description": self.desc,
             "questions": [q.get_questions() for q in self.question_section],
         }
 
@@ -77,7 +76,7 @@ class Question(Base):
     min_choice: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     max_choice: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
-    survey_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_section.id"), nullable=False)
+    section_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_section.id"), nullable=False)
     section_question: Mapped["Section"] = relationship( "Section", back_populates="question_section")
 
     img_question: Mapped["Question_Image"] = relationship( "Question_Image", back_populates="question_img",
@@ -97,17 +96,18 @@ class Question(Base):
     
     def get_questions(self):
         return {
-            "id": self.id,
-            "q_number": self.question_number,
+            "pk_question_id": self.id,
+            "question_id": self.another_id,
+            "question_number": self.question_number,
             "question_text": self.question_text,
-            "q_type": self.q_type,
-            "choices": ([c.choice_text for c in self.choices_question] 
+            "question_type": self.q_type,
+            "question_choices": ([c.choice_text for c in self.choices_question] 
                         if self.q_type in CHOICES_TYPE else []),
-            "required": self.answer_required,
-            "minChoice": self.min_choice if self.min_choice else 1,
-            "maxChoice": self.max_choice if self.max_choice else 1,
-            "image": self.img_question.get_data() if self.img_question else None,
-            "url": self.url
+            "question_required": self.answer_required,
+            "question_minChoice": self.min_choice if self.min_choice else 1,
+            "question_maxChoice": self.max_choice if self.max_choice else 1,
+            "question_image": self.img_question.get_data() if self.img_question else None,
+            "question_url": self.url
         }
     
 class Choice(Base):

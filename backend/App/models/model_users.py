@@ -47,7 +47,10 @@ class Users(Root_User):
     _password: Mapped[str] = mapped_column("password" ,String(256), nullable=False)
     profile_pic_url: Mapped[str] = mapped_column(String(512), nullable=True,
                                                  default=default_profile_pic)
+    email: Mapped[str] = mapped_column(String(256), nullable=True)
     role: Mapped[str] = mapped_column(String(64), nullable=False)
+    school: Mapped[str] = mapped_column(String(256), nullable=True)
+    program: Mapped[str] = mapped_column(String(256), nullable=True)
     
     __mapper_args__ = {"polymorphic_identity": "local"}
 
@@ -60,6 +63,9 @@ class Users(Root_User):
             "username": self.username,
             "profile_pic_url": self.profile_pic_url,
             "role": self.role,
+            "email": self.email,
+            "school": self.school,
+            "program": self.program,
         }
 
     def check_password(self, password):
@@ -78,6 +84,8 @@ class Oauth_Users(Root_User):
     email: Mapped[str] = mapped_column(String(256), nullable=False)
     provider_user_id: Mapped[str] = mapped_column(String(512), nullable=False)
     profile_pic_url: Mapped[str] = mapped_column(String(512), nullable=False)
+    school: Mapped[str] = mapped_column(String(256), nullable=True)
+    program: Mapped[str] = mapped_column(String(256), nullable=True)
 
     __mapper_args__ = {"polymorphic_identity": "oauth"}
 
@@ -90,6 +98,9 @@ class Oauth_Users(Root_User):
             "username": self.username,
             "profile_pic_url": self.profile_pic_url,
             "role": self.role,
+            "email": self.email,
+            "school": self.school,
+            "program": self.program,
         }
 
 

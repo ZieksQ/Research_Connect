@@ -1,6 +1,7 @@
+import json
 from App import limiter, supabase_client
 from flask import Blueprint, request
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, or_
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from functools import wraps
 from datetime import datetime, timezone
@@ -47,7 +48,7 @@ def check_user(func):
 def get_posts():
 
     # posts = Posts.query.order_by(order).all()
-    stmt = select(Posts).where(Posts.approved == True)
+    stmt = select(Posts)#.where(Posts.approved == True)
     posts = db.scalars(stmt).all()
 
     data = [post.get_post() for post in posts]
@@ -104,6 +105,8 @@ def archive_post():
 def get_questionnaire(id):
     
     post = db.get(Posts, int(id))
+    if not post:
+        return jsonify_template_user(404, False, "Post or Survey does not exists")
     survey: Surveys = post.survey_posts
 
     logger.info(f"{post} {survey}")
@@ -122,7 +125,12 @@ def search():
 
     stmt = (
         select(Posts)
-        .where(Posts.title.ilike(f"%{query}%"))
+        .where(or_(
+            Posts.title.ilike(f"%{query}%"),
+            Posts.category.ilike(f"%{query}%"),
+            Posts.target_audience.ilike(f"%{query}%"),
+            Posts.content.ilike(f"%{query}%"),
+            ))
         .order_by(post_order)
         .limit(100)
         .offset(0)
@@ -176,14 +184,16 @@ def survey_is_answered():
         return jsonify_template_user(404, False, "the survey you have search for did not exists")
     
     stmt = select(RootUser_Survey).where(and_(RootUser_Survey.root_user_id == user.id ),
-                                            RootUser_Survey,survey_id == survey.id)
+                                            RootUser_Survey.svy_surveys_id == survey.id)
     is_answered = db.scalars(stmt).first()
 
     if is_answered:
         logger.info(f"User {user_id} has already answered survey {survey_id}")
-        return jsonify_template_user(409, False, "You have already answered this survey")
+        return jsonify_template_user(409, False,
+                                     "You have already answered this survey",
+                                     is_answered=False)
     
-    return jsonify_template_user(200, True, "You have not answered this yet")
+    return jsonify_template_user(200, True, "You have not answered this yet", is_answered=False)
 
 @survey_posting.route("/answer/questionnaire/<int:id>", methods=['POST'])
 @jwt_required()
@@ -202,7 +212,6 @@ def answer_questionnaire(id):
     if not survey:
         logger.info("User tried to answer a questionnaire with no existing post")
         return jsonify_template_user(404, False, "There is no such post like that")
-    
     
     stmt = select(RootUser_Survey).where(and_(RootUser_Survey.root_user_id == int(user_id),
                                               RootUser_Survey.svy_surveys_id == int(id)))
@@ -268,8 +277,16 @@ def send_post_survey_web():
     if not user:
         logger.error("Someone tried to post without signing in")
         return jsonify_template_user(401, False, "You must log in first in order to post here")
+    
+    # data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
+    raw_json = request.form.get("surveyData")
 
-    data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
+    if not raw_json:
+        logger.info(f"{user_id} tried to create a survey with nothing on it")
+        return jsonify_template_user(400, False, "You did not provide any data for the survey")
+
+    data: dict = json.loads(raw_json) if raw_json else {}
+    files_dict: dict = request.files.to_dict(flat=True)
 
     survey_title: str = data.get("surveyTitle", "")
     survey_content: str = data.get("surveyDescription", "")
@@ -299,7 +316,7 @@ def send_post_survey_web():
         return jsonify_template_user(400, False, svy_exists_msg, extra_msg="You must meet these requirements")
     
     # Checks each question on the survey if it reachers the requirements e.g. question must be at least x long
-    svy_req_msg, svy_req_flag = handle_web_survey_input_requirements(svy_questions)
+    svy_req_msg, svy_req_flag = handle_web_survey_input_requirements(svy_questions, files_dict)
     if svy_req_flag:
         logger.error(svy_req_msg)
         return jsonify_template_user(422, False, "You must meet the requirements for the survey", survey={"survey": svy_req_msg})
@@ -317,7 +334,9 @@ def send_post_survey_web():
 
     post = Posts(title=survey_title, content=survey_content, user=user, category=[])
     survey = Surveys(title=survey_title, content=survey_content, tags=[],
-                     approx_time=approx_time, target_audience=target_audience)
+                     approx_time=approx_time)
+    post.target_audience.extend(target_audience)
+    survey.target_audience.extend(target_audience)
     
     for scounter, svy_section in enumerate(svy_questions, start=1):
 
@@ -328,7 +347,7 @@ def send_post_survey_web():
 
         for qcounter, q_dict in enumerate(svy_question_list, start=1):
             question = Question(
-                                another_id=q_dict.get("id"),
+                                another_id=f"{qcounter}{q_dict.get("id")}",
                                 question_text=q_dict.get("title"), 
                                 q_type=q_dict.get("type"), 
                                 answer_required=q_dict.get("required", False),
@@ -345,7 +364,7 @@ def send_post_survey_web():
                 
             if q_dict.get("image"):
                 img_dict: dict[str, Any] = q_dict.get("image")
-                img = request.files.get(img_dict.get("fieldName"))
+                img = files_dict.get(img_dict.get("fieldName"))
 
                 question_img = Question_Image(name=img_dict.get("name"),
                                               img_type=img_dict.get("type"),
@@ -415,7 +434,7 @@ def send_post_survey_mobile():
 
     data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
-    survey_caption: str = data.get("caption")
+    post_caption: str = data.get("caption")
 
     survey_title: str = data.get("title")
     survey_content: str = data.get("description")
@@ -428,6 +447,16 @@ def send_post_survey_mobile():
     svy_questions: list[dict[str, Any]] = data.get("data", [])
     svy_section: list[dict[str, Any]] = data.get("sections", [])
 
+    post_input_validate, post_exist_flag = handle_post_input_exist(survey_title, post_caption)
+    if post_exist_flag:
+        logger.error(post_input_validate)
+        return jsonify_template_user(400, False, post_input_validate)
+    
+    post_requirements, post_req_flag = handle_post_requirements(survey_title, post_caption)
+    if post_req_flag:
+        logger.error(post_requirements)
+        return jsonify_template_user(422, False, post_requirements)
+    
     survey_input_validate, survey_exist_flag = handle_post_input_exist(survey_title, survey_content, False)
     if survey_exist_flag:
         logger.error(survey_input_validate)
@@ -460,15 +489,17 @@ def send_post_survey_mobile():
         logger.info(svy_misc_msg_req)
         return jsonify_template_user(404, False, svy_misc_msg_req)
     
-    post = Posts(title=survey_title, content=survey_caption, user=user, category=[])
-    survey = Surveys(title=survey_title, content=survey_content, tags=[],
-                     approx_time=approx_time, target_audience=", ".join(target_audience))
+    post = Posts(title=survey_title, content=post_caption, user=user, category=[])
+    survey = Surveys(title=survey_title, content=survey_content, tags=[], posts_survey=post,
+                     approx_time=approx_time)
     
     for section in svy_section:
         section_db = Section(another_id=section.get("id") ,title=section.get("title"), desc=section.get("description"))
         survey.section_survey.append(section_db)
 
-    post.survey_posts = survey
+    post.target_audience = [t_aud for t_aud in target_audience ]
+    survey.target_audience = [t_aud for t_aud in target_audience ]
+
     db.add(post)
     succ, err = flush_session()
     if not succ:
@@ -480,16 +511,17 @@ def send_post_survey_mobile():
         options: list = svy_question.get("options")
 
         question = Question(
-            another_id=svy_question.get("sectionId"),
+            another_id=f"{qcounter}{svy_question.get("sectionId")}",
             question_text=svy_question.get("title"),
-            question_number=svy_question.get("order"),
+            question_number=qcounter,
             q_type=svy_question.get("type"),
             answer_required=svy_question.get("required"),
             url=svy_question.get("videoUrl", None)
             )
         
-        if svy_question.get("type") in Question_type_inter.CHOICES_TYPE_WEB:
-            question.max_choice=len(options)
+        if svy_question.get("type") in Question_type_inter.Q_TYPE_MOBILE:
+            question.min_choice = svy_question.get("minChoice", 1)
+            question.max_choice = svy_question.get("maxChoice", len(options))
             for option in options:
                 choice = Choice(choice_text=option)
                 question.choices_question.append(choice)

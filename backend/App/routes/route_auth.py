@@ -6,8 +6,8 @@ from App.database import db_session as db
 from App.models.model_users import Root_User, Users, Oauth_Users, RefreshToken
 from App.models.model_enums import User_Roles
 from App.helper_user_validation import ( handle_user_input_exist, handle_validate_requirements, 
-                                        handle_profile_pic, handle_password_reset_user )
-from App.helper_methods import ( commit_session, jsonify_template_user, 
+                                        handle_profile_pic, handle_password_reset_user, handle_user_info_requirements )
+from App.helper_methods import ( commit_session, jsonify_template_user,
                                 logger_setup, create_access_refresh_tokens )
 from flask_jwt_extended import (
     set_access_cookies, set_refresh_cookies, unset_jwt_cookies, 
@@ -248,13 +248,50 @@ def login_success():
     who_user = who_user_query(int(user_id), user.user_type)
 
     user_data = {
-        "id": who_user.id,
-        "username": who_user.username,
-        "profile_pic": who_user.profile_pic_url,
-        "provider": "local" if who_user.user_type == "local" else who_user.provider,
+        "user_info": who_user.get_user(),
+        "role": who_user.user_type,
     }
 
     return jsonify_template_user(200, True, user_data)
+
+@user_auth.route("/update_data", methods=["PATCH"])
+@jwt_required()
+@limiter.limit("2 per minute;100 per hour;500 per day")
+def update_data():
+    data: dict = request.get_json()
+
+    user_id = get_jwt_identity()
+    user = db.get(Root_User, int(user_id))
+
+    if not user:
+        logger.info("User tried to change their info without logging in")
+        return jsonify_template_user(401, False, "You need to log in to access this")
+
+    username: str = data.get("username", None)
+    school: str = data.get("school", None)
+    program: str = data.get("program", None)
+
+    info_validate, info_flag = handle_user_info_requirements(username, school, program)
+    if info_flag:
+        logger.info(f"{user.id} tried to change their info with missing requirements")
+        logger.info(info_validate)
+        return jsonify_template_user(422, False, info_validate, extra_msg="You must meet these requirements")
+    
+    who_user = who_user_query(user.id, user.user_type)
+
+    who_user.username = username
+    who_user.school = school
+    who_user.program = program
+
+    succ, err = commit_session()
+    if not succ:
+        logger.info(err)
+        return jsonify_template_user(500, False, "Database Error")
+    
+    logger.info(f"{user.id} has updated their info")
+
+    return jsonify_template_user(200, True, "You have updated your info")
+
 
 @user_auth.route("/debug", methods=['GET'])
 @jwt_required()

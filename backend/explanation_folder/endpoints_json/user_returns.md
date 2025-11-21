@@ -161,3 +161,45 @@
 "message": "Upload successful"
 }
 ```
+
+---
+> ### PATCH -  http://127.0.0.1:5000/api/user/update_data
+
+<br>
+
+#### Missing user
+```JSON
+{
+"status": 401,
+"ok": False,
+"message": "You need to log in to access this"
+}
+```
+
+#### Upload to supabase error
+```JSON
+{
+"status": 422,
+"ok": False,
+"message": "JSON validation message",
+"extra_msg": "You must meet these requirements"
+}
+```
+
+#### Database Error
+```JSON
+{
+"status": 500,
+"ok": False,
+"message": "Database Error"
+}
+```
+
+#### Success
+```JSON
+{
+"status": 200,
+"ok": True,
+"message": "Upload successful"
+}
+```

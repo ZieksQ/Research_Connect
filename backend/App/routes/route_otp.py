@@ -32,11 +32,16 @@ def send_otp():
     if not user:
         logger.error("User tried to access send otp without logging in")
         return jsonify_template_user(401, False, "You need to log in to access this")
+    
+    who_user = who_user_query(user.id, user.user_type)
 
-    email = data.get("email")
-    if not email:
-        logger.error("user send a non existing email")
-        return jsonify_template_user(400, False, "Please provide an email")
+    email = who_user.email
+
+    if not who_user.email:
+        email = data.get("email")
+        if not email:
+            logger.error("user send a non existing email")
+            return jsonify_template_user(400, False, "Please provide an email")
 
     generated_otp = generate_otp()
     otp_expiration = datetime.now(timezone.utc) + timedelta(minutes=30)
@@ -74,6 +79,7 @@ def send_otp():
         return jsonify_template_user(500, False, "Database error")
 
     logger.info(f"Successfully send OTP to {email}")
+    session["email"] = email
 
     return jsonify_template_user(200, True, "Sent OTP, please check your email")
 
@@ -118,7 +124,7 @@ def input_otp():
         logger.info(error)
         return jsonify_template_user(500, False, "Database Error")
 
-    return jsonify_template_user(200, True, "Please proceed to changing your password now")
+    return jsonify_template_user(200, True, "Please proceed to use your OTP")
     
 
 @otp_route.route("/reset_pssw", methods=['PATCH'])
@@ -176,3 +182,50 @@ def reset_pssw():
     logger.info(f"{user.id} has changed their password")
 
     return jsonify_template_user(200, True, "Password reset successfully")
+
+@otp_route.route("/enter_email", methods=['PATCH'])
+@jwt_required()
+@limiter.limit("3 per minute;100 per hour; 30 per day")
+def enter_email():
+
+    user_id = get_jwt_identity()
+    user = db.get(Root_User, int(user_id))
+
+    if not user:
+        logger.info("Someone tried to access the reset password without logging in")
+        return jsonify_template_user(401, False, "You need to log in to access this")
+    
+    who_user = who_user_query(user.id, user.user_type)
+
+    user_check = handle_password_reset_user(who_user)
+    otp = session.get("otp")
+    email = session.get("email")
+    otp_db: OTP = who_user.otp
+
+    if not user_check:
+        logger.info("User tried to change email but not logged in using local")
+        return jsonify_template_user(403, False, 
+                                     "You cannot change email using this account type. Only users logged in using Inquira will be able to change email")
+
+    if not otp_db:
+        logger.info(f"{user_id} tried to input with a non existant otp")
+        return jsonify_template_user(404, False, "You havent requested an OTP yet")
+    
+    if not email:
+        logger.error(f"{user.id} tampered with the session OTP")
+        return jsonify_template_user(400, False, "Look man, please dont tamper with the session's email")
+    
+    if otp != otp_db.otp_text:
+        logger.error("User tampered with the session OTP")
+        return jsonify_template_user(400, False, "Look man, please dont tamper with the session's OTP")
+    
+    who_user.email = email
+
+    succ, err = commit_session()
+    if not succ:
+        logger.error(err)
+        return jsonify_template_user(500, False, "Database Error")
+
+    logger.info(f"{user.id} has changed their email into {email}")
+    return jsonify_template_user(200, True, "You have changed your email")
+

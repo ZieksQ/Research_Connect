@@ -10,6 +10,7 @@ class Posts(Base):
     title: Mapped[str] = mapped_column(String(512), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     category: Mapped[list[str]] = mapped_column(JSON, default=[], nullable=False)
+    target_audience: Mapped[list[str]] = mapped_column(JSON, nullable=False)
     date_created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     date_updated: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
     archived: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -26,12 +27,13 @@ class Posts(Base):
 
     def get_post(self):
         return {
-            "id": self.id,
-            "title": self.title,
-            "content": self.content,
-            "user_id": self.user_id,
-            "date_created": self.date_created,
-            "date_updated": self.date_updated,
+            "pk_survey_id": self.id,
+            "survey_title": self.title,
+            "survey_content": self.content,
+            "survey_category": self.category,
+            "survey_target_audience": self.target_audience,
+            "survey_date_created": self.date_created,
+            "survey_date_updated": self.date_updated,
         }
     
 class Category(Base):

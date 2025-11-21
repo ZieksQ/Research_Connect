@@ -8,6 +8,7 @@ PATCH - http://127.0.0.1:5000/api/user/profile_upload
 POST - http://127.0.0.1:5000/api/user/refresh/logout
 GET - http://127.0.0.1:5000/api/user/login_success
 GET - http://127.0.0.1:5000/api/user/user_data
+PATCH - http://127.0.0.1:5000/api/user/update_data
 
 Callback when token is expired
 See "Expired Token Callback" in JSON
@@ -24,10 +25,6 @@ GET - http://127.0.0.1:5000/api/survey/post/search?query=&order=
 GET - http://127.0.0.1:5000/api/survey/category/get
 GET - http://127.0.0.1:5000/api/survey/post/get/questionnaire/<int:id>
 
-# Deprecated use the web and mobile instead
-POST - http://127.0.0.1:5000/api/survey/post/send/questionnaire
-
-
 POST - http://127.0.0.1:5000/api/survey/post/send/questionnaire/mobile
 POST - http://127.0.0.1:5000/api/survey/post/send/questionnaire/web
 
@@ -37,6 +34,8 @@ POST - http://127.0.0.1:5000/api/survey/questionnaire/is_answered
 
 PATCH - http://127.0.0.1:5000/api/survey/post/archive
 
+# Deprecated use the web and mobile instead
+POST - http://127.0.0.1:5000/api/survey/post/send/questionnaire
 
 DONT use this, deprecated
 POST - http://127.0.0.1:5000/api/survey/post/send
@@ -73,7 +72,9 @@ PATCH - http://127.0.0.1:5000/api/otp/reset_pssw
 ```bash
 PATCH - http://127.0.0.1:5000/api/admin/approve_post
 GET - http://127.0.0.1:5000/api/admin/generate/post_code
+GET - http://127.0.0.1:5000/api/admin/post/get/not_approved
 POST - http://127.0.0.1:5000/api/admin/generate/post/category
+
 ```
 
 ## JSON

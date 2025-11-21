@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from secrets import token_hex
 from functools import wraps
 from datetime import datetime, timedelta, timezone
+from sqlalchemy import select
 from App.database import db_session as db
 from App.helper_methods import logger_setup, commit_session, jsonify_template_user
 from App.helper_user_validation import handle_category_requirements
@@ -90,6 +91,22 @@ def generate_post_code():
     return jsonify_template_user(200, True, 
                                  "You have successfulyy generated the code", 
                                  generated_code=code.code_text)
+
+@admin.route("/post/get/not_approved", methods=["GET"])
+@jwt_required()
+@check_user_admin
+@limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
+def get_posts_not_approved():
+
+    # posts = Posts.query.order_by(order).all()
+    stmt = select(Posts).where(Posts.approved == False)
+    posts = db.scalars(stmt).all()
+
+    data = [post.get_post() for post in posts]
+
+    logger.info(f"{posts}")
+
+    return jsonify_template_user(200, True, data)
 
 @admin.route("/generate/post/category", methods=['POST'])
 @jwt_required()

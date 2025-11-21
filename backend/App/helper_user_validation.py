@@ -1,3 +1,4 @@
+from flask import request
 from typing import Any
 import os, string
 from App.models.model_enums import QuestionType, Question_type_inter
@@ -157,7 +158,7 @@ def handle_post_requirements(title: str, content: str, post = True) -> tuple[dic
     ]
 
     content_rules = [
-        (lambda content: len(content) >= 10,                f"{who_content} should be atleast 10 words"),
+        (lambda content: len(content) >= 5,                f"{who_content} should be atleast 5 words"),
         (lambda content: len(content) <= who_limit,         f"{who_content} must not exceed {who_limit} words"),
         (lambda content: len(" ".join(content)) <= 5000,    f"{who_content} must not exceed 5000 characters"),
     ]
@@ -305,11 +306,10 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]]) ->
         tuple (list, bool): (violations, has_violations_flag)
     """
     
-    qtype_list = [qt for qt in Question_type_inter.CHOICES_TYPE]
     question_text_rules=[
-        (lambda question: len(question) >= 4, "Question must be at least 4 words"),
-        (lambda question: len(question) <= 150, "Question must not exceed 150 words"),
-        (lambda question: len(" ".join(question)) <= 2000, "Question must not exceed 2000 characters"),
+        (lambda question: len(question) >= 4,               "Question text must be at least 4 words"),
+        (lambda question: len(question) <= 150,             "Question text must not exceed 150 words"),
+        (lambda question: len(" ".join(question)) <= 2000,  "Question text must not exceed 2000 characters"),
     ]
     type_rules=[
         (lambda qtype: qtype in Question_type_inter.Q_TYPE_WEB, f"Wrong question type, please choose within [{", ".join(Question_type_inter.Q_TYPE_WEB)}]"),
@@ -339,7 +339,7 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]]) ->
 
         for check, msg in section_title_rules:
             if not check(svy_section.get("title")):
-                result[f"description{scounter}"] = msg
+                result[f"title{scounter}"] = msg
                 each_qdata_bool.append(True)
 
         for check, msg in section_desc_rules:
@@ -356,7 +356,7 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]]) ->
             
             for check, msg in question_text_rules:
                 if not check(q_dict.get("title")):
-                    result[f"title{qcounter}"] = msg
+                    result[f"title"] = msg
                     each_qdata_bool.append(True)
                     break
 
@@ -366,18 +366,20 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]]) ->
                     each_qdata_bool.append(True)
                     break
 
-            if q_dict.get("type") in Question_type_inter.CHOICES_TYPE_WEB:
-                for check, msg in choices_text_rules:
-                    if not check(q_dict.get("options")):
-                        result[f"options"] = msg
-                        each_qdata_bool.append(True)
-                        break
+            if q_dict.get("type") in Question_type_inter.Q_TYPE_WEB:
+                for op_counter, option in enumerate(q_dict.get("options")):
+                    for check, msg in choices_text_rules:
+                        if not check(option):
+                            result[f"option{op_counter}"] = msg
+                            each_qdata_bool.append(True)
+                            break
 
             if q_dict.get("image"):
-                img_file = q_dict["image"]["fieldName"]
+                # img_file = q_dict["image"]["fieldName"]
+                img_file = request.files["image"]["fieldName"]
                 img_msg, img_flag = handle_profile_pic(img_file)
                 if img_flag:
-                    result[f"img{qcounter}"] = img_msg
+                    result[f"img"] = img_msg
                     each_qdata_bool.append(True)
 
         if result:
@@ -396,7 +398,6 @@ def handle_mobile_survey_input_requirements(svy_questions: list[dict[str, Any]])
         tuple (list, bool): (violations, has_violations_flag)
     """
     
-    qtype_list = [qt for qt in Question_type_inter.CHOICES_TYPE_MOBILE]
     question_text_rules=[
         (lambda question: len(question) >= 4, "Question must be at least 4 words"),
         (lambda question: len(question) <= 150, "Question must not exceed 150 words"),
@@ -555,23 +556,42 @@ def handle_category_requirements(category: str) -> tuple[str, bool]:
 
     return message, flag
 
-'''
-Decided to review it and the badwords from the txt file contains words that are not actually bad and may hinder users from effectively using the app itself
-Will add this if the txt file is fixed(will not too much word)
+def handle_user_info_requirements(username: str, school: str, program: str) -> tuple[dict, bool]:
 
-from pathlib import Path
+    result = {}
+    flag = []
 
-BADWORD_PATH = Path(__file__).resolve().parent.parent / "badwords.txt"
+    useranme_rules = [
+        (lambda usnm: len(usnm) >= 4,  "Username must be at least 4 characters"),
+        (lambda usnm: len(usnm) <= 36, "Username must not exceed 36 characters"),
+    ]
 
-def load_bad_words(filepath=BADWORD_PATH):
-    """Load bad words from a .txt file (one per line)."""
-    with open(filepath, "r", encoding="utf-8") as f:
-        return [line.strip().lower() for line in f if line.strip()]
+    school_rules = [
+        (lambda school: len(school) >= 5, "School must be at least 5 character"),
+        (lambda school: len(school) <= 256, "School must not exceed 256 character")
+    ]
 
-BAD_WORDS = set(load_bad_words())
+    program_rules = [
+        (lambda program: len(program) <= 5, "Program must be at least 5 characters"),
+        (lambda program: len(program) >= 256, "Program must must not exceed 256 characters"),
+    ]
 
-def contains_bad_words(text: str, bad_words: set = BAD_WORDS) -> bool:
-    """Check if text contains any bad word (no regex)."""
-    words = text.lower().split()
-    return any(word in bad_words for word in words)
-'''
+    for check, msg in useranme_rules:
+        if not check(username):
+            result["username"] = msg
+            flag.append(True)
+            break
+
+    for check, msg in school_rules:
+        if not check(school):
+            result["school"] = msg
+            flag.append(True)
+            break
+
+    for check, msg in program_rules:
+        if not check(program):
+            result["program"] = msg
+            flag.append(True)
+            break
+
+    return result, any(flag)

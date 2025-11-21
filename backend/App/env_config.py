@@ -33,6 +33,7 @@ SPBS_SERVICE_ROLE_KEY =     os.environ.get("SPBS_SERVICE_ROLE_KEY")
 # For Google Oauth
 GOOGLE_CLIENT_ID =          os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET =      os.environ.get("GOOGLE_CLIENT_SECRET")
+GOOGLE_CLIENT_ID_FLUTTER =  os.environ.get("GOOGLE_CLIENT_ID_FLUTTER")
 GOOGLE_APP_PSSW =           os.environ.get("GOOGLE_APP_PSSW", "abcd efgh ijkl mnop")
 
 # Redis Upstash details

@@ -63,8 +63,8 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
   const questionTypes = [
     'Short Text',
     'Long Text',
-    'Single Choice',
-    'Multiple Choice',
+    'Radio Button',
+    'Checkbox',
     'Rating',
     'Dropdown',
     'Date',
@@ -111,6 +111,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
       video: null,
       minChoices: 1,
       maxChoices: 1,
+      maxRating: 5, // Default max rating for Rating type
     };
 
     setSections(
@@ -581,7 +582,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                     ))}
                                   </select>
 
-                                  {question.type === 'Multiple Choice' && (
+                                  {question.type === 'Checkbox' && (
                                     <div className="grid grid-cols-2 gap-3 mb-3">
                                       <div>
                                         <label className="label py-1">
@@ -635,7 +636,35 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                     </div>
                                   )}
 
-                                  {['Single Choice', 'Multiple Choice', 'Dropdown'].includes(
+                                  {question.type === 'Rating' && (
+                                    <div className="mb-3">
+                                      <label className="label py-1">
+                                        <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Max Rating</span>
+                                      </label>
+                                      <input
+                                        type="number"
+                                        min="3"
+                                        max="10"
+                                        value={question.maxRating || 5}
+                                        onChange={(e) =>
+                                          updateQuestion(
+                                            section.id,
+                                            question.id,
+                                            'maxRating',
+                                            parseInt(e.target.value) || 5
+                                          )
+                                        }
+                                        className="input input-bordered input-sm w-full"
+                                        style={{ 
+                                          backgroundColor: 'var(--color-background)',
+                                          borderColor: 'var(--color-shade-primary)',
+                                          color: 'var(--color-primary-color)'
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+
+                                  {['Radio Button', 'Checkbox', 'Dropdown'].includes(
                                     question.type
                                   ) && (
                                     <div className="mb-3">

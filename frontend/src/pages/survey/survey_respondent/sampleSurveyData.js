@@ -20,7 +20,8 @@ export const sampleSurveyData = {
           "image": null,
           "video": null,
           "minChoices": 1,
-          "maxChoices": 1
+          "maxChoices": 1,
+          "maxRating": 5
         },
         {
           "id": "question-2",
@@ -31,7 +32,8 @@ export const sampleSurveyData = {
           "image": null,
           "video": null,
           "minChoices": 1,
-          "maxChoices": 1
+          "maxChoices": 1,
+          "maxRating": 5
         },
         {
           "id": "question-3",
@@ -42,7 +44,8 @@ export const sampleSurveyData = {
           "image": null,
           "video": null,
           "minChoices": 1,
-          "maxChoices": 1
+          "maxChoices": 1,
+          "maxRating": 5
         }
       ]
     },
@@ -61,7 +64,8 @@ export const sampleSurveyData = {
           "image": null,
           "video": null,
           "minChoices": 1,
-          "maxChoices": 1
+          "maxChoices": 1,
+          "maxRating": 10
         },
         {
           "id": "question-5",
@@ -78,7 +82,8 @@ export const sampleSurveyData = {
           "image": null,
           "video": null,
           "minChoices": 1,
-          "maxChoices": 1
+          "maxChoices": 1,
+          "maxRating": 5
         },
         {
           "id": "question-6",
@@ -96,7 +101,8 @@ export const sampleSurveyData = {
           "image": null,
           "video": null,
           "minChoices": 1,
-          "maxChoices": 3
+          "maxChoices": 3,
+          "maxRating": 5
         }
       ]
     },
@@ -122,7 +128,8 @@ export const sampleSurveyData = {
           "image": null,
           "video": null,
           "minChoices": 1,
-          "maxChoices": 1
+          "maxChoices": 1,
+          "maxRating": 5
         },
         {
           "id": "question-8",
@@ -133,7 +140,8 @@ export const sampleSurveyData = {
           "image": null,
           "video": null,
           "minChoices": 1,
-          "maxChoices": 1
+          "maxChoices": 1,
+          "maxRating": 5
         },
         {
           "id": "question-9",
@@ -150,7 +158,8 @@ export const sampleSurveyData = {
           "image": null,
           "video": null,
           "minChoices": 1,
-          "maxChoices": 1
+          "maxChoices": 1,
+          "maxRating": 5
         }
       ]
     }

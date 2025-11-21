@@ -137,6 +137,8 @@ export default function SurveyPage() {
     const hasError = errors[question.id];
 
     switch (question.type) {
+      case 'shortText':
+      case 'Short Text':
       case 'Text':
         return (
           <input
@@ -147,12 +149,16 @@ export default function SurveyPage() {
             style={{
               backgroundColor: 'var(--color-background)',
               borderColor: hasError ? '#dc2626' : 'var(--color-shade-primary)',
-              color: 'var(--color-primary-color)'
+              color: 'var(--color-primary-color)',
+              fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)',
+              padding: 'clamp(0.5rem, 1vw, 0.75rem)'
             }}
             placeholder="Your answer"
           />
         );
 
+      case 'longText':
+      case 'Long Text':
       case 'Essay':
         return (
           <textarea
@@ -169,6 +175,7 @@ export default function SurveyPage() {
           />
         );
 
+      case 'email':
       case 'Email':
         return (
           <input
@@ -185,6 +192,7 @@ export default function SurveyPage() {
           />
         );
 
+      case 'date':
       case 'Date':
         return (
           <input
@@ -200,10 +208,12 @@ export default function SurveyPage() {
           />
         );
 
+      case 'rating':
       case 'Rating':
+        const maxRating = question.maxRating || 5;
         return (
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((star) => (
+          <div className="flex gap-2 flex-wrap">
+            {Array.from({ length: maxRating }, (_, i) => i + 1).map((star) => (
               <button
                 key={star}
                 type="button"
@@ -212,20 +222,37 @@ export default function SurveyPage() {
                 style={{ color: 'var(--color-accent-100)' }}
               >
                 {responses[question.id]?.answer >= star ? (
-                  <MdStar className="text-4xl" />
+                  <MdStar 
+                    style={{ 
+                      fontSize: 'clamp(2rem, 4vw, 2.5rem)'
+                    }} 
+                  />
                 ) : (
-                  <MdStarBorder className="text-4xl" />
+                  <MdStarBorder 
+                    style={{ 
+                      fontSize: 'clamp(2rem, 4vw, 2.5rem)'
+                    }} 
+                  />
                 )}
               </button>
             ))}
             {responses[question.id]?.answer && (
-              <span className="ml-3 self-center" style={{ color: 'var(--color-text-secondary)' }}>
-                {responses[question.id]?.answer} / 5
+              <span 
+                className="ml-3 self-center" 
+                style={{ 
+                  color: 'var(--color-text-secondary)',
+                  fontSize: 'clamp(0.875rem, 1.5vw, 1rem)'
+                }}
+              >
+                {responses[question.id]?.answer} / {maxRating}
               </span>
             )}
           </div>
         );
 
+      case 'radioButton':
+      case 'singleChoice':
+      case 'Radio Button':
       case 'Single Choice':
         return (
           <div className="space-y-2">
@@ -253,6 +280,9 @@ export default function SurveyPage() {
           </div>
         );
 
+      case 'checkBox':
+      case 'multipleChoice':
+      case 'Checkbox':
       case 'Multiple Choice':
         const selectedCount = (responses[question.id]?.answer || []).length;
         return (
@@ -293,6 +323,7 @@ export default function SurveyPage() {
           </div>
         );
 
+      case 'dropdown':
       case 'Dropdown':
         return (
           <select
@@ -321,24 +352,60 @@ export default function SurveyPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
-      <div className="max-w-3xl mx-auto p-6">
+      <div 
+        className="mx-auto" 
+        style={{ 
+          maxWidth: 'clamp(768px, 75vw, 1200px)',
+          padding: 'clamp(1rem, 2vw, 2rem)'
+        }}
+      >
         {/* Survey Header - Only show on first section */}
         {isFirstSection && (
-          <div className="rounded-xl shadow-lg p-8 mb-6" style={{ backgroundColor: '#ffffff' }}>
-            <div className="border-t-8 rounded-t-xl -mt-8 -mx-8 mb-6" style={{ borderColor: 'var(--color-accent-100)' }}></div>
-            <h1 className="mb-4" style={{ color: 'var(--color-primary-color)' }}>
+          <div 
+            className="rounded-xl shadow-lg mb-6 border-t-8 border-primary" 
+            style={{ 
+              backgroundColor: '#ffffff',
+              padding: 'clamp(2rem, 4vw, 3.5rem)'
+            }}
+          >
+            {/* Blue Line Removed Because its not aligned at the top for bigger screen size */}
+            {/* <div className="border-t-8 rounded-t-xl" style={{ 
+              borderColor: 'var(--color-accent-100)',
+              marginTop: 'clamp(-2rem, -4vw, -3.5rem)',
+              marginLeft: 'clamp(-2rem, -4vw, -3.5rem)',
+              marginRight: 'clamp(-2rem, -4vw, -3.5rem)',
+              marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)'
+            }}></div> */}
+            <h1 
+              style={{ 
+                color: 'var(--color-primary-color)',
+                fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
+                marginBottom: 'clamp(1rem, 2vw, 1.5rem)'
+              }}
+            >
               {surveyData.surveyTitle}
             </h1>
-            <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+            <p 
+              style={{ 
+                color: 'var(--color-text-secondary)',
+                fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)',
+                marginBottom: 'clamp(1rem, 2vw, 1.5rem)'
+              }}
+            >
               {surveyData.surveyDescription}
             </p>
             {surveyData.surveyApproxTime && (
               <div className="flex items-center gap-2">
-                <div className="badge" style={{ 
-                  backgroundColor: 'var(--color-secondary-background)',
-                  color: 'var(--color-primary-color)',
-                  border: 'none'
-                }}>
+                <div 
+                  className="badge" 
+                  style={{ 
+                    backgroundColor: 'var(--color-secondary-background)',
+                    color: 'var(--color-primary-color)',
+                    border: 'none',
+                    padding: 'clamp(0.5rem, 1vw, 0.75rem) clamp(0.75rem, 1.5vw, 1rem)',
+                    fontSize: 'clamp(0.75rem, 1.25vw, 0.9375rem)'
+                  }}
+                >
                   ⏱️ {surveyData.surveyApproxTime}
                 </div>
               </div>
@@ -347,17 +414,38 @@ export default function SurveyPage() {
         )}
 
         {/* Section Header */}
-        <div className="rounded-xl shadow-lg p-6 mb-6" style={{ backgroundColor: '#ffffff' }}>
+        <div 
+          className="rounded-xl shadow-lg mb-6" 
+          style={{ 
+            backgroundColor: '#ffffff',
+            padding: 'clamp(1.5rem, 3vw, 2.5rem)'
+          }}
+        >
           <div className="flex items-center justify-between mb-2">
-            <h2 style={{ color: 'var(--color-primary-color)' }}>
+            <h2 
+              style={{ 
+                color: 'var(--color-primary-color)',
+                fontSize: 'clamp(1.25rem, 2.5vw, 1.875rem)'
+              }}
+            >
               {currentSection.title}
             </h2>
-            <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            <span 
+              style={{ 
+                color: 'var(--color-text-secondary)',
+                fontSize: 'clamp(0.75rem, 1.25vw, 0.9375rem)'
+              }}
+            >
               Section {currentSectionIndex + 1} of {surveyData.data.length}
             </span>
           </div>
           {currentSection.description && (
-            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            <p 
+              style={{ 
+                color: 'var(--color-text-secondary)',
+                fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
+              }}
+            >
               {currentSection.description}
             </p>
           )}

@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import SurveyDetailsPage from './SurveyDetailsPage.jsx';
-import TargetAudiencePage from './TargetAudiencePage.jsx';
-import SortableForm from './SortableForm.jsx';
-import SurveyPreviewPage from './SurveyPreviewPage.jsx';
+import SurveyDetailsPage from './SurveyDetailsPage';
+import TargetAudiencePage from './TargetAudiencePage';
+import SortableForm from './SortableForm';
+import SurveyPreviewPage from './SurveyPreviewPage';
 import { MdCheck } from 'react-icons/md';
-import { publishSurvey } from '../../../services/survey/survey.services.js';
 
 export default function SurveyWizard() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -45,8 +44,8 @@ export default function SurveyWizard() {
       const typeMap = {
         'Short Text': 'shortText',
         'Long Text': 'longText',
-        'Single Choice': 'singleChoice',
-        'Multiple Choice': 'multipleChoice',
+        'Radio Button': 'radioButton',
+        'Checkbox': 'checkBox',
         'Rating': 'rating',
         'Dropdown': 'dropdown',
         'Date': 'date',
@@ -116,26 +115,58 @@ export default function SurveyWizard() {
 
     alert("Survey published! Check the console for FormData contents.");
 
-    const res = await publishSurvey(surveyData);
+    const res = await publishSurvey(formData);
     const data = await res.json();
-    console.log(`Response: ${data.message}`);
+    console.log(`Response: ${data}`);
   };
 
   const CurrentStepComponent = steps[currentStep].component;
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
-      <div className="max-w-5xl mx-auto p-6">
+      <div 
+        className="mx-auto" 
+        style={{ 
+          maxWidth: 'clamp(960px, 85vw, 1400px)',
+          padding: 'clamp(1rem, 2vw, 2rem)'
+        }}
+      >
         {/* Header */}
-        <div className="rounded-xl shadow-lg p-6 mb-6" style={{ backgroundColor: 'var(--color-secondary-background)' }}>
-          <h1 className="text-center mb-1" style={{ color: 'var(--color-primary-color)' }}>Create Survey</h1>
-          <p className="text-center" style={{ color: 'var(--color-text-secondary)' }}>
+        <div 
+          className="rounded-xl shadow-lg mb-6" 
+          style={{ 
+            backgroundColor: 'var(--color-secondary-background)',
+            padding: 'clamp(1.5rem, 3vw, 2.5rem)'
+          }}
+        >
+          <h1 
+            className="text-center" 
+            style={{ 
+              color: 'var(--color-primary-color)',
+              fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+              marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+            }}
+          >
+            Create Survey
+          </h1>
+          <p 
+            className="text-center" 
+            style={{ 
+              color: 'var(--color-text-secondary)',
+              fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
+            }}
+          >
             {steps[currentStep].name}
           </p>
         </div>
 
         {/* Progress Stepper */}
-        <div className="flex justify-center mb-8">
+        <div 
+          className="flex justify-center" 
+          style={{ 
+            marginBottom: 'clamp(2rem, 3vw, 3rem)'
+          }}
+        >
           <ul className="steps">
             {steps.map((step, index) => (
               <li
@@ -145,6 +176,7 @@ export default function SurveyWizard() {
                 }`}
                 style={{
                   '--step-color': 'var(--color-primary-color)',
+                  fontSize: 'clamp(0.75rem, 1.25vw, 1rem)'
                 }}
                 onClick={() => index < currentStep && setCurrentStep(index)}
               >
@@ -168,4 +200,13 @@ export default function SurveyWizard() {
       </div>
     </div>
   );
+}
+
+// Mock function to simulate survey publishing
+async function publishSurvey(surveyData) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ success: true, message: 'Survey published successfully!' });
+    }, 1000);
+  });
 }

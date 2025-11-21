@@ -10,6 +10,8 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
   const [tags, setTags] = useState(data.surveyTags || []);
   const [customTag, setCustomTag] = useState('');
   const [showCustomTag, setShowCustomTag] = useState(false);
+  const [titleError, setTitleError] = useState('');
+  const [descriptionError, setDescriptionError] = useState('');
 
   const timeOptions = ['1-2 min', '3-4 min', '5-10 min', '10-15 min'];
   
@@ -48,7 +50,12 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
 
   const handleCustomTagAdd = () => {
     if (customTag.trim() && !tags.includes(customTag.trim())) {
-      setTags([...tags, customTag.trim()]);
+      const trimmedTag = customTag.trim();
+      if (trimmedTag.length > 16) {
+        alert('Custom tag must be 16 characters or less');
+        return;
+      }
+      setTags([...tags, trimmedTag]);
       setCustomTag('');
       setShowCustomTag(false);
     }
@@ -58,37 +65,91 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
     setTags(tags.filter(t => t !== tagToRemove));
   };
 
+  const countWords = (text) => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
   const handleContinue = () => {
+    let isValid = true;
+
     if (!title.trim()) {
-      alert('Please enter a survey title');
-      return;
-    }
-    if (!selectedTime) {
-      alert('Please select approximate time');
-      return;
+      setTitleError('Please enter a survey title');
+      isValid = false;
+    } else if (countWords(title) < 5) {
+      setTitleError('Survey title must contain at least 5 words');
+      isValid = false;
+    } else {
+      setTitleError('');
     }
 
-    onNext({
-      surveyTitle: title,
-      surveyDescription: description,
-      surveyApproxTime: selectedTime,
-      surveyTags: tags
-    });
+    if (description.trim() && countWords(description) < 5) {
+      setDescriptionError('Survey description must contain at least 5 words if provided');
+      isValid = false;
+    } else {
+      setDescriptionError('');
+    }
+
+    if (!selectedTime) {
+      alert('Please select approximate time');
+      isValid = false;
+    }
+
+    if (isValid) {
+      onNext({
+        surveyTitle: title,
+        surveyDescription: description,
+        surveyApproxTime: selectedTime,
+        surveyTags: tags
+      });
+    }
   };
 
   return (
-    <div className="rounded-xl shadow-lg p-6" style={{ backgroundColor: '#ffffff' }}>
-      <div className="mb-6">
-        <h2 className="mb-2" style={{ color: 'var(--color-primary-color)' }}>Create Your Survey</h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+    <div 
+      className="rounded-xl shadow-lg" 
+      style={{ 
+        backgroundColor: '#ffffff',
+        padding: 'clamp(1.5rem, 3vw, 3rem)'
+      }}
+    >
+      <div 
+        style={{ 
+          marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)'
+        }}
+      >
+        <h2 
+          style={{ 
+            color: 'var(--color-primary-color)',
+            marginBottom: 'clamp(0.5rem, 1vw, 1rem)',
+            fontSize: 'clamp(1.25rem, 2.5vw, 1.875rem)'
+          }}
+        >
+          Create Your Survey
+        </h2>
+        <p 
+          style={{ 
+            color: 'var(--color-text-secondary)',
+            fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
+          }}
+        >
           Fill in the basic information about your survey to get started
         </p>
       </div>
 
       {/* Survey Title */}
-      <div className="mb-6">
+      <div 
+        style={{ 
+          marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)'
+        }}
+      >
         <label className="label">
-          <span className="label-text" style={{ color: 'var(--color-primary-color)' }}>
+          <span 
+            className="label-text" 
+            style={{ 
+              color: 'var(--color-primary-color)',
+              fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
+            }}
+          >
             Survey Title <span style={{ color: '#dc2626' }}>*</span>
           </span>
         </label>
@@ -99,35 +160,76 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
           className="input input-bordered w-full"
           style={{
             backgroundColor: 'var(--color-background)',
-            borderColor: 'var(--color-shade-primary)',
-            color: 'var(--color-primary-color)'
+            borderColor: titleError ? '#dc2626' : 'var(--color-shade-primary)',
+            color: 'var(--color-primary-color)',
+            fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)',
+            padding: 'clamp(0.625rem, 1.2vw, 1rem)'
           }}
           placeholder="Enter survey title"
         />
+        {titleError && (
+          <p 
+            style={{ 
+              color: '#dc2626',
+              fontSize: 'clamp(0.75rem, 1.25vw, 0.9375rem)',
+              marginTop: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+            }}
+          >
+            {titleError}
+          </p>
+        )}
       </div>
 
       {/* Survey Description */}
-      <div className="mb-6">
+      <div 
+        style={{ 
+          marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)'
+        }}
+      >
         <label className="label">
-          <span className="label-text" style={{ color: 'var(--color-primary-color)' }}>
+          <span 
+            className="label-text" 
+            style={{ 
+              color: 'var(--color-primary-color)',
+              fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
+            }}
+          >
             Survey Description
           </span>
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="textarea textarea-bordered w-full h-24"
+          className="textarea textarea-bordered w-full"
           style={{
             backgroundColor: 'var(--color-background)',
-            borderColor: 'var(--color-shade-primary)',
-            color: 'var(--color-primary-color)'
+            borderColor: descriptionError ? '#dc2626' : 'var(--color-shade-primary)',
+            color: 'var(--color-primary-color)',
+            fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)',
+            padding: 'clamp(0.625rem, 1.2vw, 1rem)',
+            minHeight: 'clamp(6rem, 10vw, 8rem)'
           }}
           placeholder="Describe what your survey is about (optional)"
         />
+        {descriptionError && (
+          <p 
+            style={{ 
+              color: '#dc2626',
+              fontSize: 'clamp(0.75rem, 1.25vw, 0.9375rem)',
+              marginTop: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+            }}
+          >
+            {descriptionError}
+          </p>
+        )}
       </div>
 
       {/* Approximate Time */}
-      <div className="mb-6">
+      <div 
+        style={{ 
+          marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)'
+        }}
+      >
         <label className="label">
           <span className="label-text" style={{ color: 'var(--color-primary-color)' }}>
             Approximate Time to Complete <span style={{ color: '#dc2626' }}>*</span>
@@ -237,13 +339,14 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
               value={customTag}
               onChange={(e) => setCustomTag(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleCustomTagAdd()}
+              maxLength={16}
               className="input input-sm flex-1"
               style={{
                 backgroundColor: 'var(--color-background)',
                 borderColor: 'var(--color-shade-primary)',
                 color: 'var(--color-primary-color)'
               }}
-              placeholder="Enter custom tag"
+              placeholder="Enter custom tag (max 16 chars)"
             />
             <button
               onClick={handleCustomTagAdd}

@@ -2,7 +2,7 @@ import React from 'react'
 import { Outlet } from 'react-router-dom'
 import Navbar from '../components/new/Navbar'
 
-const SurveyRoute = () => {
+const SurveyLayout = () => {
   return (
     <section>
         <Navbar />
@@ -11,4 +11,4 @@ const SurveyRoute = () => {
   )
 }
 
-export default SurveyRoute
+export default SurveyLayout

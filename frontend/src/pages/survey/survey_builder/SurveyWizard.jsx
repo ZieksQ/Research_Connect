@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import SurveyDetailsPage from './SurveyDetailsPage';
-import TargetAudiencePage from './TargetAudiencePage';
-import SortableForm from './SortableForm';
-import SurveyPreviewPage from './SurveyPreviewPage';
+import SurveyDetailsPage from './SurveyDetailsPage.jsx';
+import TargetAudiencePage from './TargetAudiencePage.jsx';
+import SortableForm from './SortableForm.jsx';
+import SurveyPreviewPage from './SurveyPreviewPage.jsx';
 import { MdCheck } from 'react-icons/md';
-import { publishSurvey } from '../../services/survey.services';
+import { publishSurvey } from '../../../services/survey/survey.services.js';
 
 export default function SurveyWizard() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -55,6 +55,9 @@ export default function SurveyWizard() {
       return typeMap[type] || type.toLowerCase();
     };
 
+    // Create FormData to handle images
+    const formData = new FormData();
+
     // Prepare survey data for JSON (without File objects)
     const surveyDataForJson = {
       surveyTitle: surveyData.surveyTitle,
@@ -85,14 +88,37 @@ export default function SurveyWizard() {
       })),
     };
 
+    // Add survey JSON data to FormData
+    formData.append('surveyData', JSON.stringify(surveyDataForJson));
+
+    // Add all image files to FormData
+    surveyData.data.forEach((section) => {
+      section.questions.forEach((question) => {
+        if (question.image && question.image.file) {
+          formData.append(`image_${question.id}`, question.image.file);
+        }
+      });
+    });
+
     // Log what we're sending
-    console.log("=== SURVEY PUBLISHED ===");
+    console.log("=== SURVEY PUBLISHED WITH FORMDATA ===");
+    console.log("\nSurvey JSON Data:");
     console.log(JSON.stringify(surveyDataForJson, null, 2));
+    console.log("\nFormData Contents:");
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`${key}: [File] ${value.name} (${value.type}, ${value.size} bytes)`);
+      } else {
+        console.log(`${key}: ${value}`);
+      }
+    }
     console.log("=== END ===");
 
-    alert("Survey published! Check the console for data being sent.");
+    alert("Survey published! Check the console for FormData contents.");
 
-    await publishSurvey(surveyDataForJson);
+    const res = await publishSurvey(surveyData);
+    const data = await res.json();
+    console.log(`Response: ${data.message}`);
   };
 
   const CurrentStepComponent = steps[currentStep].component;
@@ -143,12 +169,3 @@ export default function SurveyWizard() {
     </div>
   );
 }
-
-// Mock function to simulate survey publishing
-// async function publishSurvey(surveyData) {
-//   return new Promise((resolve) => {
-//     setTimeout(() => {
-//       resolve({ success: true, message: 'Survey published successfully!' });
-//     }, 1000);
-//   });
-// }

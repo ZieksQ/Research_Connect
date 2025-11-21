@@ -296,7 +296,7 @@ def handle_Mobile_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tup
     return qflag, any(each_qcheck_bool)
 
 
-def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]]) -> tuple[list, bool]:
+def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]], files_dict: dict = None) -> tuple[list, bool]:
     """Web version: validate each survey questionnaire so each data meets the desired output
 
     Args:
@@ -376,7 +376,8 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]]) ->
 
             if q_dict.get("image"):
                 # img_file = q_dict["image"]["fieldName"]
-                img_file = request.files["image"]["fieldName"]
+                img_name = q_dict["image"]["fieldName"]
+                img_file = files_dict.get(img_name)
                 img_msg, img_flag = handle_profile_pic(img_file)
                 if img_flag:
                     result[f"img"] = img_msg

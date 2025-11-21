@@ -1,3 +1,4 @@
+import json
 from App import limiter, supabase_client
 from flask import Blueprint, request
 from sqlalchemy import select, and_, or_
@@ -276,8 +277,16 @@ def send_post_survey_web():
     if not user:
         logger.error("Someone tried to post without signing in")
         return jsonify_template_user(401, False, "You must log in first in order to post here")
+    
+    # data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
+    raw_json = request.form.get("surveyData")
 
-    data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
+    if not raw_json:
+        logger.info(f"{user_id} tried to create a survey with nothing on it")
+        return jsonify_template_user(400, False, "You did not provide any data for the survey")
+
+    data: dict = json.loads(raw_json) if raw_json else {}
+    files_dict: dict = request.files.to_dict(flat=True)
 
     survey_title: str = data.get("surveyTitle", "")
     survey_content: str = data.get("surveyDescription", "")
@@ -307,7 +316,7 @@ def send_post_survey_web():
         return jsonify_template_user(400, False, svy_exists_msg, extra_msg="You must meet these requirements")
     
     # Checks each question on the survey if it reachers the requirements e.g. question must be at least x long
-    svy_req_msg, svy_req_flag = handle_web_survey_input_requirements(svy_questions)
+    svy_req_msg, svy_req_flag = handle_web_survey_input_requirements(svy_questions, files_dict)
     if svy_req_flag:
         logger.error(svy_req_msg)
         return jsonify_template_user(422, False, "You must meet the requirements for the survey", survey={"survey": svy_req_msg})
@@ -326,8 +335,8 @@ def send_post_survey_web():
     post = Posts(title=survey_title, content=survey_content, user=user, category=[])
     survey = Surveys(title=survey_title, content=survey_content, tags=[],
                      approx_time=approx_time)
-    post.target_audience = [t_aud for t_aud in target_audience ]
-    survey.target_audience = [t_aud for t_aud in target_audience ]
+    post.target_audience.extend(target_audience)
+    survey.target_audience.extend(target_audience)
     
     for scounter, svy_section in enumerate(svy_questions, start=1):
 
@@ -355,7 +364,7 @@ def send_post_survey_web():
                 
             if q_dict.get("image"):
                 img_dict: dict[str, Any] = q_dict.get("image")
-                img = request.files.get(img_dict.get("fieldName"))
+                img = files_dict.get(img_dict.get("fieldName"))
 
                 question_img = Question_Image(name=img_dict.get("name"),
                                               img_type=img_dict.get("type"),
@@ -512,7 +521,7 @@ def send_post_survey_mobile():
         
         if svy_question.get("type") in Question_type_inter.Q_TYPE_MOBILE:
             question.min_choice = svy_question.get("minChoice", 1)
-            question.max_choice = svy_question.get("maxChoice", 1)
+            question.max_choice = svy_question.get("maxChoice", len(options))
             for option in options:
                 choice = Choice(choice_text=option)
                 question.choices_question.append(choice)

@@ -54,6 +54,16 @@ Di ko alam kung pano sa dart/flutter, ask chatgpt
 explain so sayo sa f2f andy :ey: kakatmad pag sa chat kasi ni explain ko na kay acob to eh
 ```
 
+> #### http://127.0.0.1:5000/api/user/update_date
+
+```JSON
+{
+"username": "Andy",
+"school": "LSPU",
+"program": "BSIT"
+}
+```
+
 ---
 
 <br>

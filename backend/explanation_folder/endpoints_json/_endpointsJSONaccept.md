@@ -119,10 +119,62 @@ The <int:id> is the ID of the post itself, not the survey
 
 ```JSON
 {
-	"1": "Paris",
-	"2": "Kotlin",
-	"3": "a realy long text",
-	"4": "imagine a really long key value pair of id and answer"
+
+  "surveyTitle": "Customer Satisfaction Survey 2024",
+
+  "surveyDescription": "Help us improve our services by sharing your valuable feedback. This survey will take approximately 5-10 minutes to complete.",
+
+  "submittedAt": "2025-11-15T18:40:14.927Z",
+
+  "responses": {
+
+    "section-demographics": {
+
+      "1section-demographics": "ZieksQ",
+
+      "2section-demographics": "zieksq@email.sample.com",
+
+      "3section-demographics": "2025-11-16",
+
+      "4section-demographics": 5
+
+    },
+
+    "section-usage": {
+
+      "5section-usage": "option-2",
+
+      "6section-usage": ["option-9", "option-10", "option-11"],
+
+      "7section-usage": "option-17"
+
+    },
+
+    "section-preferences": {
+
+      "8section-preferences": "other option should have text something so we can type specific answer on it",
+
+      "9section-preferences": "option-18"
+
+    }
+
+  }
+
+}
+```
+
+<br>
+
+> #### http://127.0.0.1:5000/api/survey/post/update_data
+
+status is jus either "open" or close
+
+```JSON
+{
+	"id": "1",
+	"post_content": "a realy long text",
+	"survey_description": "a realy long text",
+	"status": "open/close"
 }
 ```
 

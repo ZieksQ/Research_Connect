@@ -13,14 +13,14 @@ from App.models.model_post import Posts, Category
 from App.models.model_survey_q_a import Surveys, Question, Answers, Choice, Question_Image, Section
 from App.models.model_users import Root_User
 from App.models.model_otp import Code
-from App.models.model_enums import QuestionType, Question_type_inter
+from App.models.model_enums import QuestionType, Question_type_inter, PostStatus
 from App.models.model_association import RootUser_Survey
 from App.helper_methods import ( jsonify_template_user, commit_session, flush_session,
                                 logger_setup, datetime_return_tzinfo )
 from App.helper_user_validation import (handle_post_input_exist, handle_post_requirements, handle_web_survey_input_exist, 
                                         handle_web_survey_input_requirements, handle_Mobile_survey_input_exist, 
                                         handle_mobile_survey_input_requirements, handle_survey_misc_input_requirements,
-                                        handle_survey_misc_input_exists)
+                                        handle_survey_misc_input_exists, handle_user_answer_required)
 
 
 # Sets up the logger from my helper file
@@ -146,6 +146,36 @@ def search():
     logger.info("Search successful")
     return jsonify_template_user(200, True, data)
 
+@survey_posting.route("/post/search/by_title", methods=["GET"])
+@jwt_required()
+@check_user
+@limiter.limit("100 per minute;5000 per day", key_func=get_jwt_identity)
+def search_by_title():
+    query = request.args.get("query", "").strip()
+    order = request.args.get("order", "asc").strip()
+
+    post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
+
+    stmt = (
+        select(Posts)
+        .where(or_(
+            Posts.title.ilike(f"%{query}%"),
+            ))
+        .order_by(post_order)
+        .limit(100)
+        .offset(0)
+        )
+    posts = db.scalars(stmt).all()
+
+    data = [{"post_title": post.title, "username": post.user.username} for post in posts]
+
+    if not data:
+        logger.info("There is no post to be searched")
+        return jsonify_template_user(204, True, "There is no such thing")
+    
+    logger.info("Search successful")
+    return jsonify_template_user(200, True, data)
+
 @survey_posting.route("/category/get", methods=['GET'])
 @jwt_required()
 @check_user
@@ -199,7 +229,6 @@ def survey_is_answered():
 @jwt_required()
 @limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
 def answer_questionnaire(id):
-    data: dict = request.get_json()
 
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
@@ -213,6 +242,14 @@ def answer_questionnaire(id):
         logger.info("User tried to answer a questionnaire with no existing post")
         return jsonify_template_user(404, False, "There is no such post like that")
     
+    data: dict = request.get_json()
+
+    if not data:
+        logger.info(f"{user_id} tried to answer a survey without providing any answer")
+        return jsonify_template_user(400, False, "You must provide an answer")
+    
+    responses: dict[str, dict] = data.get("responses")
+    
     stmt = select(RootUser_Survey).where(and_(RootUser_Survey.root_user_id == int(user_id),
                                               RootUser_Survey.svy_surveys_id == int(id)))
     user_survey = db.scalars(stmt).first()
@@ -220,13 +257,33 @@ def answer_questionnaire(id):
     if user_survey:
         logger.info(f"User {user.id} already answered survey {survey.id}.")
         return jsonify_template_user(409, False, "You already answered this survey.")
+    
+    sections = survey.section_survey
 
-    q_sorted = sorted(survey.questions_survey, key=lambda x: x.question_number)
+    answer_msg, answer_flag = handle_user_answer_required(responses, sections)
+    if answer_flag:
+        logger.info(f"{user_id} tried to bypass a required answer")
+        return jsonify_template_user(400, False, answer_msg, extra_msg="You know you are required to answer that")
 
-    for question in q_sorted:
-        answer = Answers(answer_text=data.get(f"{question.question_number}"), 
-                                   user=user)
-        question.answers.append(answer)
+    for section in sections:
+        section_id = section.another_id
+        resp_section = responses.get(section_id)
+
+        if not resp_section:
+            continue
+
+        for question in section.question_section:
+
+            resp_answer_text = resp_section.get(question.another_id)
+
+            if question.q_type in Question_type_inter.CHOICES_TYPE_WEB:
+                for rqt in resp_answer_text:
+                    answer = Answers(user=user, answer_text=rqt)
+                    question.answers.append(answer)
+                continue
+            
+            answer = Answers(user=user, answer_text=resp_answer_text)
+            question.answers.append(answer)
 
     user_survey_answered = RootUser_Survey(user=user, survey=survey)
 
@@ -239,6 +296,62 @@ def answer_questionnaire(id):
     logger.info("Response saved")
 
     return jsonify_template_user(200, True, "You have succesfully answered this survey")
+
+@survey_posting.route("/post/update_data", methods=['PATCH'])
+@jwt_required()
+@check_user
+@limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
+def post_update_data():
+    data: dict = request.get_json()
+
+    user_id = get_jwt_identity()
+    post_id = data.get("id")
+
+    if not post_id:
+        logger.info(f"{user_id} is trying to updated a post without providing a post id")
+        return jsonify_template_user(400, False, "You must provide a post ID or do not tamper with the JSON")
+
+    post = db.get(Posts, int(post_id))
+
+    if not post:
+        logger.info("Someone tried to updated a non existant post")
+        return jsonify_template_user(404, False, "This post is non existant")
+    
+    survey: Surveys = post.survey_posts
+    
+    post_title = data.get("title", post.title)
+    post_content = data.get("post_content", post.content)
+    post_desc = data.get("survey_description", survey.content)
+    status = data.get("status", PostStatus.OPEN.value)
+
+    post_requirements, post_req_flag = handle_post_requirements(post_title, post_content)
+    if post_req_flag:
+        logger.error(post_requirements)
+        return jsonify_template_user(422, False, post_requirements)
+    
+    survey_requirements, survey_req_flag = handle_post_requirements(post_title, post_desc, False)
+    if survey_req_flag:
+        logger.error(survey_requirements)
+        return jsonify_template_user(422, False, survey_requirements)
+    
+    if status not in (PostStatus.CLOSED.value, PostStatus.OPEN.value):
+        logger.info(f"{user_id} tampered with the JSON")
+        return jsonify_template_user(422, False, "Please do not tamper with the status JSON (open, closed)")
+    
+    post.title = post_title
+    post.content = post_content
+    survey.title = post_title
+    survey.content = post_desc
+    post.status = status
+
+    succ, err = commit_session()
+    if not succ: 
+        logger.info(err)
+        return jsonify_template_user(500, False, "Database Error")
+    
+    logger.info(f"{user_id} has successfully updated the survey")
+    return jsonify_template_user(200, True, "You have successfully updated the survey")
+
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -280,12 +393,12 @@ def send_post_survey_web():
     
     # data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
     raw_json = request.form.get("surveyData")
-
+    
     if not raw_json:
         logger.info(f"{user_id} tried to create a survey with nothing on it")
         return jsonify_template_user(400, False, "You did not provide any data for the survey")
 
-    data: dict = json.loads(raw_json) if raw_json else {}
+    data: dict = json.loads(raw_json)
     files_dict: dict = request.files.to_dict(flat=True)
 
     survey_title: str = data.get("surveyTitle", "")
@@ -329,14 +442,14 @@ def send_post_survey_web():
     svy_misc_msg_req, svy_misc_req = handle_survey_misc_input_requirements(approx_time, tags, target_audience)
     if svy_misc_req:
         logger.info(svy_misc_msg_req)
-        return jsonify_template_user(404, False, svy_misc_msg_req)
+        return jsonify_template_user(422, False, svy_misc_msg_req)
 
 
     post = Posts(title=survey_title, content=survey_content, user=user, category=[])
     survey = Surveys(title=survey_title, content=survey_content, tags=[],
                      approx_time=approx_time)
-    post.target_audience.extend(target_audience)
-    survey.target_audience.extend(target_audience)
+    post.target_audience = target_audience
+    survey.target_audience = target_audience
     
     for scounter, svy_section in enumerate(svy_questions, start=1):
 
@@ -354,7 +467,8 @@ def send_post_survey_web():
                                 question_number=qcounter, 
                                 url=q_dict.get("video", None),
                                 min_choice=q_dict.get("minChoices"),
-                                max_choice=q_dict.get("maxChoices"), 
+                                max_choice=q_dict.get("maxChoices"),
+                                max_rating=q_dict.get("maxRating", 1)
                                 )
 
             if q_dict.get("type") in Question_type_inter.CHOICES_TYPE_WEB:
@@ -371,7 +485,7 @@ def send_post_survey_web():
                                               size=img_dict.get("size"))
                 filename = f"{uuid4()}_{img.filename}"
                 try:
-                    resp = supabase_client.storage.from_("profile_pic").upload(path=filename, file=img.read(), 
+                    resp = supabase_client.storage.from_("question_img").upload(path=filename, file=img.read(), 
                                                                         file_options={"content-type": img.content_type})
                 except Exception as e:
                     logger.exception(f"Exception type: {type(e).__name__}, message: {e}")
@@ -383,6 +497,10 @@ def send_post_survey_web():
   
             section.question_section.append(question)
         survey.section_survey.append(section)
+
+    for t in tags:
+        survey.tags.append(t)
+        post.category.append(t)
 
     if post_code:
         stmt = select(Code).where(
@@ -403,9 +521,6 @@ def send_post_survey_web():
         code_db.is_used = True
         logger.info(f"{user_id} has entered the code and approved the post")
 
-    for t in tags:
-        survey.tags.append(t)
-        post.category.append(t)
 
     post.survey_posts = survey
     db.add(post)
@@ -445,7 +560,7 @@ def send_post_survey_mobile():
     
     post_code: str = data.get("post_code")
     svy_questions: list[dict[str, Any]] = data.get("data", [])
-    svy_section: list[dict[str, Any]] = data.get("sections", [])
+    svy_sections: list[dict[str, Any]] = data.get("sections", [])
 
     post_input_validate, post_exist_flag = handle_post_input_exist(survey_title, post_caption)
     if post_exist_flag:
@@ -468,7 +583,7 @@ def send_post_survey_mobile():
         return jsonify_template_user(422, False, survey_requirements)
     
     # Checks each question on the survey if it exist or not
-    svy_exists_msg, svy_exists_flag = handle_Mobile_survey_input_exist(svy_questions)
+    svy_exists_msg, svy_exists_flag = handle_Mobile_survey_input_exist(svy_questions, svy_sections)
     if svy_exists_flag:
         logger.error(svy_exists_msg)
         return jsonify_template_user(400, False, svy_exists_msg, extra_msg="Your survey is missing some data")
@@ -493,7 +608,7 @@ def send_post_survey_mobile():
     survey = Surveys(title=survey_title, content=survey_content, tags=[], posts_survey=post,
                      approx_time=approx_time)
     
-    for section in svy_section:
+    for section in svy_sections:
         section_db = Section(another_id=section.get("id") ,title=section.get("title"), desc=section.get("description"))
         survey.section_survey.append(section_db)
 
@@ -515,8 +630,9 @@ def send_post_survey_mobile():
             question_text=svy_question.get("title"),
             question_number=qcounter,
             q_type=svy_question.get("type"),
-            answer_required=svy_question.get("required"),
-            url=svy_question.get("videoUrl", None)
+            answer_required=svy_question.get("required", False),
+            url=svy_question.get("videoUrl", None),
+            max_rating=svy_question.get("maxRating", 1)
             )
         
         if svy_question.get("type") in Question_type_inter.Q_TYPE_MOBILE:
@@ -530,6 +646,10 @@ def send_post_survey_mobile():
             if ss.another_id == svy_question.get("sectionId"):
                 ss.question_section.append(question)
                 break
+
+    for t in tags:
+        post.category.append(t)
+        survey.tags.append(t)
         
     if post_code:
         stmt = select(Code).where(
@@ -549,10 +669,6 @@ def send_post_survey_mobile():
         post.approved = True
         code_db.is_used = True
         logger.info(f"{user_id} has entered the code and approved the post")
-
-    for t in tags:
-        post.category.append(t)
-        survey.tags.append(t)
 
     success, error = commit_session()
     if not success:

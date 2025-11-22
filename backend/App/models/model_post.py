@@ -9,12 +9,16 @@ class Posts(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(512), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
+
     category: Mapped[list[str]] = mapped_column(JSON, default=[], nullable=False)
     target_audience: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+
     date_created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     date_updated: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
+
     archived: Mapped[bool] = mapped_column(Boolean, default=False)
     approved: Mapped[bool] = mapped_column(Boolean, default=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="open")
 
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
 

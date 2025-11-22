@@ -375,26 +375,41 @@ def survey_responses(id):
 
     for section in survey.section_survey:
         for question in section.question_section:
+
             if question.q_type in Question_type_inter.CHOICES_TYPE_WEB:
-                q_options_data = {}
-                choices: list[Choice] = question.choices_question
-                for choice in choices:
-                    resp_answers = [a.answer_text for a in question.answers if a.answer_text == choice.choice_text]
-                    q_options_data[choice.choice_text] = len(resp_answers)
+
+                stmt = select( Answers.answer_text, func.count(Answers.id)
+                                ).where(
+                                    Answers.question_id == question.id
+                                    ).group_by( Answers.answer_text )
+                
+                datas = db.execute(stmt).all()
+                q_options_data = {data[0]: data[1] for data in datas}
 
                 choice_data[f"question_{question.question_number}"] = {
                     "question_text": question.question_text,
-                    "options_data": q_options_data,
+                    "answer_data": q_options_data,
                     }
                 
-    for section in survey.section_survey:
-        for question in section.question_section:
-            resp_answer = [a.answer_text for a in question.answers if question.q_type not in Question_type_inter.CHOICES_TYPE_WEB]
-            text_data[f"question_{question.question_number}"] = resp_answer
+            if question.q_type not in Question_type_inter.CHOICES_TYPE_WEB:
+                
+                stmt = select(Answers.answer_text
+                            ).where( Answers.question_id == question.id )
+                data = db.scalars(stmt).all()
 
+                text_data[f"question_{question.question_number}"] = {
+                    "question_text": question.question_text,
+                    "answer_data": data,
+                }
+            
     logger.info(f"{user_id} has fetch the data for survey No. {id}")
 
     data = {
+        "survey_title": survey.title,
+        "survey_content": survey.content,
+        "survey_tags": survey.tags,
+        "survey_approx_time": survey.approx_time,
+        "survey_target_audience": survey.target_audience,
         "choices_data": choice_data if choice_data else "There is no data for choices type of queston",
         "text_data": text_data if text_data else "There is not data for the other type of question",
     }
@@ -417,7 +432,7 @@ def survey_count_questions(id):
                   ).where(
                       Section.survey_id == survey.id
                   ).join(
-                      Question, Question.section_id == Section.id
+                      Question
                   ).group_by(
                       Section.id
                   )

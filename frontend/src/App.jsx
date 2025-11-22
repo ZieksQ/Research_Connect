@@ -19,6 +19,7 @@ import LandingPage from "./pages/landingPage/landingPage.jsx";
 import SurveyBuilder from "./pages/survey/survey_builder/SurveyWizard.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import RootLayout from "./layout/RootLayout.jsx";
+import HomePage from "./pages/home/HomePage.jsx";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -30,10 +31,13 @@ const App = () => {
           <Route index element={<LandingPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="signup" element={<SignupPage />} />
+
+
           {/* Home Path */}
           <Route path="home" element={<RootRoute />}>
             <Route index element={<PostPage />} />
 
+            <Route path="feed" element={<HomePage />}/>
             {/* Profile section (inherits RootRoute) */}
             <Route path="profile" element={<ProfilePage />}>
               <Route index element={<Navigate to="posts" replace />} />

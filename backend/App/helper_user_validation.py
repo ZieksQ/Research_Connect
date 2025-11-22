@@ -262,8 +262,8 @@ def handle_Mobile_survey_input_exist(svy_questions: list[dict[str, Any]], sectio
     """
 
     qflag = {
-        "sections": [],
-        "questions": {}
+        "sections": {},
+        "questions": {},
     }
     each_qcheck_bool = []
 
@@ -289,7 +289,7 @@ def handle_Mobile_survey_input_exist(svy_questions: list[dict[str, Any]], sectio
     for qcounter, svy_question in enumerate(svy_questions, start=1):
         result = {}
 
-        if not svy_question.get("id"):
+        if not svy_question.get("questionId"):
             result[f"id"] = f"Question {qcounter}: ID is missing"
 
         if not svy_question.get("text"):
@@ -301,7 +301,7 @@ def handle_Mobile_survey_input_exist(svy_questions: list[dict[str, Any]], sectio
         if not svy_question.get("sectionId"): 
             result[f"sectionId"] = f"Question {qcounter}: Seciton ID is missing"
 
-        if svy_question.get("type") in Question_type_inter.CHOICES_TYPE_MOBILE:
+        if svy_question.get("type") in Question_type_inter.CHOICES_MAX_MIN_TYPE_MOBILE:
             if not svy_question.get("options"):
                 result[f"options"] = f"Question {qcounter}: Options is missing"
             if not svy_question.get("minChoice"):
@@ -455,7 +455,7 @@ def handle_mobile_survey_input_requirements(svy_questions: list[dict[str, Any]])
     for qcounter, svy_question in enumerate(svy_questions, start=1):
         result = {}
 
-        title = svy_question.get("title").split()
+        title = svy_question.get("text").split()
 
         for check, msg in question_text_rules:
             if not check(title):

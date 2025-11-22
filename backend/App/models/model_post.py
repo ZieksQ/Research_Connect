@@ -38,6 +38,8 @@ class Posts(Base):
             "survey_target_audience": self.target_audience,
             "survey_date_created": self.date_created,
             "survey_date_updated": self.date_updated,
+            "user_username": self.user.username,
+            "user_profile": self.user.profile_pic_url,
         }
     
 class Category(Base):

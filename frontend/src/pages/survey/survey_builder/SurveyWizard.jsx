@@ -3,7 +3,9 @@ import SurveyDetailsPage from './SurveyDetailsPage';
 import TargetAudiencePage from './TargetAudiencePage';
 import SortableForm from './SortableForm';
 import SurveyPreviewPage from './SurveyPreviewPage';
-import { MdCheck } from 'react-icons/md';
+import { publishSurvey } from '../../../services/survey/survey.services';
+// import { MdCheck } from 'react-icons/md';
+// import { log } from 'three';
 
 export default function SurveyWizard() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -116,7 +118,7 @@ export default function SurveyWizard() {
     alert("Survey published! Check the console for FormData contents.");
 
     const res = await publishSurvey(formData);
-    const data = await res.json();
+    const data = await res.json()
     console.log(`Response: ${data}`);
   };
 
@@ -203,10 +205,10 @@ export default function SurveyWizard() {
 }
 
 // Mock function to simulate survey publishing
-async function publishSurvey(surveyData) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ success: true, message: 'Survey published successfully!' });
-    }, 1000);
-  });
-}
+// async function publishSurvey(surveyData) {
+//   return new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve({ success: true, message: 'Survey published successfully!' });
+//     }, 1000);
+//   });
+// }

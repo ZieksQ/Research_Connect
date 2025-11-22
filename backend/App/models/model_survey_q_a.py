@@ -44,9 +44,9 @@ class Section(Base):
     __tablename__ = "svy_section"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    another_id: Mapped[str] = mapped_column(String(256), nullable=False)
-    title: Mapped[str] = mapped_column(String(256), nullable=False)
-    desc: Mapped[str] = mapped_column(String(512), nullable=False )
+    another_id: Mapped[str] = mapped_column(String(256), nullable=False )
+    title: Mapped[str] = mapped_column(String(256), nullable=False )
+    desc: Mapped[str] = mapped_column(String(512), nullable=True )
 
     survey_id: Mapped[int] = mapped_column(ForeignKey("svy_surveys.id"), nullable=False)
     survey_section: Mapped["Surveys"] = relationship( "Surveys", back_populates="section_survey")
@@ -70,11 +70,14 @@ class Question(Base):
     another_id: Mapped[str] = mapped_column(String(128), nullable=False)
     question_number: Mapped[int] = mapped_column(Integer, nullable=False)
     question_text: Mapped[str] = mapped_column(String(512), nullable=False)
+    
     q_type: Mapped[str] = mapped_column(String(64), nullable=False)
     answer_required = mapped_column(Boolean, default=False, nullable=False)
     url: Mapped[str] = mapped_column(String(512), nullable=True)
+
     min_choice: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     max_choice: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    max_rating: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
     section_id: Mapped[int] = mapped_column(Integer, ForeignKey("svy_section.id"), nullable=False)
     section_question: Mapped["Section"] = relationship( "Section", back_populates="question_section")

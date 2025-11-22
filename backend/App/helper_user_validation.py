@@ -2,6 +2,7 @@ from flask import request
 from typing import Any
 import os, string
 from App.models.model_enums import QuestionType, Question_type_inter
+from App.models.model_survey_q_a import Section
 
 def handle_profile_pic(file) -> tuple[str | None, bool]:
     """Helper method to validate the profile pic sent
@@ -190,68 +191,68 @@ def handle_web_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tuple[
     """
 
     qflag = {}
-    each_qcheck_bool = [False]
+    each_qcheck_bool = []
 
     if not svy_questions:
         return ["Survey is empty"], True
     
     for scounter, svy_section in enumerate(svy_questions, start=1):
         result = {}
-        each_qdata_bool = []
 
         if not svy_section:
-            return ["Survey questions is missing"], True
+            result[f"section"] = f"Section {scounter} is missing"
+            continue
         
+        if not svy_section.get("id"):
+            result[f"id"] = f"Section {scounter}: Id is missing"
+
         if not svy_section.get("title"):
             result[f"description"] = f"Section {scounter}: Title is missing"
-            each_qdata_bool.append(True)
-
-        if not svy_section.get("description"):
-            result[f"description"] = f"Section {scounter}: Description is missing"
-            each_qdata_bool.append(True)
 
         if not svy_section.get("questions"):
             result[f"questions"] = f"Section {scounter}: Quesitons is missing"
-            each_qdata_bool.append(True)
             continue
 
         for qcounter, q_dict in enumerate(svy_section.get("questions"), start=1):
+            question_result = {}
             
             if not q_dict:
-                result[f"question{qcounter}"] = f"Question {qcounter} is missing"
-                each_qdata_bool.append(True)
+                question_result[f"question"] = f"Question {qcounter} is missing"
                 continue
 
             if not q_dict.get("title"):
-                result[f"title"] = f"Question {qcounter}: Title is missing"
-                each_qdata_bool.append(True)
+                question_result[f"title"] = f"Question {qcounter}: Title is missing"
 
             if not q_dict.get("minChoices"):
-                result[f"minChoices"] = f"Question {qcounter}: Min Choices is missing"
-                each_qdata_bool.append(True)
+                question_result[f"minChoices"] = f"Question {qcounter}: Min Choices is missing"
                 
             if not q_dict.get("maxChoices"):
-                result[f"maxChoices"] = f"Question {qcounter}: Max Choices is missing"
-                each_qdata_bool.append(True)
+                question_result[f"maxChoices"] = f"Question {qcounter}: Max Choices is missing"
 
             if not q_dict.get("type"):
-                result[f"type"] = f"Question {qcounter}: Type is missing"
-                each_qdata_bool.append(True)
+                question_result[f"type"] = f"Question {qcounter}: Type is missing"
 
             if q_dict.get("type") in Question_type_inter.CHOICES_TYPE_WEB:
                 if not q_dict.get("options"):
-                    result[f"options"] = f"Question {qcounter}: Options is missing"
-                    each_qdata_bool.append(True)
+                    question_result[f"options"] = f"Question {qcounter}: Options is missing"
+
+            if q_dict.get("type") == QuestionType.RATING.value:
+                if not q_dict.get("maxRating"):
+                    question_result["maxRating"] = f"Quesiton {qcounter}: Max rating is missing"
+
+            if question_result: 
+                result[f"Question{qcounter}"] = question_result
+                each_qcheck_bool.append(True)
 
         if result:
             qflag[f"Section{scounter}"] = result
-            each_qcheck_bool.append(any(each_qdata_bool))
+            each_qcheck_bool.append(True)
 
     return (qflag, any(each_qcheck_bool))
 
 
-def handle_Mobile_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tuple[dict, bool]:
-    """Mobiloe version: Method to check if each input in the dict of questionnaire exists.
+def handle_Mobile_survey_input_exist(svy_questions: list[dict[str, Any]], sections: list[dict[str, Any]]) -> tuple[dict, bool]:
+    """Mobile version: Method to check if each input in the dict of questionnaire exists.
 
     Args:
         svy_questions (dict): Suvey questionnaire
@@ -260,38 +261,61 @@ def handle_Mobile_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tup
         tuple (list, bool): Returns a list of missing fields and a flag indicating if any are missing.
     """
 
-    qflag = {}
+    qflag = {
+        "sections": [],
+        "questions": {}
+    }
     each_qcheck_bool = []
 
+    if not sections:
+        return ["Sections is empty"], True
+    
     if not svy_questions:
         return ["Survey is empty"], True
     
+    for scounter, svy_section in enumerate(sections, start=1):
+        result = {}
+
+        if not svy_section.get("id"):
+            result["id"] = f"Section {scounter}: ID is missing"
+
+        if not svy_section.get("title"):
+            result["title"] = f"Section {scounter}: Title is missing"
+
+        if result:
+            qflag["sections"][f"Questions{scounter}"] = result
+            each_qcheck_bool.append(True)
+    
     for qcounter, svy_question in enumerate(svy_questions, start=1):
         result = {}
-        each_qdata_bool = []
 
-        if not svy_question:
-            return ["Survey Questions is missing"], True
+        if not svy_question.get("id"):
+            result[f"id"] = f"Question {qcounter}: ID is missing"
 
-        if not svy_question.get("title"):
-            result[f"title"] = f"Question {qcounter}: Title is missing"
-            each_qdata_bool.append(True)
+        if not svy_question.get("text"):
+            result[f"text"] = f"Question {qcounter}: Title is missing"
 
         if not svy_question.get("type"):
             result[f"type"] = f"Question {qcounter}: Type is missing"
-            each_qdata_bool.append(True)
-
-        if svy_question.get("type") in Question_type_inter.CHOICES_TYPE_MOBILE:
-            if not svy_question.get("options"):
-                result[f"options"] = f"Question {qcounter}: Options is missing"
-                each_qdata_bool.append(True)
 
         if not svy_question.get("sectionId"): 
             result[f"sectionId"] = f"Question {qcounter}: Seciton ID is missing"
 
+        if svy_question.get("type") in Question_type_inter.CHOICES_TYPE_MOBILE:
+            if not svy_question.get("options"):
+                result[f"options"] = f"Question {qcounter}: Options is missing"
+            if not svy_question.get("minChoice"):
+                result[f"minChoice"] = f"Question {qcounter}: Min choice is missing"
+            if not svy_question.get("maxChoice"):
+                result[f"maxChoice"] = f"Question {qcounter}: Max choice is missing"
+            
+        if svy_question.get("type") == QuestionType.RATING.value:
+            if not svy_question.get("maxRating"):
+                result["maxRating"] = f"Question {qcounter}: Max rating is missing"
+
         if result:
-            qflag[f"Question{qcounter}"] = result
-            each_qcheck_bool.append(any(each_qdata_bool))
+            qflag["questions"][f"Question{qcounter}"] = result
+            each_qcheck_bool.append(True)
 
     return qflag, any(each_qcheck_bool)
 
@@ -306,29 +330,30 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]], fi
         tuple (list, bool): (violations, has_violations_flag)
     """
     
+    section_title_rules = [
+        (lambda text: len(text) >= 5,   "Section title must be at least 5 characters long"),
+        (lambda text: len(text) <= 256, "Section title must not exceed 256 characters"),
+    ]
+
+    section_desc_rules = [  
+        (lambda text: len(text) <= 512, "Section description must not exceed 512 characters"),
+    ]
+
     question_text_rules=[
         (lambda question: len(question) >= 4,               "Question text must be at least 4 words"),
         (lambda question: len(question) <= 150,             "Question text must not exceed 150 words"),
         (lambda question: len(" ".join(question)) <= 2000,  "Question text must not exceed 2000 characters"),
     ]
+
     type_rules=[
         (lambda qtype: qtype in Question_type_inter.Q_TYPE_WEB, f"Wrong question type, please choose within [{", ".join(Question_type_inter.Q_TYPE_WEB)}]"),
     ]
 
     choices_text_rules = [
         (lambda c_text: len(c_text) >= 1, "Choice text must be at least 1 character long"),
-        (lambda ctext: len(ctext) <= 500, "Choice text must not exceed 500 character")
+        (lambda ctext: len(ctext) <= 1024, "Choice text must not exceed 1024 character")
     ]
 
-    section_title_rules = [
-        (lambda text: len(text) >= 5, "Section title must be at least 5 characters long"),
-        (lambda text: len(text) <= 256, "Section title must not exceed 256 characters"),
-    ]
-
-    section_desc_rules = [  
-        (lambda text: len(text) >= 5, "Section description must be at least 5 characters long"),
-        (lambda text: len(text) <= 512, "Section description must not exceed 512 characters"),
-    ]
 
     qflag = {}
     qcheck = [False] 
@@ -342,10 +367,11 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]], fi
                 result[f"title{scounter}"] = msg
                 each_qdata_bool.append(True)
 
-        for check, msg in section_desc_rules:
-            if not check(svy_section.get("description")):
-                result[f"description{scounter}"] = msg
-                each_qdata_bool.append(True)
+        if svy_section.get("description"):
+            for check, msg in section_desc_rules:
+                if not check(svy_section.get("description")):
+                    result[f"description{scounter}"] = msg
+                    each_qdata_bool.append(True)
 
         for qcounter, q_dict in enumerate(svy_section.get("questions"), start=1):
             
@@ -400,26 +426,26 @@ def handle_mobile_survey_input_requirements(svy_questions: list[dict[str, Any]])
     """
     
     question_text_rules=[
-        (lambda question: len(question) >= 4, "Question must be at least 4 words"),
-        (lambda question: len(question) <= 150, "Question must not exceed 150 words"),
-        (lambda question: len(" ".join(question)) <= 2000, "Question must not exceed 2000 characters"),
+        (lambda question: len(question) >= 3,               "Question must be at least 3 words"),
+        (lambda question: len(question) <= 150,             "Question must not exceed 150 words"),
+        (lambda question: len(" ".join(question)) <= 2000,  "Question must not exceed 2000 characters"),
     ]
+
     type_rules=[
         (lambda qtype: qtype in Question_type_inter.Q_TYPE_MOBILE, f"Wrong question type, please choose within [{", ".join(Question_type_inter.Q_TYPE_MOBILE)}]"),
     ]
 
     choices_text_rules = [
-        (lambda c_text: len(c_text) >= 1, "Choice text must be at least 1 character long"),
-        (lambda ctext: len(ctext) <= 500, "Choice text must not exceed 500 character")
+        (lambda c_text: len(c_text) >= 1,   "Choice text must be at least 1 character long"),
+        (lambda ctext: len(ctext) <= 500,   "Choice text must not exceed 500 character")
     ]
 
     section_title_rules = [
-        (lambda text: len(text) >= 5, "Section title must be at least 5 characters long"),
+        (lambda text: len(text) >= 5,   "Section title must be at least 5 characters long"),
         (lambda text: len(text) <= 256, "Section title must not exceed 256 characters"),
     ]
 
     section_desc_rules = [  
-        (lambda text: len(text) >= 5, "Section title must be at least 5 characters long"),
         (lambda text: len(text) <= 512, "Section title must not exceed 512 characters"),
     ]
 
@@ -428,40 +454,43 @@ def handle_mobile_survey_input_requirements(svy_questions: list[dict[str, Any]])
 
     for qcounter, svy_question in enumerate(svy_questions, start=1):
         result = {}
-        each_qdata_bool = []
+
+        title = svy_question.get("title").split()
 
         for check, msg in question_text_rules:
-            if not check(svy_question.get("title")):
+            if not check(title):
                 result[f"title{qcounter}"] = msg
-                each_qdata_bool.append(True)
                 break
 
         for check, msg in type_rules:
             if not check(svy_question.get("type")):
                 result[f"type{qcounter}"] = msg
-                each_qdata_bool.append(True)
                 break
 
         if svy_question.get("type") in Question_type_inter.CHOICES_TYPE_MOBILE:
             for check, msg in choices_text_rules:
                 if not svy_question.get("options"):
                     result[f"options{qcounter}"] = msg
-                    each_qdata_bool.append(True)
                     break
 
         for check, msg in section_title_rules:
             if not check(svy_question.get("sectionId")): 
                 result[f"sectionId{qcounter}"] = msg
-                each_qdata_bool.append(True)
                 break
+
+        if svy_question.get("description"):
+            for check, msg in section_desc_rules:
+                if not check(svy_question.get("description")):
+                    result[f"title{qcounter}"] = msg
+                    break
 
         if result:
             qflag[f"Question{qcounter}"] = result
-            qcheck.append(any(each_qdata_bool))
+            qcheck.append(True)
 
     return qflag, any(qcheck)
 
-def handle_survey_misc_input_exists(approx_time: str, tags: str, target_audicne: str) -> tuple[dict, bool]:
+def handle_survey_misc_input_exists(approx_time: str, tags: list, target_audicne: list) -> tuple[dict, bool]:
     result = {}
     extra_flag = []
 
@@ -479,40 +508,56 @@ def handle_survey_misc_input_exists(approx_time: str, tags: str, target_audicne:
 
     return result, any(extra_flag)
 
-def handle_survey_misc_input_requirements(approx_time: str, tags: str, target_audicne: str) -> tuple[dict, bool]:
+def handle_survey_misc_input_requirements(approx_time: str, tags: list, target_audiences: list) -> tuple[dict, bool]:
     result = {}
     extra_flag = []
 
+    list_length_rules = lambda lenths: len(lenths) <= 5
+
     approx_time_rules = [
-        (lambda at: len(at) >= 1, "Approx time must be at least 1 character long"),
-        (lambda at: len(at) <= 128, "Approx time must must not exceed 128 character"),
+        (lambda at: len(at) >= 1,       "Approx time must be at least 1 character long"),
+        (lambda at: len(at) <= 128,     "Approx time must must not exceed 128 character"),
     ]
 
     tags_rules = [
-        (lambda at: len(at) >= 1, "Approx time must be at least 1 character long"),
-        (lambda at: len(at) <= 128, "Approx time must must not exceed 128 character"),
+        (lambda tr: len(tr) >= 1,           "Tags text must be at least 1 character long"),
+        (lambda tr: len(tr) <= 32,          "Tags text must must not exceed 32 character"),
+        (lambda tr: len(tr.split()) <= 2,   "Tags text words must must not exceed 2 words"),
     ]
 
     target_audience_rules = [
-        (lambda at: len(at) >= 1, "Approx time must be at least 1 character long"),
-        (lambda at: len(at) <= 256, "Approx time must must not exceed 256 character"),
+        (lambda ta: len(ta) >= 1,           "target audeience text must be at least 1 character long"),
+        (lambda ta: len(ta) <= 32,          "target audeience text must must not exceed 32 character"),
+        (lambda ta: len(ta.split()) <= 2,   "target audeience words must must not exceed 2 words"),
     ]
+
+    if not list_length_rules(tags):
+        result["length_tags"] = "Chosen tags are limited to 5 choices"
+        extra_flag.append(True)
+    
+    if not list_length_rules(target_audiences):
+        result["length_target_audience"] = "Chosen target audience are limited to 5 choices"
+        extra_flag.append(True)
 
     for check, msg in approx_time_rules:
         if not check(approx_time):
             result["approx_time"] = msg
             extra_flag.append(True)
             break
-    for check, msg in tags_rules:
-        if not check(tags):
-            result["tags"] = msg
-            extra_flag.append(True)
-            break
-    for check, msg in target_audience_rules:
-        if not check(target_audicne):
-            result["target_audicne"] = "Missing target audicne"
-            extra_flag.append(True)
-            break
+
+    for tcounter, tag in enumerate(tags):    
+        for check, msg in tags_rules:
+            if not check(tag):
+                result[f"tags{tcounter}"] = msg
+                extra_flag.append(True)
+                break
+            
+    for tcounter, ta in enumerate(target_audiences):
+        for check, msg in target_audience_rules:
+            if not check(ta):
+                result[f"target_audience{tcounter}"] = msg
+                extra_flag.append(True)
+                break
 
     return result, any(extra_flag)
 
@@ -558,6 +603,16 @@ def handle_category_requirements(category: str) -> tuple[str, bool]:
     return message, flag
 
 def handle_user_info_requirements(username: str, school: str, program: str) -> tuple[dict, bool]:
+    """Helper method to validate user info update requirements e.g. school msut be x characters long
+
+    Args:
+        username (str): username
+        school (str): school e.g. LSPU
+        program (str): program/course e.g. BSIT
+
+    Returns:
+        tuple[dict, bool]: _description_
+    """
 
     result = {}
     flag = []
@@ -565,6 +620,7 @@ def handle_user_info_requirements(username: str, school: str, program: str) -> t
     useranme_rules = [
         (lambda usnm: len(usnm) >= 4,  "Username must be at least 4 characters"),
         (lambda usnm: len(usnm) <= 36, "Username must not exceed 36 characters"),
+        (lambda usnm: usnm.split() <= 1, "Username must be 1 word only"),
     ]
 
     school_rules = [
@@ -596,3 +652,34 @@ def handle_user_info_requirements(username: str, school: str, program: str) -> t
             break
 
     return result, any(flag)
+
+def handle_user_answer_required(responses: dict[str, dict], sections_db: list[Section]) -> tuple[dict, bool]:
+    """Helper method to check if answer is missing on required questions
+
+    Args:
+        responses (dict[str, dict]): JSON response of the user
+        sections_db (list[Section]): sections of the survey database
+
+    Returns:
+        tuple[dict, bool]: message and flag to check, True if its missing - false otherwise
+    """
+
+    result = {}
+
+    for scounter, section in enumerate(sections_db, start=1):
+        
+        section_id = section.another_id
+        resp_section = responses.get(section_id)
+
+        if not resp_section:
+            result[f"section{scounter}"] = f"Section {scounter} is missing"
+            continue
+
+        for question in section.question_section:
+
+            resp_answer_text = resp_section.get(question.another_id)
+
+            if question.answer_required and not resp_answer_text:
+                result[f"question{scounter}"] = f"Question {scounter}: Answer is missing"
+
+    return result, bool(result)

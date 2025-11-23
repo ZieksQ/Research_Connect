@@ -33,7 +33,7 @@ def user_register():
     validate_result, exists_flag = handle_user_input_exist(username, password)
     if exists_flag:
         logger.error(validate_result)
-        return jsonify_template_user(400, False, validate_result )
+        return jsonify_template_user(404, False, validate_result )
     
     validate_user_requirements, req_flag = handle_validate_requirements(username, password)
     if req_flag:
@@ -133,7 +133,7 @@ def profile_upload():
                                                                file_options={"content-type": profile_pic.content_type})
     except Exception as e:
         logger.exception(f"Exception type: {type(e).__name__}, message: {e}")
-        return jsonify_template_user(500, False, type(e).__name__)
+        return jsonify_template_user(500, False, str(e))
     
     logger.info(resp)
     if hasattr(resp, "error"):

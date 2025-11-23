@@ -1,5 +1,6 @@
 from flask import request
 from typing import Any
+from dateutil import parser
 import os, string
 from App.models.model_enums import QuestionType, Question_type_inter
 from App.models.model_survey_q_a import Section
@@ -32,6 +33,24 @@ def handle_profile_pic(file) -> tuple[str | None, bool]:
 
     return None, False
 
+def handle_date_auto_format(date_str: str) -> str | None:
+    """Helper method to unify date format from different frontend
+
+    Args:
+        date_str (str): date format from the frontend
+
+    Returns:
+        (str | None): Returns a string date format of YYYY-MM-DD or none if the date is unacceptable
+    """
+    try:
+        parsed_date = parser.parse(date_str)
+
+        normalized_date = parsed_date.strftime("%Y-%m-%d")
+
+        return normalized_date
+    except Exception as e:
+        return None
+    
 
 def handle_user_input_exist(username: str, password: str) -> tuple[dict, bool]:
     """validate user input whether it exist or not
@@ -76,6 +95,7 @@ def handle_validate_requirements(username: str, password: str) -> tuple[dict, bo
     useranme_rules = [
         (lambda usnm: len(usnm) >= 4,  "Username must be at least 4 characters"),
         (lambda usnm: len(usnm) <= 36, "Username must not exceed 36 characters"),
+        (lambda usnm: usnm.split() <= 1, "Username must be 1 word only"),
     ]
 
     password_rules = [
@@ -374,19 +394,19 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]], fi
             
             for check, msg in question_text_rules:
                 if not check(q_dict.get("title")):
-                    question_result.append(msg)
+                    question_result.append(f"Question{qcounter}: {msg}")
                     break
 
             for check, msg in type_rules:
                 if not check(q_dict.get("type")):
-                    question_result.append(msg)
+                    question_result.append(f"Question{qcounter}: {msg}")
                     break
 
             if q_dict.get("type") in Question_type_inter.Q_TYPE_WEB:
                 for option in q_dict.get("options"):
                     for check, msg in choices_text_rules:
                         if not check(option):
-                            question_result.append(msg)
+                            question_result.append(f"Question{qcounter}: {msg}")
                             break
 
             if q_dict.get("image"):
@@ -395,7 +415,7 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]], fi
                 img_file = files_dict.get(img_name)
                 img_msg, img_flag = handle_profile_pic(img_file)
                 if img_flag:
-                    question_result.append(img_msg)
+                    question_result.append(f"Question{qcounter}: {img_msg}")
 
             if question_result:
                 result.append(question_result)
@@ -509,7 +529,7 @@ def handle_survey_misc_input_exists(approx_time: str, tags: list, target_audicne
         extra_flag.append(True)
 
     if not target_audicne:
-        result["target_audicne"] = "Missing target audicne"
+        result["target_audience"] = "Missing target audience"
         extra_flag.append(True)
 
     return result, any(extra_flag)
@@ -670,7 +690,7 @@ def handle_user_answer_required(responses: dict[str, dict], sections_db: list[Se
         tuple[dict, bool]: message and flag to check, True if its missing - false otherwise
     """
 
-    result = {}
+    result = []
 
     for scounter, section in enumerate(sections_db, start=1):
         
@@ -678,14 +698,18 @@ def handle_user_answer_required(responses: dict[str, dict], sections_db: list[Se
         resp_section = responses.get(section_id)
 
         if not resp_section:
-            result[f"section{scounter}"] = f"Section {scounter} is missing"
+            result.append(f"Section {scounter} is missing")
             continue
 
-        for question in section.question_section:
+        for qcounter, question in enumerate(section.question_section):
 
             resp_answer_text = resp_section.get(question.another_id)
 
             if question.answer_required and not resp_answer_text:
-                result[f"question{scounter}"] = f"Question {scounter}: Answer is missing"
+                result.append(f"Section{scounter} - Question{qcounter}: Answer is missing")
+
+            if question.q_type == QuestionType.DATE.value:
+                if not handle_date_auto_format(resp_answer_text):
+                    result.append(f"Section{scounter} - Question{qcounter}: Wrong date format")
 
     return result, bool(result)

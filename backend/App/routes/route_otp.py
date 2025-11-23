@@ -188,6 +188,9 @@ def reset_pssw():
 @limiter.limit("3 per minute;100 per hour; 30 per day")
 def enter_email():
 
+    data: dict = request.get_json()
+    otp = data.get("otp")
+
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
 
@@ -195,10 +198,13 @@ def enter_email():
         logger.info("Someone tried to access the reset password without logging in")
         return jsonify_template_user(401, False, "You need to log in to access this")
     
+    if not otp:
+        logger.error(f"{user.id} did not provide an otp")
+        return jsonify_template_user(400, False, "Missing OTP, please input the OTP we provided")
+    
     who_user = who_user_query(user.id, user.user_type)
 
     user_check = handle_password_reset_user(who_user)
-    otp = session.get("otp")
     email = session.get("email")
     otp_db: OTP = who_user.otp
 
@@ -219,7 +225,12 @@ def enter_email():
         logger.error("User tampered with the session OTP")
         return jsonify_template_user(400, False, "Look man, please dont tamper with the session's OTP")
     
+    if otp_db.is_used:
+        logger.info("User tried to input a used OTP")
+        return jsonify_template_user(409, False, "This OTP have been used")
+    
     who_user.email = email
+    otp_db.is_used = True
 
     succ, err = commit_session()
     if not succ:

@@ -7,7 +7,6 @@ from functools import wraps
 from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
-from pprint import pprint
 from App.database import db_session as db
 from App.models.model_post import Posts, Category
 from App.models.model_survey_q_a import Surveys, Question, Answers, Choice, Question_Image, Section
@@ -20,7 +19,7 @@ from App.helper_methods import ( jsonify_template_user, commit_session, flush_se
 from App.helper_user_validation import (handle_post_input_exist, handle_post_requirements, handle_web_survey_input_exist, 
                                         handle_web_survey_input_requirements, handle_Mobile_survey_input_exist, 
                                         handle_mobile_survey_input_requirements, handle_survey_misc_input_requirements,
-                                        handle_survey_misc_input_exists, handle_user_answer_required)
+                                        handle_survey_misc_input_exists, handle_user_answer_required, handle_date_auto_format)
 
 
 # Sets up the logger from my helper file
@@ -206,7 +205,7 @@ def survey_is_answered():
 
     if not user:
         logger.info("User tried to access survey_is_answered without registering")
-        return jsonify_template_user(404, False, "Please log in to use this")
+        return jsonify_template_user(401, False, "Please log in to use this")
 
     if not survey_id:
         logger.info(f"User {user_id} tampered with the json")
@@ -267,7 +266,7 @@ def answer_questionnaire(id):
 
     answer_msg, answer_flag = handle_user_answer_required(responses, sections)
     if answer_flag:
-        logger.info(f"{user_id} tried to bypass a required answer")
+        logger.info(f"{user_id} tried to bypass a required answer or inputed a wrong date format")
         return jsonify_template_user(400, False, answer_msg, extra_msg="You know you are required to answer that")
 
     for section in sections:
@@ -280,15 +279,21 @@ def answer_questionnaire(id):
         for question in section.question_section:
 
             resp_answer_text = resp_section.get(question.another_id)
+            q_type = question.q_type
 
-            if question.q_type in Question_type_inter.CHOICES_TYPE_WEB:
+            if q_type in Question_type_inter.CHOICES_TYPE_WEB:
                 for rqt in resp_answer_text:
                     answer = Answers(user=user, answer_text=rqt)
                     question.answers.append(answer)
-                continue
-            
-            answer = Answers(user=user, answer_text=resp_answer_text)
-            question.answers.append(answer)
+                    
+            elif q_type == QuestionType.DATE.value:
+                ans = handle_date_auto_format(resp_answer_text)
+                answer = Answers(user=user, answer_text=ans)
+                question.answers.append(answer)
+
+            else:
+                answer = Answers(user=user, answer_text=resp_answer_text)
+                question.answers.append(answer)
 
     user_survey_answered = RootUser_Survey(user=user, survey=survey)
 
@@ -372,33 +377,56 @@ def survey_responses(id):
     
     text_data = {}
     choice_data = {}
+    dates_data = {}
 
     for section in survey.section_survey:
         for question in section.question_section:
 
-            if question.q_type in Question_type_inter.CHOICES_TYPE_WEB:
+            q_id = question.id
+            q_another_id = question.another_id
+            q_text = question.question_text
+            q_type = question.q_type
+
+            if q_type in (Question_type_inter.CHOICES_TYPE_WEB):
 
                 stmt = select( Answers.answer_text, func.count(Answers.id)
                                 ).where(
-                                    Answers.question_id == question.id
+                                    Answers.question_id == q_id
                                     ).group_by( Answers.answer_text )
                 
                 datas = db.execute(stmt).all()
                 q_options_data = {data[0]: data[1] for data in datas}
 
-                choice_data[f"{question.another_id}"] = {
-                    "question_text": question.question_text,
+                choice_data[q_another_id] = {
+                    "question_text": q_text,
+                    "type": q_type,
                     "answer_data": q_options_data,
                     }
+            
+            elif q_type == QuestionType.DATE.value:
+
+                stmt = select( Answers.answer_text, func.count(Answers.id)
+                                ).where(
+                                    Answers.question_id == q_id
+                                    ).group_by( Answers.answer_text )
                 
-            if question.q_type not in Question_type_inter.CHOICES_TYPE_WEB:
-                
+                datas = db.execute(stmt).all()
+                q_options_data = {data[0]: data[1] for data in datas}
+
+                dates_data[q_another_id] = {
+                    "question_text": q_text,
+                    "type": q_type,
+                    "answer_data": q_options_data,
+                    }
+
+            else:                
                 stmt = select(Answers.answer_text
-                            ).where( Answers.question_id == question.id )
+                            ).where( Answers.question_id == q_id )
                 datas = db.scalars(stmt).all()
 
-                text_data[f"{question.another_id}"] = {
-                    "question_text": question.question_text,
+                text_data[q_another_id] = {
+                    "question_text": q_text,
+                    "type": q_type,
                     "answer_data": datas,
                 }
             
@@ -411,7 +439,8 @@ def survey_responses(id):
         "survey_approx_time": survey.approx_time,
         "survey_target_audience": survey.target_audience,
         "choices_data": choice_data if choice_data else "There is no data for choices type of queston",
-        "text_data": text_data if text_data else "There is not data for the other type of question",
+        "dates_data": dates_data if dates_data else "There is no data for the dates type of question",
+        "text_data": text_data if text_data else "There is no data for the other type of question",
     }
 
     return jsonify_template_user(200, False, data)
@@ -537,7 +566,6 @@ def send_post_survey_web():
         logger.info(svy_misc_msg_req)
         return jsonify_template_user(422, False, svy_misc_msg_req)
 
-
     post = Posts( title=survey_title, content=survey_content, 
                  user=user, category=tags, target_audience = target_audience )
     
@@ -582,7 +610,7 @@ def send_post_survey_web():
                                                                         file_options={"content-type": img.content_type})
                 except Exception as e:
                     logger.exception(f"Exception type: {type(e).__name__}, message: {e}")
-                    return jsonify_template_user(500, False, type(e).__name__)
+                    return jsonify_template_user(500, False, str(e))
                 
                 public_url = supabase_client.storage.from_("question_img").get_public_url(path=filename)
                 question_img.img_url = public_url
@@ -703,23 +731,14 @@ def send_post_survey_mobile():
         return jsonify_template_user(404, False, svy_misc_msg_req)
     
     post = Posts(title=survey_title, content=post_caption, 
-                 user=user, category=[], 
-                 target_audience=[])
+                 user=user, category=tags, target_audience=target_audience)
     survey = Surveys(title=survey_title, content=survey_content, 
-                     tags=[], target_audience=[],
+                     tags=tags, target_audience=target_audience,
                      posts_survey=post, approx_time=approx_time)
     
     for section in svy_sections:
         section_db = Section(another_id=section.get("id") ,title=section.get("title"), desc=section.get("description"))
         survey.section_survey.append(section_db)
-
-    for ta in target_audience:
-        post.target_audience.append(ta)
-        survey.target_audience.append(ta)
-    
-    for t in tags:
-        post.category.append(t)
-        survey.tags.append(t)
         
     db.add(post)
     succ, err = flush_session()

@@ -1,27 +1,57 @@
 {
-  "post_title": "AI and Human Interaction",
-  "post_content": "This post explores how humans engage with AI...",
-  "survey_title": "This post explores how humans engage with AI...",
-  "survey_content": "This post explores how humans engage with AI...",
-
-  "survey_questions": {
-    "questionNo.1": {
-      "question": "What is the capital of France?",
-      "type": "multiple_choice",
-      "choice": ["Paris", "London", "Berlin"]
+  "choices_data": {
+    "question_3221": {
+      "quesiton_text": "Choose between these 4",
+      "answer_data": {
+        "1": 123,
+        "2": 523,
+        "3": 567,
+        "4": 198
+      }
     },
-    "questionNo.2": {
-      "question": "Which language is primarily used for Android app development?",
-      "type": "multiple_choice",
-      "choice": ["Kotlin", "Swift", "JavaScript"]
+    "question_3223": {
+      "quesiton_text": "Am i your favorite?",
+      "answer_data": {
+        "yes": 2,
+        "no": 5,
+        "neither": 7,
+        "maybe": 10000
+      }
+    }
+  },
+  "text_data": {
+    "question_123": {
+      "question_text": "What is the size of the sun",
+      "answer_data": [
+        "ansers",
+        "ansers",
+        "ansers",
+        "ansers",
+        "ansers",
+        "ansers"
+      ]
     },
-    "questionNo.3": {
-      "question": "Explain the importance of data structures in computer science.",
-      "type": "essay"
+    "question_1234": {
+      "question_text": "Givbe me your email",
+      "answer_data": [
+        "ansers",
+        "ansers",
+        "ansers",
+        "ansers",
+        "ansers",
+        "ansers"
+      ]
     },
-    "questionNo.4": {
-      "question": "Describe a real-world scenario where machine learning can be applied.",
-      "type": "essay"
+    "question_1235": {
+      "question_text": "Tell me about yourself",
+      "answer_data": [
+        "ansers",
+        "ansers",
+        "ansers",
+        "ansers",
+        "ansers",
+        "ansers"
+      ]
     }
   }
 }

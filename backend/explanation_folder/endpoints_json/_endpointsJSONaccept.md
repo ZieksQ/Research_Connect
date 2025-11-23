@@ -213,6 +213,17 @@ status is jus either "open" or close
 }
 ```
 
+> #### http://127.0.0.1:5000/api/otp/enter_email
+>
+> Password must meet the requirements
+> This only works for users who have logged in using Inquira/Local
+
+```JSON
+{
+	"new_password" : "@Acob12345"
+}
+```
+
 <br>
 
 # /api/admin

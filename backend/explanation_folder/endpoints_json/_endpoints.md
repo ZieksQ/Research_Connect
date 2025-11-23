@@ -41,30 +41,12 @@ POST - http://127.0.0.1:5000/api/survey/questionnaire/is_answered
 
 PATCH - http://127.0.0.1:5000/api/survey/post/archive
 PATCH - http://127.0.0.1:5000/api/survey/post/update_data
-
-# Deprecated use the web and mobile instead
-POST - http://127.0.0.1:5000/api/survey/post/send/questionnaire
-
-DONT use this, deprecated
-POST - http://127.0.0.1:5000/api/survey/post/send
-
-DONT use this, deprecated
-POST - http://127.0.0.1:5000/api/survey/post/questionnaire
 ```
 
 ## /api/oauth
 ```bash
 Dont call this, change the url of the frontend using windows.location.href or something. chatgpt it, for web redicrect_url=react and for flutter redicrect_url=flutter
 http://localhost:5000/api/oauth/login?redirect_url=react
-
-get ID
-DONT use this deprecated
-http://127.0.0.1:5000/api/oauth/protected
-
-DONT use this deprecated, use the route_auth or /api/user logout
-di ko alam bat may separate logout oauth, gagana nmansa siguro both logout, 
-please dont ever use this, ts not secure, use the one from the /user is the same funciton
-http://127.0.0.1:5000/api/oauth/logout
 ```
 
 ## /api/otp
@@ -74,6 +56,9 @@ POST - http://127.0.0.1:5000/api/otp/input_otp
 
 THIS only works for Users that have logged in using Inquira/Local
 PATCH - http://127.0.0.1:5000/api/otp/reset_pssw
+
+THIS only works for Users that have logged in using Inquira/Local
+PATCH - http://127.0.0.1:5000/api/otp/enter_email
 ```
 
 ## /api/admin

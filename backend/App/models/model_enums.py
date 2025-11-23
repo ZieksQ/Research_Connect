@@ -26,6 +26,7 @@ class PostStatus(Enum):
 class Question_type_inter:
     CHOICES_TYPE_WEB = ("radioButton", "checkBox", "dropdown")
     CHOICES_TYPE_MOBILE = ("radioButton", "checkBox", "dropdown")
+    CHOICES_MAX_MIN_TYPE_MOBILE = ("checkBox", "dropdown")
     Q_TYPE_WEB = ("shortText", "longText", "radioButton", "checkBox", "rating", "dropdown", "date", "email")
     Q_TYPE_MOBILE = ("shortText", "longText", "radioButton", "checkBox", "rating", "dropdown", "date", "email")
     WORD_TYPE = (QuestionType.SHORTTEXT.value, QuestionType.LONGTEXT.value)

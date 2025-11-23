@@ -197,51 +197,48 @@ def handle_web_survey_input_exist(svy_questions: list[dict[str, Any]]) -> tuple[
         return ["Survey is empty"], True
     
     for scounter, svy_section in enumerate(svy_questions, start=1):
-        result = {}
+        result = []
 
         if not svy_section:
-            result[f"section"] = f"Section {scounter} is missing"
-            continue
+            result.append(f"Section {scounter} is missing")
         
         if not svy_section.get("id"):
-            result[f"id"] = f"Section {scounter}: Id is missing"
+            result.append(f"Section {scounter}: Id is missing")
 
         if not svy_section.get("title"):
-            result[f"description"] = f"Section {scounter}: Title is missing"
+            result.append(f"Section {scounter}: Title is missing")
 
         if not svy_section.get("questions"):
-            result[f"questions"] = f"Section {scounter}: Quesitons is missing"
-            continue
+            result.append(f"Section {scounter}: Quesitons is missing")
 
         for qcounter, q_dict in enumerate(svy_section.get("questions"), start=1):
-            question_result = {}
+            question_result = []
             
             if not q_dict:
-                question_result[f"question"] = f"Question {qcounter} is missing"
-                continue
+                question_result.append(f"Question {qcounter} is missing")
 
             if not q_dict.get("title"):
-                question_result[f"title"] = f"Question {qcounter}: Title is missing"
+                question_result.append(f"Question {qcounter}: Title is missing")
 
             if not q_dict.get("minChoices"):
-                question_result[f"minChoices"] = f"Question {qcounter}: Min Choices is missing"
+                question_result.append(f"Question {qcounter}: Min Choices is missing")
                 
             if not q_dict.get("maxChoices"):
-                question_result[f"maxChoices"] = f"Question {qcounter}: Max Choices is missing"
+                question_result.append(f"Question {qcounter}: Max Choices is missing")
 
             if not q_dict.get("type"):
-                question_result[f"type"] = f"Question {qcounter}: Type is missing"
+                question_result.append(f"Question {qcounter}: Type is missing")
 
             if q_dict.get("type") in Question_type_inter.CHOICES_TYPE_WEB:
                 if not q_dict.get("options"):
-                    question_result[f"options"] = f"Question {qcounter}: Options is missing"
+                    question_result.append(f"Question {qcounter}: Options is missing")
 
             if q_dict.get("type") == QuestionType.RATING.value:
                 if not q_dict.get("maxRating"):
-                    question_result["maxRating"] = f"Quesiton {qcounter}: Max rating is missing"
+                    question_result.append(f"Quesiton {qcounter}: Max rating is missing")
 
             if question_result: 
-                result[f"Question{qcounter}"] = question_result
+                result.append(question_result)
                 each_qcheck_bool.append(True)
 
         if result:
@@ -274,44 +271,44 @@ def handle_Mobile_survey_input_exist(svy_questions: list[dict[str, Any]], sectio
         return ["Survey is empty"], True
     
     for scounter, svy_section in enumerate(sections, start=1):
-        result = {}
+        result = []
 
         if not svy_section.get("id"):
-            result["id"] = f"Section {scounter}: ID is missing"
+            result.append("ID is missing")
 
         if not svy_section.get("title"):
-            result["title"] = f"Section {scounter}: Title is missing"
+            result.append("Title is missing")
 
         if result:
-            qflag["sections"][f"Questions{scounter}"] = result
+            qflag["sections"][f"Section{scounter}"] = result
             each_qcheck_bool.append(True)
     
     for qcounter, svy_question in enumerate(svy_questions, start=1):
-        result = {}
+        result = []
 
         if not svy_question.get("questionId"):
-            result[f"id"] = f"Question {qcounter}: ID is missing"
+            result.append("ID is missing")
 
-        if not svy_question.get("text"):
-            result[f"text"] = f"Question {qcounter}: Title is missing"
+        if not svy_question.get("title"):
+            result.append("Title is missing")
 
         if not svy_question.get("type"):
-            result[f"type"] = f"Question {qcounter}: Type is missing"
+            result.append("Type is missing")
 
         if not svy_question.get("sectionId"): 
-            result[f"sectionId"] = f"Question {qcounter}: Seciton ID is missing"
+            result.append("Seciton ID is missing")
 
         if svy_question.get("type") in Question_type_inter.CHOICES_MAX_MIN_TYPE_MOBILE:
             if not svy_question.get("options"):
-                result[f"options"] = f"Question {qcounter}: Options is missing"
+                result.append("Options is missing")
             if not svy_question.get("minChoice"):
-                result[f"minChoice"] = f"Question {qcounter}: Min choice is missing"
+                result.append("Min choice is missing")
             if not svy_question.get("maxChoice"):
-                result[f"maxChoice"] = f"Question {qcounter}: Max choice is missing"
+                result.append("Max choice is missing")
             
         if svy_question.get("type") == QuestionType.RATING.value:
             if not svy_question.get("maxRating"):
-                result["maxRating"] = f"Question {qcounter}: Max rating is missing"
+                result.append("Max rating is missing")
 
         if result:
             qflag["questions"][f"Question{qcounter}"] = result
@@ -359,45 +356,37 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]], fi
     qcheck = [False] 
 
     for scounter, svy_section in enumerate(svy_questions, start=1):
-        result = {}
-        each_qdata_bool = []
+        result = []
 
         for check, msg in section_title_rules:
             if not check(svy_section.get("title")):
-                result[f"title{scounter}"] = msg
-                each_qdata_bool.append(True)
+                result.append(msg)
+                break
 
         if svy_section.get("description"):
             for check, msg in section_desc_rules:
                 if not check(svy_section.get("description")):
-                    result[f"description{scounter}"] = msg
-                    each_qdata_bool.append(True)
+                    result.append(msg)
+                    break
 
         for qcounter, q_dict in enumerate(svy_section.get("questions"), start=1):
-            
-            if not q_dict:
-                result[f"question{qcounter}"] = f"Question {qcounter} is missing"
-                each_qdata_bool.append(True)
-                continue
+            question_result = []
             
             for check, msg in question_text_rules:
                 if not check(q_dict.get("title")):
-                    result[f"title"] = msg
-                    each_qdata_bool.append(True)
+                    question_result.append(msg)
                     break
 
             for check, msg in type_rules:
                 if not check(q_dict.get("type")):
-                    result[f"type"] = msg
-                    each_qdata_bool.append(True)
+                    question_result.append(msg)
                     break
 
             if q_dict.get("type") in Question_type_inter.Q_TYPE_WEB:
-                for op_counter, option in enumerate(q_dict.get("options")):
+                for option in q_dict.get("options"):
                     for check, msg in choices_text_rules:
                         if not check(option):
-                            result[f"option{op_counter}"] = msg
-                            each_qdata_bool.append(True)
+                            question_result.append(msg)
                             break
 
             if q_dict.get("image"):
@@ -406,16 +395,19 @@ def handle_web_survey_input_requirements(svy_questions: list[dict[str, Any]], fi
                 img_file = files_dict.get(img_name)
                 img_msg, img_flag = handle_profile_pic(img_file)
                 if img_flag:
-                    result[f"img"] = img_msg
-                    each_qdata_bool.append(True)
+                    question_result.append(img_msg)
+
+            if question_result:
+                result.append(question_result)
+                qcheck.append(True)
 
         if result:
             qflag[f"Section{scounter}"] = result
-            qcheck.append(any(each_qdata_bool))
+            qcheck.append(True)
 
     return qflag, any(qcheck)
 
-def handle_mobile_survey_input_requirements(svy_questions: list[dict[str, Any]]) -> tuple[list, bool]:
+def handle_mobile_survey_input_requirements(svy_questions: list[dict[str, Any]], sections: list[dict[str, Any]]) -> tuple[list, bool]:
     """Mobile version: validate each survey questionnaire so each data meets the desired output
 
     Args:
@@ -449,46 +441,60 @@ def handle_mobile_survey_input_requirements(svy_questions: list[dict[str, Any]])
         (lambda text: len(text) <= 512, "Section title must not exceed 512 characters"),
     ]
 
-    qflag = {}
-    qcheck = []
+    qflag = {
+        "sections": {},
+        "questions": {},
+    }
+    each_qcheck_bool = []
 
+    if not sections:
+        return ["Sections is empty"], True
+    
+    if not svy_questions:
+        return ["Survey is empty"], True
+    
+    for scounter, svy_section in enumerate(sections, start=1):
+        result = []
+
+        for check, msg in section_title_rules:
+            if not check(svy_section.get("title")):
+                result.append(msg)
+                break
+
+        for check, msg in section_desc_rules:
+            if not check(svy_section.get("description")):
+                result.append(msg)
+                break
+
+        if result:
+            qflag["sections"][f"Section{scounter}"] = result
+            each_qcheck_bool.append(True)
+    
     for qcounter, svy_question in enumerate(svy_questions, start=1):
-        result = {}
-
-        title = svy_question.get("text").split()
+        result = []
 
         for check, msg in question_text_rules:
-            if not check(title):
-                result[f"title{qcounter}"] = msg
+            if not check(svy_question.get("title")):
+                result.append(msg)
                 break
 
         for check, msg in type_rules:
             if not check(svy_question.get("type")):
-                result[f"type{qcounter}"] = msg
+                result.append(msg)
                 break
 
-        if svy_question.get("type") in Question_type_inter.CHOICES_TYPE_MOBILE:
-            for check, msg in choices_text_rules:
-                if not svy_question.get("options"):
-                    result[f"options{qcounter}"] = msg
-                    break
-
-        for check, msg in section_title_rules:
-            if not check(svy_question.get("sectionId")): 
-                result[f"sectionId{qcounter}"] = msg
-                break
-
-        if svy_question.get("description"):
-            for check, msg in section_desc_rules:
-                if not check(svy_question.get("description")):
-                    result[f"title{qcounter}"] = msg
-                    break
+        if svy_question.get("type") in Question_type_inter.CHOICES_MAX_MIN_TYPE_MOBILE:
+            for option in svy_question.get("options"):
+                for check, msg in choices_text_rules:
+                    if not check(option):
+                        result.append(msg)
+                        break
 
         if result:
-            qflag[f"Question{qcounter}"] = result
-            qcheck.append(True)
+            qflag["questions"][f"Question{qcounter}"] = result
+            each_qcheck_bool.append(True)
 
-    return qflag, any(qcheck)
+    return qflag, any(each_qcheck_bool)
 
 def handle_survey_misc_input_exists(approx_time: str, tags: list, target_audicne: list) -> tuple[dict, bool]:
     result = {}

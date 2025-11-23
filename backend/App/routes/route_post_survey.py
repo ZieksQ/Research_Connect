@@ -386,7 +386,7 @@ def survey_responses(id):
                 datas = db.execute(stmt).all()
                 q_options_data = {data[0]: data[1] for data in datas}
 
-                choice_data[f"question_{question.question_number}"] = {
+                choice_data[f"{question.another_id}"] = {
                     "question_text": question.question_text,
                     "answer_data": q_options_data,
                     }
@@ -395,11 +395,11 @@ def survey_responses(id):
                 
                 stmt = select(Answers.answer_text
                             ).where( Answers.question_id == question.id )
-                data = db.scalars(stmt).all()
+                datas = db.scalars(stmt).all()
 
-                text_data[f"question_{question.question_number}"] = {
+                text_data[f"{question.another_id}"] = {
                     "question_text": question.question_text,
-                    "answer_data": data,
+                    "answer_data": datas,
                 }
             
     logger.info(f"{user_id} has fetch the data for survey No. {id}")
@@ -429,10 +429,10 @@ def survey_count_questions(id):
         return jsonify_template_user(404, False, "The survey does not exists")
         
     stmt = select(Section.id, func.count(Question.id)
-                  ).where(
-                      Section.survey_id == survey.id
                   ).join(
                       Question
+                  ).where(
+                      Section.survey_id == survey.id
                   ).group_by(
                       Section.id
                   )
@@ -493,7 +493,7 @@ def send_post_survey_web():
         return jsonify_template_user(400, False, "You did not provide any data for the survey")
 
     data: dict = json.loads(raw_json)
-    files_dict: dict = request.files.to_dict(flat=True)
+    files_dict = request.files.to_dict(flat=True)
 
     survey_title: str = data.get("surveyTitle", "")
     survey_content: str = data.get("surveyDescription", "")
@@ -539,13 +539,11 @@ def send_post_survey_web():
         return jsonify_template_user(422, False, svy_misc_msg_req)
 
 
-    post = Posts(title=survey_title, content=survey_content, user=user, category=[])
-    survey = Surveys(title=survey_title, content=survey_content, tags=[],
-                     approx_time=approx_time)
-    post.target_audience = target_audience
-    survey.target_audience = target_audience
-    post.category = tags
-    survey.tags = tags
+    post = Posts( title=survey_title, content=survey_content, 
+                 user=user, category=tags, target_audience = target_audience )
+    
+    survey = Surveys( title=survey_title, content=survey_content, tags=tags,
+                     approx_time=approx_time, target_audience = target_audience )
     
     for scounter, svy_section in enumerate(svy_questions, start=1):
 
@@ -639,9 +637,16 @@ def send_post_survey_mobile():
         logger.error("Someone tried to post without signing in")
         return jsonify_template_user(401, False, "You must log in first in order to post here")
 
-    data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
+    # data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
+    raw_json = request.form.get("surveyData")
 
-    # raw_json = request.form.get("surveyData")
+    if not raw_json:
+        logger.info(f"{user_id} tried to create a survey with nothing on it")
+        return jsonify_template_user(400, False, "You did not provide any data for the survey")
+
+    data: dict = json.loads(raw_json)
+    files_dict = request.files.to_dict(flat=True)
+    logger.info(data)
 
     post_caption: str = data.get("caption")
 
@@ -683,7 +688,7 @@ def send_post_survey_mobile():
         return jsonify_template_user(400, False, svy_exists_msg, extra_msg="Your survey is missing some data")
     
     # Checks each question on the survey if it reachers the requirements e.g. question must be at least x long
-    svy_req_msg, svy_req_flag = handle_mobile_survey_input_requirements(svy_questions)
+    svy_req_msg, svy_req_flag = handle_mobile_survey_input_requirements(svy_questions, svy_sections)
     if svy_req_flag:
         logger.error(svy_req_msg)
         return jsonify_template_user(422, False, svy_req_msg, extra_msg="You must meet the requirements for the survey")
@@ -729,7 +734,7 @@ def send_post_survey_mobile():
 
         question = Question(
             another_id=f"{qcounter}{svy_question.get("sectionId")}",
-            question_text=svy_question.get("text"),
+            question_text=svy_question.get("title"),
             question_number=qcounter,
             q_type=svy_question.get("type"),
             answer_required=svy_question.get("required", False),

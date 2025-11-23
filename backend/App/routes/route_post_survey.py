@@ -471,7 +471,6 @@ def survey_count_questions(id):
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
 @survey_posting.route("/post/send/questionnaire/web", methods=["POST"])
 @jwt_required()
 @limiter.limit("1 per minute;20 per hour;100 per day", key_func=get_jwt_identity)
@@ -493,7 +492,7 @@ def send_post_survey_web():
         return jsonify_template_user(400, False, "You did not provide any data for the survey")
 
     data: dict = json.loads(raw_json)
-    files_dict = request.files.to_dict(flat=True)
+    files_dict = request.files.to_dict()
 
     survey_title: str = data.get("surveyTitle", "")
     survey_content: str = data.get("surveyDescription", "")
@@ -645,7 +644,7 @@ def send_post_survey_mobile():
         return jsonify_template_user(400, False, "You did not provide any data for the survey")
 
     data: dict = json.loads(raw_json)
-    files_dict = request.files.to_dict(flat=True)
+    files_dict = request.files.to_dict()
     logger.info(data)
 
     post_caption: str = data.get("caption")
@@ -731,6 +730,7 @@ def send_post_survey_mobile():
     for qcounter, svy_question in enumerate(svy_questions, start=1):
 
         options: list = svy_question.get("options")
+        img_file = files_dict.get(svy_question.get("imageKey"))
 
         question = Question(
             another_id=f"{qcounter}{svy_question.get("sectionId")}",
@@ -748,6 +748,20 @@ def send_post_survey_mobile():
             for option in options:
                 choice = Choice(choice_text=option)
                 question.choices_question.append(choice)
+
+        if img_file:
+            question_img = Question_Image(name=img_file.filename)
+            filename = f"{uuid4()}_{img_file.filename}"
+            try:
+                resp = supabase_client.storage.from_("question_img").upload(path=filename, file=img_file.read(), 
+                                                                        file_options={"content-type": img_file.content_type})
+            except Exception as e:
+                    logger.exception(f"Exception type: {type(e).__name__}, message: {e}")
+                    return jsonify_template_user(500, False, type(e).__name__)
+                
+            public_url = supabase_client.storage.from_("question_img").get_public_url(path=filename)
+            question_img.img_url = public_url
+            question.img_question = question_img
 
         for ss in survey.section_survey:
             if ss.another_id == svy_question.get("sectionId"):

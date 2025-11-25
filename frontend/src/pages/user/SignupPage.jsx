@@ -31,7 +31,9 @@ const SignupPage = () => {
 
     // checks returned data
     if (!data.ok) {
-      return data.message;
+      setLoading(false);
+      console.log(data.message);
+      return;
     }
 
     setLoading(false); // Loading done!

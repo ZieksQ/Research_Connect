@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import SearchBar from './SearchBar';
 import CreatePostBar from './CreatePostBar';
 import CategoryFilter from './CategoryFilter';
 import PostsList from './PostsList';
@@ -30,7 +29,7 @@ export default function MainContent() {
 
   return (
     <div 
-      className="flex-1"
+      className=""
       style={{
         backgroundColor: 'var(--color-background)',
         padding: 'clamp(1.5rem, 2.5vw, 2.5rem)',

@@ -7,8 +7,6 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState('home');
 
   return (
-    <Sidebar activeTab={activeTab} onTabChange={setActiveTab}>
-      <MainContent />
-    </Sidebar>
+    <MainContent />
   );
 }

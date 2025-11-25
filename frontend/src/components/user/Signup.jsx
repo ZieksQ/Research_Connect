@@ -84,17 +84,17 @@ const Signup = ({
         {loading ? <span className="loading loading-dots loading-md"></span> : "Sign Up"}
       </button>
 
-      {/* Divider */}
-      <div className="divider my-4 text-xs text-gray-400">or</div>
+      {/* Divider
+      <div className="divider my-4 text-xs text-gray-400">or</div> */}
 
-      {/* Google Sign Up */}
+      {/* Google Sign Up
       <button
         type="button"
         className="btn w-full border border-gray-300 bg-white hover:bg-gray-50"
       >
         <img src={GoogleLogo} alt="google icon" className="icon-size h-5 w-5" />
         Sign up with Google
-      </button>
+      </button> */}
 
       {/* Login Redirect */}
       <p className="mt-6 text-center text-sm text-gray-600">

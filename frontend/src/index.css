@@ -16,6 +16,9 @@ html {
   --color-background: #eeeeee;
   --color-secondary-background: #e0e0e0;
   --color-accent-100: #5057e9;
+  --color-custom-blue: #1447E6;
+  --color-custom-green: #52B244;
+  --color-custom-maroon: #6A3B29;
 }
 
 @font-face {

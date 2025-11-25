@@ -16,3 +16,10 @@ export const getUserData = async () =>
   apiFetch("/api/user/user_data", {
     method: "GET",
   });
+
+// edit user info
+export const patchUserInfo = async (data) =>
+  apiFetch("/api/user/update_data", {
+    method: "PATCH",
+    body: data
+  })

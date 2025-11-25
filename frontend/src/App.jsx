@@ -20,6 +20,7 @@ import SurveyBuilder from "./pages/survey/survey_builder/SurveyWizard.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import RootLayout from "./layout/RootLayout.jsx";
 import HomePage from "./pages/home/HomePage.jsx";
+import AdminLayout from "./layout/AdminLayout.jsx";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -57,7 +58,7 @@ const App = () => {
           </Route>
 
           {/* Admin routes */}
-          <Route path="admin" element={<RootLayout />}>
+          <Route path="admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />}/>
           </Route>
         </Route>

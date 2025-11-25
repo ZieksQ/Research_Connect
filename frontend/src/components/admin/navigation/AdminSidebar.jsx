@@ -2,6 +2,8 @@ import { MdDashboard, MdCheckCircle, MdCode, MdExpandMore, MdHourglassEmpty, MdT
 import { MdOutlineDashboard } from "react-icons/md";
 import { FaRegSquareCheck } from "react-icons/fa6";
 
+
+// Delete
 export default function AdminSidebar() {
   return (
     <div className="drawer drawer-open">

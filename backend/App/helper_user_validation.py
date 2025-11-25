@@ -95,7 +95,7 @@ def handle_validate_requirements(username: str, password: str) -> tuple[dict, bo
     useranme_rules = [
         (lambda usnm: len(usnm) >= 4,  "Username must be at least 4 characters"),
         (lambda usnm: len(usnm) <= 36, "Username must not exceed 36 characters"),
-        (lambda usnm: usnm.split() <= 1, "Username must be 1 word only"),
+        (lambda usnm: len(usnm.split()) <= 1, "Username must be 1 word only"),
     ]
 
     password_rules = [
@@ -615,7 +615,7 @@ def handle_category_requirements(category: str) -> tuple[str, bool]:
     category_rules = [
         (lambda ctgry: len(ctgry) >= 3,     "Category must be at least 3 characters long"),
         (lambda ctgry: len(ctgry) <= 64,    "Category must not exceed 64 characters"),
-        (lambda ctgry: ctgry.split() <= 5),  "Category must not exceed 5 words"
+        (lambda ctgry: len(ctgry.split()) <= 5),  "Category must not exceed 5 words"
     ]
 
     message: str = ""
@@ -646,7 +646,7 @@ def handle_user_info_requirements(username: str, school: str, program: str) -> t
     useranme_rules = [
         (lambda usnm: len(usnm) >= 4,  "Username must be at least 4 characters"),
         (lambda usnm: len(usnm) <= 36, "Username must not exceed 36 characters"),
-        (lambda usnm: usnm.split() <= 1, "Username must be 1 word only"),
+        (lambda usnm: len(usnm.split()) <= 1, "Username must be 1 word only"),
     ]
 
     school_rules = [
@@ -655,8 +655,8 @@ def handle_user_info_requirements(username: str, school: str, program: str) -> t
     ]
 
     program_rules = [
-        (lambda program: len(program) <= 5, "Program must be at least 5 characters"),
-        (lambda program: len(program) >= 256, "Program must must not exceed 256 characters"),
+        (lambda program: len(program) >= 5, "Program must be at least 5 characters"),
+        (lambda program: len(program) <= 256, "Program must must not exceed 256 characters"),
     ]
 
     for check, msg in useranme_rules:

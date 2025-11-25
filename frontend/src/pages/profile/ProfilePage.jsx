@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import ProfilePicture from "../../components/profile/ProfilePicture.jsx";
-import Stats from "../../components/profile/Stats.jsx";
 import ProfileInfo from "../../components/profile/ProfileInfo.jsx";
 import ChangeProfilePicture from "../../components/profile/ChangeProfilePicture.jsx";
+import Settings from "../../components/settings/Settings.jsx";
 import { getUserData } from "../../services/user.js";
 
 const ProfilePage = () => {
@@ -14,27 +14,26 @@ const ProfilePage = () => {
 
   useEffect(() => {
     // Run once on mount
-
     fetchUserData();
   }, []);
 
   const fetchUserData = async () => {
     setIsLoading(true);
-    const data = await getUserData(); // assume this returns JSON
+    const data = await getUserData();
     setUserData(data);
     setIsLoading(false);
   };
 
   // optional chaining prevents crash before data loads
   const profilePicUrl = userData?.message?.user_info?.profile_pic_url;
-  const username = userData?.message?.user_info?.username;
+  // const username = userData?.message?.user_info?.username;
 
   return (
     <section className="page-margin lg:mx-auto lg:max-w-4xl">
       {/* Profile Header Card */}
       <div className="bg-base-100 border-base-200 overflow-hidden rounded-2xl border shadow-sm">
         {/* Cover/Background Area */}
-        <div className="from-primary/20 via-primary/10 to-base-200 h-32 bg-gradient-to-br"></div>
+        <div className="from-custom-blue/70 via-custom-green/40 to-custom-maroon/30 h-32 bg-gradient-to-br"></div>
 
         {/* Profile Content */}
         <div className="-mt-16 px-6 pb-6">
@@ -47,12 +46,12 @@ const ProfilePage = () => {
                 <ProfilePicture src={profilePicUrl} />
               </div>
               <div className="mb-2">
-                <ProfileInfo username={username} isLoading={isLoading} />
+                <ProfileInfo data={userData} isLoading={isLoading} />
               </div>
             </div>
 
-            {/* Right side: Action Button */}
-            <div className="sm:mb-2">
+            {/* Right side: Action Buttons */}
+            <div className="sm:mb-2 flex gap-2">
               <ChangeProfilePicture />
             </div>
           </div>

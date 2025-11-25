@@ -47,7 +47,7 @@ export const apiFetch = async (url, options = {}) => {
 
     return data;
   } catch (err) {
-    console.error("apiFetch error:", err);
+    console.error("API Fetch Error:", err);
     return;
   }
 };

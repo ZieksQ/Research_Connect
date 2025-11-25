@@ -117,9 +117,7 @@ export default function SurveyWizard() {
 
     alert("Survey published! Check the console for FormData contents.");
 
-    const res = await publishSurvey(formData);
-    const data = await res.json()
-    console.log(`Response: ${data}`);
+    await publishSurvey(formData);
   };
 
   const CurrentStepComponent = steps[currentStep].component;

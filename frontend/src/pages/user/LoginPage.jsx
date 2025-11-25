@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Login from "../../components/user/Login.jsx";
 import InquiraIcon from "../../assets/icons/Inquira.svg"
 import { loginUser } from "../../services/auth.js";
+import { useAuth } from "../../hooks/useAuth.jsx";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -10,6 +11,7 @@ const LoginPage = () => {
   const [error, setError] = useState(""); // shows message error
   const [loading, setLoading] = useState(false); // loading state 
   const navigate = useNavigate(); // for navigation react-router-dom
+  const { refreshUser } = useAuth();
 
   // Remove Error after 3 seconds
   useEffect(() => {
@@ -27,14 +29,17 @@ const LoginPage = () => {
 
     const payload = { username, password }; // object destructuring
     const data = await loginUser(payload);  // logging in User
-    setLoading(false);                      // loading done!
     
     // Checks returned data 
     if (!data.ok) {
+      setLoading(false);
       setError(data.message || "Something went wrong")
       return;
     }
 
+    // Refresh user data after successful login
+    await refreshUser();
+    setLoading(false);
     navigate('/home'); // if data status is ok then navigate to / homepage
   };
 

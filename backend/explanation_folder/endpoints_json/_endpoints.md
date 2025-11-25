@@ -22,6 +22,8 @@ GET - http://127.0.0.1:5000/api/survey/post/get/INTEGER
 
 GET - http://127.0.0.1:5000/api/survey/post/get
 GET - http://127.0.0.1:5000/api/survey/post/search?query=&order=
+GET - http://127.0.0.1:5000/api/survey/post/search/tags_audience?query=&order=
+GET - http://127.0.0.1:5000/api/survey/post/search/by_title?query=&order=
 GET - http://127.0.0.1:5000/api/survey/category/get
 GET - http://127.0.0.1:5000/api/survey/post/get/questionnaire/<int:id>
 

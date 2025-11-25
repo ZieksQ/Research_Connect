@@ -133,7 +133,7 @@ def profile_upload():
                                                                file_options={"content-type": profile_pic.content_type})
     except Exception as e:
         logger.exception(f"Exception type: {type(e).__name__}, message: {e}")
-        return jsonify_template_user(500, False, str(e))
+        return jsonify_template_user(500, False, str(type(e).__name__))
     
     logger.info(resp)
     if hasattr(resp, "error"):

@@ -1,7 +1,7 @@
 import json
 from App import limiter, supabase_client
 from flask import Blueprint, request
-from sqlalchemy import select, and_, or_, func
+from sqlalchemy import select, and_, or_, func, cast, String
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from functools import wraps
 from datetime import datetime, timezone
@@ -127,9 +127,40 @@ def search():
         select(Posts)
         .where(or_(
             Posts.title.ilike(f"%{query}%"),
-            Posts.category.ilike(f"%{query}%"),
-            Posts.target_audience.ilike(f"%{query}%"),
+            cast(Posts.category, String).ilike(f"%{query}%"),
+            cast(Posts.target_audience, String).ilike(f"%{query}%"),
             Posts.content.ilike(f"%{query}%"),
+            ))
+        .order_by(post_order)
+        .limit(100)
+        .offset(0)
+        )
+    posts = db.scalars(stmt).all()
+
+    data = [post.get_post() for post in posts]
+
+    if not data:
+        logger.info("There is no post to be searched")
+        return jsonify_template_user(404, True, "There is no such thing")
+    
+    logger.info("Search successful")
+    return jsonify_template_user(200, True, data)
+
+@survey_posting.route("/post/search/tags_audience", methods=["GET"])
+@jwt_required()
+@check_user
+@limiter.limit("100 per minute;5000 per day", key_func=get_jwt_identity)
+def search_category_audience():
+    query = request.args.get("query", "").strip()
+    order = request.args.get("order", "asc").strip()
+
+    post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
+
+    stmt = (
+        select(Posts)
+        .where(or_(
+            cast(Posts.category, String).ilike(f"%{query}%"),
+            cast(Posts.target_audience, String).ilike(f"%{query}%"),
             ))
         .order_by(post_order)
         .limit(100)
@@ -162,7 +193,7 @@ def search_by_title():
             Posts.title.ilike(f"%{query}%"),
             ))
         .order_by(post_order)
-        .limit(100)
+        .limit(10)
         .offset(0)
         )
     posts = db.scalars(stmt).all()
@@ -281,9 +312,9 @@ def answer_questionnaire(id):
             resp_answer_text = resp_section.get(question.another_id)
             q_type = question.q_type
 
-            if q_type in Question_type_inter.CHOICES_TYPE_WEB:
+            if q_type == QuestionType.CHECKBOX.value:
                 for rqt in resp_answer_text:
-                    answer = Answers(user=user, answer_text=rqt)
+                    answer = Answers(user=user, answer_text=str(rqt))
                     question.answers.append(answer)
                     
             elif q_type == QuestionType.DATE.value:
@@ -292,7 +323,7 @@ def answer_questionnaire(id):
                 question.answers.append(answer)
 
             else:
-                answer = Answers(user=user, answer_text=resp_answer_text)
+                answer = Answers(user=user, answer_text=str(resp_answer_text))
                 question.answers.append(answer)
 
     user_survey_answered = RootUser_Survey(user=user, survey=survey)
@@ -378,6 +409,7 @@ def survey_responses(id):
     text_data = {}
     choice_data = {}
     dates_data = {}
+    rating_data = {}
 
     for section in survey.section_survey:
         for question in section.question_section:
@@ -387,7 +419,7 @@ def survey_responses(id):
             q_text = question.question_text
             q_type = question.q_type
 
-            if q_type in (Question_type_inter.CHOICES_TYPE_WEB):
+            if q_type in Question_type_inter.Q_TYPE_WEB:
 
                 stmt = select( Answers.answer_text, func.count(Answers.id)
                                 ).where(
@@ -418,6 +450,22 @@ def survey_responses(id):
                     "type": q_type,
                     "answer_data": q_options_data,
                     }
+                
+            elif q_type == QuestionType.RATING.value:
+
+                stmt = select( Answers.answer_text, func.count(Answers.id)
+                                ).where(
+                                    Answers.question_id == q_id
+                                    ).group_by( Answers.answer_text )
+                
+                datas = db.execute(stmt).all()
+                q_options_data = {data[0]: data[1] for data in datas}
+
+                rating_data[q_another_id] = {
+                    "question_text": q_text,
+                    "type": q_type,
+                    "answer_data": q_options_data,
+                    }
 
             else:                
                 stmt = select(Answers.answer_text
@@ -440,6 +488,7 @@ def survey_responses(id):
         "survey_target_audience": survey.target_audience,
         "choices_data": choice_data if choice_data else "There is no data for choices type of queston",
         "dates_data": dates_data if dates_data else "There is no data for the dates type of question",
+        "rating_data": rating_data if rating_data else "There is no data for the rating type of question",
         "text_data": text_data if text_data else "There is no data for the other type of question",
     }
 
@@ -522,6 +571,7 @@ def send_post_survey_web():
 
     data: dict = json.loads(raw_json)
     files_dict = request.files.to_dict()
+    logger.info(files_dict)
 
     survey_title: str = data.get("surveyTitle", "")
     survey_content: str = data.get("surveyDescription", "")
@@ -674,6 +724,7 @@ def send_post_survey_mobile():
     data: dict = json.loads(raw_json)
     files_dict = request.files.to_dict()
     logger.info(data)
+    logger.info(files_dict)
 
     post_caption: str = data.get("caption")
 
@@ -749,10 +800,10 @@ def send_post_survey_mobile():
     for qcounter, svy_question in enumerate(svy_questions, start=1):
 
         options: list = svy_question.get("options")
-        img_file = files_dict.get(svy_question.get("imageKey"))
+        img_file = files_dict.get(f"image_{svy_question.get("imageKey")}")
 
         question = Question(
-            another_id=f"{qcounter}{svy_question.get("sectionId")}",
+            another_id=f"{qcounter}{svy_question.get('sectionId')}",
             question_text=svy_question.get("title"),
             question_number=qcounter,
             q_type=svy_question.get("type"),
@@ -761,7 +812,7 @@ def send_post_survey_mobile():
             max_rating=svy_question.get("maxRating", 1)
             )
         
-        if svy_question.get("type") in Question_type_inter.Q_TYPE_MOBILE:
+        if svy_question.get("type") in Question_type_inter.CHOICES_TYPE_MOBILE:
             question.min_choice = svy_question.get("minChoice", 1)
             question.max_choice = svy_question.get("maxChoice", len(options))
             for option in options:
@@ -769,7 +820,10 @@ def send_post_survey_mobile():
                 question.choices_question.append(choice)
 
         if img_file:
-            question_img = Question_Image(name=img_file.filename)
+            question_img = Question_Image(name=img_file.filename, 
+                                          img_type=img_file.content_type,
+                                          size=int(img_file.content_length))
+            
             filename = f"{uuid4()}_{img_file.filename}"
             try:
                 resp = supabase_client.storage.from_("question_img").upload(path=filename, file=img_file.read(), 

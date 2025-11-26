@@ -194,7 +194,7 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
               fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
             }}
           >
-            Survey Description
+            Survey Description <span style={{ color: '#dc2626' }}>*</span>
           </span>
         </label>
         <textarea
@@ -209,7 +209,7 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
             padding: 'clamp(0.625rem, 1.2vw, 1rem)',
             minHeight: 'clamp(6rem, 10vw, 8rem)'
           }}
-          placeholder="Describe what your survey is about (optional)"
+          placeholder="Describe what your survey is about"
         />
         {descriptionError && (
           <p 

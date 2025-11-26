@@ -148,6 +148,15 @@ html {
   .public-DraftEditorPlaceholder-root {
     color: #a0a0a0;
   }
+
+  /* -------------------------------------- */
+  /*                Navbar                  */
+  /* -------------------------------------- */
+
+  .active-navbar {
+    color: var(--color-white);
+    background: var(--color-custom-blue);
+  }
 }
 
 @layer utilities {

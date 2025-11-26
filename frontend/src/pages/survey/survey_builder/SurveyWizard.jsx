@@ -3,7 +3,7 @@ import SurveyDetailsPage from './SurveyDetailsPage';
 import TargetAudiencePage from './TargetAudiencePage';
 import SortableForm from './SortableForm';
 import SurveyPreviewPage from './SurveyPreviewPage';
-import { publishSurvey } from '../../../services/survey/survey.services';
+import { publishSurvey } from '../../../services/survey/survey.service';
 // import { MdCheck } from 'react-icons/md';
 // import { log } from 'three';
 

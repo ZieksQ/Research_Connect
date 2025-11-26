@@ -22,6 +22,8 @@ import AdminLayout from "./layout/AdminLayout.jsx";
 import RootLayout from "./layout/RootLayout.jsx";
 import Settings from "./components/settings/Settings.jsx";
 import { AuthProvider } from "./context/AuthProvider.jsx";
+import SurveyResult from "./pages/survey/survey-results/SurveyResult.jsx";
+import ProfilePostsPage from "./pages/profile/ProfilePostsPage.jsx";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -38,12 +40,12 @@ const App = () => {
           <Route element={<ProtectedLayout />}>
             <Route element={<RootLayout />}>
               <Route path="home">
-                <Route index element={<PostPage />} />
+                <Route index element={<HomePage />} />
                 <Route path="feed" element={<HomePage />} />
                 {/* Profile section (inherits RootRoute) */}
                 <Route path="profile" element={<ProfilePage />}>
                   <Route index element={<Navigate to="posts" replace />} />
-                  <Route path="posts" element={<h1>Hello World!</h1>} />
+                  <Route path="posts" element={<ProfilePostsPage />} />
                   <Route path="about" element={<ProfileAboutPage />} />
                 </Route>
               </Route>
@@ -52,6 +54,7 @@ const App = () => {
               <Route path="form">
                 <Route path="response/:id" element={<SurveyPage />} />
                 <Route path="new" element={<SurveyBuilder />} />
+                <Route path="result/:id" element={<SurveyResult />} />
               </Route>
               {/* Settings */}
               <Route path="settings" element={<Settings />} />

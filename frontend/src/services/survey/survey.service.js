@@ -1,5 +1,9 @@
 import { apiFetch } from "../fetcher";
 
+// ---------------------------------
+// ============= POST ==============
+// ---------------------------------
+
 // for publishing survey - sending for approval
 export const publishSurvey = async (surveyData) => {
   await apiFetch("/api/survey/post/send/questionnaire/web", {
@@ -8,7 +12,7 @@ export const publishSurvey = async (surveyData) => {
   });
 };
 
-// for answering survey
+// for answering survey - submitting response
 export const submitSurveyResponse = async (id, surveydata) => {
   return await apiFetch(`/api/survey/answer/questionnaire/${id}`, {
     method: 'POST',

@@ -256,7 +256,7 @@ def survey_is_answered():
         logger.info(f"User {user_id} has already answered survey {survey_id}")
         return jsonify_template_user(409, False,
                                      "You have already answered this survey",
-                                     is_answered=False)
+                                     is_answered=True)
     
     return jsonify_template_user(200, True, "You have not answered this yet", is_answered=False)
 
@@ -419,7 +419,7 @@ def survey_responses(id):
             q_text = question.question_text
             q_type = question.q_type
 
-            if q_type in Question_type_inter.Q_TYPE_WEB:
+            if q_type in Question_type_inter.CHOICES_TYPE_WEB:
 
                 stmt = select( Answers.answer_text, func.count(Answers.id)
                                 ).where(
@@ -492,7 +492,7 @@ def survey_responses(id):
         "text_data": text_data if text_data else "There is no data for the other type of question",
     }
 
-    return jsonify_template_user(200, False, data)
+    return jsonify_template_user(200, True, data)
 
 @survey_posting.route("/post/count_questions/<int:id>", methods=['GET'])
 @jwt_required()
@@ -562,16 +562,19 @@ def send_post_survey_web():
         logger.error("Someone tried to post without signing in")
         return jsonify_template_user(401, False, "You must log in first in order to post here")
     
-    # data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
     raw_json = request.form.get("surveyData")
     
-    if not raw_json:
-        logger.info(f"{user_id} tried to create a survey with nothing on it")
-        return jsonify_template_user(400, False, "You did not provide any data for the survey")
+    # if not raw_json:
+    #     logger.info(f"{user_id} tried to create a survey with nothing on it")
+    #     return jsonify_template_user(400, False, "You did not provide any data for the survey")
 
-    data: dict = json.loads(raw_json)
+    # data: dict = json.loads(raw_json)
+    # logger.info(data)
+    
     files_dict = request.files.to_dict()
     logger.info(files_dict)
+
+    data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
     survey_title: str = data.get("surveyTitle", "")
     survey_content: str = data.get("surveyDescription", "")
@@ -697,7 +700,7 @@ def send_post_survey_web():
         logger.exception(error)
         return jsonify_template_user(500, False, "Database error")
 
-    logger.info(f"{user.id} Succesfully added Post")
+    logger.info(f"User {user.id} Succesfully added Post")
 
     return jsonify_template_user(200, True, "Post added successfully")
 

@@ -3,7 +3,7 @@ from App.database import Base
 from sqlalchemy import String, Integer, ForeignKey, Text, Boolean, JSON
 from App.models.model_enums import QuestionType
 
-CHOICES_TYPE = ("Multiple Choice", "Single Choice", "Dropdown", "multipleChoice", "checkboxes", "dropdown", "linearScale", "yesNo", "imageChoice")
+CHOICES_TYPE = ("radioButton", "checkBox", "dropdown")
 
 class Surveys(Base):
     __tablename__ = "svy_surveys"

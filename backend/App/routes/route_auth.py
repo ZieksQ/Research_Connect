@@ -252,7 +252,7 @@ def login_success():
         "role": who_user.user_type,
     }
 
-    return jsonify_template_user(200, True, user_data)
+    return jsonify_template_user(200, True, user_data, is_logged_in=True)
 
 @user_auth.route("/update_data", methods=["PATCH"])
 @jwt_required()
@@ -263,13 +263,15 @@ def update_data():
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
 
+    logger.info(data)
+
     if not user:
         logger.info("User tried to change their info without logging in")
         return jsonify_template_user(401, False, "You need to log in to access this")
 
-    username: str = data.get("username", None)
-    school: str = data.get("school", None)
-    program: str = data.get("program", None)
+    username: str = data.get("username", None).strip()
+    school: str = data.get("school", None).strip()
+    program: str = data.get("program", None).strip()
 
     info_validate, info_flag = handle_user_info_requirements(username, school, program)
     if info_flag:

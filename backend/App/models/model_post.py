@@ -40,6 +40,7 @@ class Posts(Base):
             "survey_date_updated": self.date_updated,
             "user_username": self.user.username,
             "user_profile": self.user.profile_pic_url,
+            "approx_time": self.survey_posts.approx_time,
         }
     
 class Category(Base):

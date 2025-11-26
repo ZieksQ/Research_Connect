@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getSurvey, submitSurveyResponse } from '../../../services/survey/survey.services';
+import { getSurvey, submitSurveyResponse } from '../../../services/survey/survey.service';
 import { MdArrowBack, MdArrowForward, MdStar, MdStarBorder } from 'react-icons/md';
 
 export default function SurveyPage() {

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import CreatePostBar from './CreatePostBar';
 import CategoryFilter from './CategoryFilter';
 import PostsList from './PostsList';
-import { getAllSurvey } from '../../../services/survey/survey.services';
+import { getAllSurvey } from '../../../services/survey/survey.service';
+import { useNavigate } from 'react-router-dom';
 // import { postsData } from '../../../static/postsData.js';
 
 export default function MainContent() {
@@ -10,6 +11,8 @@ export default function MainContent() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchPosts();
@@ -19,8 +22,18 @@ export default function MainContent() {
     setIsLoading(true);
     try {
       const data = await getAllSurvey();
-      // Extract the message array from the API response
-      setPosts(data?.message ?? []);
+      // Normalize the API response into an array of posts
+      const normalizePosts = (message) => {
+        if (!message) return [];
+        if (Array.isArray(message)) return message;
+        if (typeof message === 'object') {
+          if (Array.isArray(message.message)) return message.message;
+          return Object.values(message);
+        }
+        return [];
+      };
+
+      setPosts(normalizePosts(data?.message));
     } catch (error) {
       console.error('Error fetching posts:', error);
       setPosts([]);
@@ -30,20 +43,24 @@ export default function MainContent() {
   };
 
   const handleCreateClick = () => {
-    console.log('Create new research study clicked');
-    // Navigate to survey creator or open modal
+    navigate("/form/new");
   };
 
   // Filter posts based on search and category
-  const filteredPosts = (posts || []).filter((post) => {
-    const matchesSearch = 
-      post.survey_title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.user_username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.survey_category?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredPosts = (Array.isArray(posts) ? posts : []).filter((post) => {
+    const title = post?.survey_title || '';
+    const username = post?.user_username || '';
+    const categories = Array.isArray(post?.survey_category) ? post.survey_category : [];
 
-    const matchesCategory = 
-      activeCategory === 'all' || 
-      post.survey_category?.some(cat => cat.toLowerCase() === activeCategory.toLowerCase());
+    const q = searchQuery || '';
+    const matchesSearch =
+      title.toLowerCase().includes(q.toLowerCase()) ||
+      username.toLowerCase().includes(q.toLowerCase()) ||
+      categories.some((tag) => String(tag).toLowerCase().includes(q.toLowerCase()));
+
+    const matchesCategory =
+      activeCategory === 'all' ||
+      categories.some((cat) => String(cat).toLowerCase() === activeCategory.toLowerCase());
 
     return matchesSearch && matchesCategory;
   });

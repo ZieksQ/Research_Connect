@@ -3,7 +3,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { FiLogOut, FiSettings, FiUser } from "react-icons/fi";
 import { logoutUser } from "../../services/auth";
-import Settings from "../settings/Settings";
 
 const Sidebar = () => {
   const { userInfo, setUserInfo } = useAuth();
@@ -28,11 +27,11 @@ const Sidebar = () => {
   return (
     <div className="bg-base-200 flex h-full flex-col">
       {/* Navigation Menu */}
-      <ul className="menu text-base-content flex-1 space-y-2 p-4">
+      <ul className="menu w-full text-base-content flex-1 space-y-2 p-4 ">
         <li>
           <NavLink
             to="/home"
-            className={({ isActive }) => (isActive ? "active" : "")}
+            className={({ isActive }) => (isActive ? "active-navbar" : "")}
           >
             <span>Homepage</span>
           </NavLink>
@@ -40,7 +39,7 @@ const Sidebar = () => {
         <li>
           <NavLink
             to="/home/profile"
-            className={({ isActive }) => (isActive ? "active" : "")}
+            className={({ isActive }) => (isActive ? "active-navbar" : "")}
           >
             <span>Profile</span>
           </NavLink>
@@ -48,7 +47,7 @@ const Sidebar = () => {
         <li>
           <NavLink
             to="/settings"
-            className={({ isActive }) => (isActive ? "active" : "")}
+            className={({ isActive }) => (isActive ? "active-navbar" : "")}
           >
             <span>Settings</span>
           </NavLink>

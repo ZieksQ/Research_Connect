@@ -89,7 +89,7 @@ def run_app():
 
 # To connect to supabase to host my users profile pic
 supabase_client = create_client(SPBS_PROJECT_URL, SPBS_SERVICE_ROLE_KEY)
-default_profile_pic = "https://siqejctaztvawzceuhrw.supabase.co/storage/v1/object/public/profile_pic/GigiMurin2.png"
+
 
 '''
 def logging_set_up():

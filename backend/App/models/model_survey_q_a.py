@@ -109,6 +109,7 @@ class Question(Base):
             "question_required": self.answer_required,
             "question_minChoice": self.min_choice if self.min_choice else 1,
             "question_maxChoice": self.max_choice if self.max_choice else 1,
+            "question_maxRating": self.max_rating if self.max_rating else 5,
             "question_image": self.img_question.get_data() if self.img_question else None,
             "question_url": self.url
         }

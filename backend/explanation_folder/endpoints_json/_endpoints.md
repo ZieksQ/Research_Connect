@@ -28,7 +28,7 @@ GET - http://127.0.0.1:5000/api/survey/category/get
 GET - http://127.0.0.1:5000/api/survey/post/get/questionnaire/<int:id>
 
 Get all the responses from the survey
-GET - http://127.0.0.1:5000/api/survey/post/respones/coNmputed_data/<int:id>
+GET - http://127.0.0.1:5000/api/survey/post/respones/computed_data/<int:id>
 
 Counts how mant section and how many quesiton does each seciton has
 GET - http://127.0.0.1:5000/api/survey/post/count_questions/<int:id>

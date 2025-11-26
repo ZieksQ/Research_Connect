@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
-from App import bcrypt, default_profile_pic
+from App import bcrypt
 from App.database import Base
 from sqlalchemy import String, Integer, ForeignKey, Boolean, DateTime
+
+default_profile_pic = "https://siqejctaztvawzceuhrw.supabase.co/storage/v1/object/public/profile_pic/GigiMurin2.png"
 
 # To unifiy both user since i have two way to log in
 class Root_User(Base):
@@ -47,8 +49,9 @@ class Users(Root_User):
     _password: Mapped[str] = mapped_column("password" ,String(256), nullable=False)
     profile_pic_url: Mapped[str] = mapped_column(String(512), nullable=True,
                                                  default=default_profile_pic)
-    email: Mapped[str] = mapped_column(String(256), nullable=True)
+    
     role: Mapped[str] = mapped_column(String(64), nullable=False)
+    email: Mapped[str] = mapped_column(String(256), nullable=True)
     school: Mapped[str] = mapped_column(String(256), nullable=True)
     program: Mapped[str] = mapped_column(String(256), nullable=True)
     
@@ -80,10 +83,11 @@ class Oauth_Users(Root_User):
     id: Mapped[int] = mapped_column(ForeignKey("users_root.id"), primary_key=True)
     provider: Mapped[str] = mapped_column(String(128), nullable=False)
     username: Mapped[str] = mapped_column(String(256), nullable=False)
-    role: Mapped[str] = mapped_column(String(64), nullable=False)
-    email: Mapped[str] = mapped_column(String(256), nullable=False)
     provider_user_id: Mapped[str] = mapped_column(String(512), nullable=False)
     profile_pic_url: Mapped[str] = mapped_column(String(512), nullable=False)
+
+    role: Mapped[str] = mapped_column(String(64), nullable=False)
+    email: Mapped[str] = mapped_column(String(256), nullable=False)
     school: Mapped[str] = mapped_column(String(256), nullable=True)
     program: Mapped[str] = mapped_column(String(256), nullable=True)
 

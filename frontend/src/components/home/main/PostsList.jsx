@@ -1,6 +1,30 @@
 import PostCard from './PostCard';
 
-export default function PostsList({ posts }) {
+export default function PostsList({ posts, isLoading }) {
+  if (isLoading) {
+    return (
+      <div 
+        className="text-center rounded-xl"
+        style={{
+          padding: 'clamp(3rem, 5vw, 4rem)',
+          backgroundColor: '#ffffff',
+          border: '1px solid var(--color-shade-primary)'
+        }}
+      >
+        <span className="loading loading-spinner loading-lg"></span>
+        <p 
+          style={{ 
+            color: 'var(--color-text-secondary)',
+            fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)',
+            marginTop: '1rem'
+          }}
+        >
+          Loading surveys...
+        </p>
+      </div>
+    );
+  }
+
   if (!posts || posts.length === 0) {
     return (
       <div 
@@ -35,7 +59,7 @@ export default function PostsList({ posts }) {
   return (
     <div>
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
+        <PostCard key={post.pk_survey_id} post={post} />
       ))}
     </div>
   );

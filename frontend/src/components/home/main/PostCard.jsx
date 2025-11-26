@@ -1,9 +1,11 @@
 import { MdMoreVert, MdAccessTime, MdPeople } from 'react-icons/md';
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function PostCard({ post }) {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -17,8 +19,12 @@ export default function PostCard({ post }) {
   }, []);
 
   const handleMenuClick = (action) => {
-    console.log(`${action} clicked for post ${post.id}`);
+    console.log(`${action} clicked for post ${post.pk_survey_id}`);
     setShowMenu(false);
+  };
+
+  const handleTakeSurvey = () => {
+    navigate(`/form/response/${post.pk_survey_id}`);
   };
 
   return (
@@ -43,7 +49,7 @@ export default function PostCard({ post }) {
                 height: 'clamp(2.5rem, 4vw, 3rem)'
               }}
             >
-              <img src={post.user.avatar} alt={post.user.name} />
+              <img src={post.user_profile} alt={post.user_username} />
             </div>
           </div>
 
@@ -57,7 +63,7 @@ export default function PostCard({ post }) {
                 marginBottom: 'clamp(0.125rem, 0.25vw, 0.25rem)'
               }}
             >
-              {post.user.name}
+              {post.user_username}
             </h3>
             <p 
               style={{ 
@@ -67,7 +73,7 @@ export default function PostCard({ post }) {
                 letterSpacing: '0.025em'
               }}
             >
-              {post.user.affiliation}
+              {post.survey_category?.[0] || 'UNCATEGORIZED'}
             </p>
           </div>
         </div>
@@ -157,12 +163,12 @@ export default function PostCard({ post }) {
             marginBottom: 'clamp(0.75rem, 1.25vw, 1rem)'
           }}
         >
-          {post.title}
+          {post.survey_title}
         </p>
 
         {/* Tags */}
         <div className="flex flex-wrap gap-2">
-          {post.tags.map((tag, index) => (
+          {post.survey_category?.map((tag, index) => (
             <div
               key={index}
               className="badge badge-sm"
@@ -198,7 +204,7 @@ export default function PostCard({ post }) {
                 fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)'
               }}
             >
-              {post.timeApprox}
+              {new Date(post.survey_date_created).toLocaleDateString()}
             </span>
           </div>
 
@@ -216,9 +222,9 @@ export default function PostCard({ post }) {
                   color: 'var(--color-text-secondary)',
                   fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)'
                 }}
-                title={post.targetAudience.details}
+                title={post.survey_target_audience?.join(', ')}
               >
-                {post.targetAudience.count}
+                {post.survey_target_audience?.join(', ')}
               </span>
             </div>
           </div>
@@ -226,6 +232,7 @@ export default function PostCard({ post }) {
 
         {/* Take Survey Button */}
         <button
+          onClick={handleTakeSurvey}
           className="btn btn-sm"
           style={{
             backgroundColor: 'var(--color-accent-100)',

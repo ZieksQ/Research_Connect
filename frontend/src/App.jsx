@@ -50,7 +50,7 @@ const App = () => {
 
               {/* Survey routes (no RootRoute layout) */}
               <Route path="form">
-                <Route path="response" element={<SurveyPage />} />
+                <Route path="response/:id" element={<SurveyPage />} />
                 <Route path="new" element={<SurveyBuilder />} />
               </Route>
               {/* Settings */}

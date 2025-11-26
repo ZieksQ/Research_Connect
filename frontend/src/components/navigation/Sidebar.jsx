@@ -8,7 +8,9 @@ import Settings from "../settings/Settings";
 const Sidebar = () => {
   const { userInfo, setUserInfo } = useAuth();
   const navigate = useNavigate();
-  const { profile_pic_url, username, school } = userInfo.message.user_info;
+  const profile_pic_url = userInfo?.message?.user_info?.profile_pic_url;
+  const username = userInfo?.message?.user_info?.username;
+  const school = userInfo?.message?.user_info?.school;
 
   const handleLogout = async () => {
     // Add your logout logic here

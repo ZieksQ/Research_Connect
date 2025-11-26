@@ -21,5 +21,5 @@ export const getUserData = async () =>
 export const patchUserInfo = async (data) =>
   apiFetch("/api/user/update_data", {
     method: "PATCH",
-    body: data
-  })
+    body: JSON.stringify(data),
+  });

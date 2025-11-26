@@ -35,6 +35,7 @@ def run_app():
     app.config["JWT_COOKIE_SAMESITE"] = "Lax"                       # To allow cookies to be send on cross origins, use Lax for dev, use None for production
     app.config["JWT_ACCESS_COOKIE_PATH"] = "/"                      # sent with all requests to your API (/, /users, /posts, etc.)
     app.config["JWT_REFRESH_COOKIE_PATH"] = "/api/user/refresh"     # sent only to /api/user/refresh endpoint    
+    app.config["JWT_SESSION_COOKIE"] = False                        # False to have persistent cookies intead of session one, see users_auth.log for cookies, it now has expiration
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)  # Short lived token to increase security, use to make the users have access to jwt_redquired() API
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=3)
 

@@ -1,6 +1,7 @@
 from flask import request
 from typing import Any
 from dateutil import parser
+from datetime import datetime
 import os, string
 from App.models.model_enums import QuestionType, Question_type_inter
 from App.models.model_survey_q_a import Section
@@ -34,23 +35,23 @@ def handle_profile_pic(file) -> tuple[str | None, bool]:
     return None, False
 
 def handle_date_auto_format(date_str: str) -> str | None:
-    """Helper method to unify date format from different frontend
+    VALID_FORMATS = [
+        "%Y-%m-%d",
+        "%d-%m-%Y",
+        "%m/%d/%Y",
+        "%Y/%m/%d",
+        "%b %d, %Y",
+        "%B %d, %Y",
+    ]
 
-    Args:
-        date_str (str): date format from the frontend
+    for fmt in VALID_FORMATS:
+        try:
+            parsed = datetime.strptime(date_str, fmt)
+            return parsed.strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+    return None
 
-    Returns:
-        (str | None): Returns a string date format of YYYY-MM-DD or none if the date is unacceptable
-    """
-    try:
-        parsed_date = parser.parse(date_str)
-
-        normalized_date = parsed_date.strftime("%Y-%m-%d")
-
-        return normalized_date
-    except Exception as e:
-        return None
-    
 
 def handle_user_input_exist(username: str, password: str) -> tuple[dict, bool]:
     """validate user input whether it exist or not
@@ -644,19 +645,16 @@ def handle_user_info_requirements(username: str, school: str, program: str) -> t
     flag = []
 
     useranme_rules = [
-        (lambda usnm: len(usnm) >= 4,  "Username must be at least 4 characters"),
-        (lambda usnm: len(usnm) <= 36, "Username must not exceed 36 characters"),
-        (lambda usnm: len(usnm.split()) <= 1, "Username must be 1 word only"),
+        (lambda usnm: len(usnm) >= 4,           "Username must be at least 4 characters"),
+        (lambda usnm: len(usnm) <= 36,          "Username must not exceed 36 characters"),
     ]
 
     school_rules = [
-        (lambda school: len(school) >= 5, "School must be at least 5 character"),
-        (lambda school: len(school) <= 256, "School must not exceed 256 character")
+        (lambda school: len(school) <= 256,     "School must not exceed 256 character")
     ]
 
     program_rules = [
-        (lambda program: len(program) >= 5, "Program must be at least 5 characters"),
-        (lambda program: len(program) <= 256, "Program must must not exceed 256 characters"),
+        (lambda program: len(program) <= 256,   "Program must must not exceed 256 characters"),
     ]
 
     for check, msg in useranme_rules:

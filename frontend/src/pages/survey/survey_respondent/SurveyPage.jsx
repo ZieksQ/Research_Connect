@@ -156,43 +156,47 @@ export default function SurveyPage() {
           responsesBySection[sectionId] = {};
         }
         
+        // Find the question to determine its type
+        const question = surveyData.survey_section
+          .flatMap(section => section.questions)
+          .find(q => q.question_id === questionId);
+        
+        if (!question) {
+          console.warn(`Question ${questionId} not found`);
+          return;
+        }
+        
         // Get the actual answer value
         let answerValue = responseData.answer;
         
-        // If answer is an array (multiple choice/checkbox), convert IDs to values
-        if (Array.isArray(answerValue)) {
-          // Find the question to get the choices
-          const question = surveyData.survey_section
-            .flatMap(section => section.questions)
-            .find(q => q.question_id === questionId);
+        // Handle checkbox/multiple choice - MUST remain as array
+        if (['checkBox', 'multipleChoice', 'Checkbox', 'Multiple Choice'].includes(question.question_type)) {
+          // Ensure it's an array
+          if (!Array.isArray(answerValue)) {
+            answerValue = answerValue ? [answerValue] : [];
+          }
           
-          if (question && question.question_choices) {
-            // Convert option IDs to option text/values
+          // Convert option IDs to option text if needed
+          if (question.question_choices) {
             answerValue = answerValue.map(selectedId => {
               if (typeof selectedId === 'string' && question.question_choices.includes(selectedId)) {
-                // Already a string value
                 return selectedId;
               }
-              // Find the option object
               const option = question.question_choices.find(opt => 
                 typeof opt === 'object' && opt.pk_option_id === selectedId
               );
               return option ? option.option_text : selectedId;
             });
           }
-        } else if (typeof answerValue === 'number' || typeof answerValue === 'string') {
-          // For single choice (radio/dropdown), convert ID to text if needed
-          const question = surveyData.survey_section
-            .flatMap(section => section.questions)
-            .find(q => q.question_id === questionId);
-          
-          if (question && question.question_choices && question.question_choices.length > 0) {
-            // Check if it's a choice-based question
-            if (['radioButton', 'singleChoice', 'Radio Button', 'Single Choice', 'dropdown', 'Dropdown'].includes(question.question_type)) {
+        } 
+        // Handle all other question types - single value
+        else {
+          // For choice-based questions (radio/dropdown), convert ID to text if needed
+          if (['radioButton', 'singleChoice', 'Radio Button', 'Single Choice', 'dropdown', 'Dropdown'].includes(question.question_type)) {
+            if (question.question_choices && question.question_choices.length > 0) {
               if (typeof answerValue === 'string' && question.question_choices.includes(answerValue)) {
                 // Already a string value
               } else {
-                // Find the option object
                 const option = question.question_choices.find(opt => 
                   typeof opt === 'object' && opt.pk_option_id === answerValue
                 );
@@ -202,6 +206,7 @@ export default function SurveyPage() {
               }
             }
           }
+          // For text/rating/date inputs, keep the value as-is (single value)
         }
         
         responsesBySection[sectionId][questionId] = answerValue;
@@ -220,7 +225,7 @@ export default function SurveyPage() {
       
       try {
         const res = await submitSurveyResponse(surveyData.pk_survey_id, submissionData);
-        
+
         // Check if res exists and has ok property
         if (res && res.ok) {
           alert('Survey submitted successfully!');

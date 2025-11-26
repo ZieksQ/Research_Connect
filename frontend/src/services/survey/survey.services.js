@@ -10,10 +10,9 @@ export const publishSurvey = async (surveyData) => {
 
 // for answering survey
 export const submitSurveyResponse = async (id, surveydata) => {
-  return await apiFetch({
-    endpoint: `/post/answer/questionnaire/${id}`,
+  return await apiFetch(`/api/survey/answer/questionnaire/${id}`, {
     method: 'POST',
-    body: surveydata,
+    body: JSON.stringify(surveydata),
   });
 };
 

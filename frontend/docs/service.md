@@ -8,4 +8,5 @@ GET:
     
 POST:
     publishSurvey() - post new survey
+    submitSurveyResponse(id, data) - answer survey
 ```

@@ -486,10 +486,10 @@ def survey_responses(id):
         "survey_tags": survey.tags,
         "survey_approx_time": survey.approx_time,
         "survey_target_audience": survey.target_audience,
-        "choices_data": choice_data if choice_data else "There is no data for choices type of queston",
-        "dates_data": dates_data if dates_data else "There is no data for the dates type of question",
-        "rating_data": rating_data if rating_data else "There is no data for the rating type of question",
-        "text_data": text_data if text_data else "There is no data for the other type of question",
+        "choices_data": choice_data if choice_data else None,
+        "dates_data": dates_data if dates_data else None,
+        "rating_data": rating_data if rating_data else None,
+        "text_data": text_data if text_data else None,
     }
 
     return jsonify_template_user(200, True, data)
@@ -564,17 +564,17 @@ def send_post_survey_web():
     
     raw_json = request.form.get("surveyData")
     
-    # if not raw_json:
-    #     logger.info(f"{user_id} tried to create a survey with nothing on it")
-    #     return jsonify_template_user(400, False, "You did not provide any data for the survey")
+    if not raw_json:
+        logger.info(f"{user_id} tried to create a survey with nothing on it")
+        return jsonify_template_user(400, False, "You did not provide any data for the survey")
 
-    # data: dict = json.loads(raw_json)
-    # logger.info(data)
+    data: dict = json.loads(raw_json)
+    logger.info(data)
     
     files_dict = request.files.to_dict()
     logger.info(files_dict)
 
-    data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
+    # data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
     survey_title: str = data.get("surveyTitle", "")
     survey_content: str = data.get("surveyDescription", "")

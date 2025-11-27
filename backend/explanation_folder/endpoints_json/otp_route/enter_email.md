@@ -1,4 +1,4 @@
-# PATCH - http://127.0.0.1:5000/api/otp/reset_pssw
+# PATCH - http://127.0.0.1:5000/api/otp/enter_email
 
 ## JSON you need to send here
 

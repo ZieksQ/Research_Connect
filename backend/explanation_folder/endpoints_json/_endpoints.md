@@ -1,6 +1,7 @@
-# List of API  Endpoints returned JSON
+# List of API Endpoints returned JSON
 
 ## /api/user
+
 ```bash
 POST - http://127.0.0.1:5000/api/user/register
 POST - http://127.0.0.1:5000/api/user/login
@@ -16,6 +17,7 @@ POST - http://127.0.0.1:5000/api/user/refresh
 ```
 
 ## /api/survey
+
 ```bash
 INTEGER is the ID of the post you want to fetch, useful for when the user clicked the post in a new tab
 GET - http://127.0.0.1:5000/api/survey/post/get/INTEGER
@@ -46,12 +48,14 @@ PATCH - http://127.0.0.1:5000/api/survey/post/update_data
 ```
 
 ## /api/oauth
+
 ```bash
 Dont call this, change the url of the frontend using windows.location.href or something. chatgpt it, for web redicrect_url=react and for flutter redicrect_url=flutter
 http://localhost:5000/api/oauth/login?redirect_url=react
 ```
 
 ## /api/otp
+
 ```bash
 POST - http://127.0.0.1:5000/api/otp/send_otp
 POST - http://127.0.0.1:5000/api/otp/input_otp
@@ -64,15 +68,19 @@ PATCH - http://127.0.0.1:5000/api/otp/enter_email
 ```
 
 ## /api/admin
+
 ```bash
 PATCH - http://127.0.0.1:5000/api/admin/approve_post
 GET - http://127.0.0.1:5000/api/admin/generate/post_code
 GET - http://127.0.0.1:5000/api/admin/post/get/not_approved
 POST - http://127.0.0.1:5000/api/admin/generate/post/category
+GET - http://127.0.0.1:5000/api/admin/generate/admin_acc/mass
+POST - http://127.0.0.1:5000/api/admin/generate/admin_acc/solo
 
 ```
 
 ## JSON
+
 ```JS
 Usual
 {
@@ -95,7 +103,7 @@ Unauthorized user Callback e.g. user accessing an endpoint wihtout logging it
 status: 401,
 ok: False,
 message: "You need to log in to access this",
-not_logged_in: True, 
+not_logged_in: True,
 logged_in_msg: "Please log in before accessing this"
 }
 

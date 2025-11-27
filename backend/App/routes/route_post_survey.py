@@ -310,6 +310,8 @@ def answer_questionnaire(id):
         for question in section.question_section:
 
             resp_answer_text = resp_section.get(question.another_id)
+            if not resp_answer_text:
+                continue
             q_type = question.q_type
 
             if q_type == QuestionType.CHECKBOX.value:

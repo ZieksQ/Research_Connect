@@ -20,6 +20,13 @@ export const submitSurveyResponse = async (id, surveydata) => {
   });
 };
 
+// check if user already answered the survey
+export const answerSurveyChecker = async (surveyId) =>
+  await apiFetch(`/api/survey/questionnaire/is_answered`, {
+    method: "POST",
+    body: JSON.stringify({ survey_id: surveyId }),
+  })
+
 // ---------------------------------
 // ============= GET ===============
 // ---------------------------------

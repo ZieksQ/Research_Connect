@@ -44,6 +44,9 @@ def handle_date_auto_format(date_str: str) -> str | None:
         "%B %d, %Y",
     ]
 
+    if not date_str:
+        return None
+
     for fmt in VALID_FORMATS:
         try:
             parsed = datetime.strptime(date_str, fmt)
@@ -706,7 +709,7 @@ def handle_user_answer_required(responses: dict[str, dict], sections_db: list[Se
             if question.answer_required and not resp_answer_text:
                 result.append(f"Section{scounter} - Question{qcounter}: Answer is missing")
 
-            if question.q_type == QuestionType.DATE.value:
+            if question.q_type == QuestionType.DATE.value and question.answer_required:
                 if not handle_date_auto_format(resp_answer_text):
                     result.append(f"Section{scounter} - Question{qcounter}: Wrong date format")
 

@@ -17,7 +17,8 @@ def expired_token_response(jwt_header: dict, jwt_payload: dict):
             401, False,
             "Your refresh token has expired. Please log in again.",
             token_expired=True, 
-            token_msg="refresh token expired"
+            token_msg="refresh token expired",
+            you_need_to_log_in_again=True
         )
     
     return jsonify_template_user(

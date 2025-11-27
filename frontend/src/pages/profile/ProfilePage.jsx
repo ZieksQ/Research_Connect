@@ -65,10 +65,10 @@ const ProfilePage = () => {
 
       {/* Navigation Tabs */}
       <nav role="tablist" className="tabs tabs-border mt-6 mb-6">
-        <NavLink to="/home/profile/posts" role="tab" className={`tab`}>
+        <NavLink to="/profile/posts" role="tab" className={`tab`}>
           Posts
         </NavLink>
-        <NavLink to="/home/profile/about" role="tab" className={`tab`}>
+        <NavLink to="/profile/about" role="tab" className={`tab`}>
           About
         </NavLink>
       </nav>

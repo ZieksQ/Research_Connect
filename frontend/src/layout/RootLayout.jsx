@@ -6,16 +6,28 @@ import Sidebar from "../components/navigation/Sidebar";
 const RootLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  const closeSidebar = () => setIsSidebarOpen(false);
+
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={closeSidebar}
+        />
+      )}
+
+      {/* Sidebar - Fixed on mobile, static on desktop */}
       <aside
-        className={`bg-base-200 transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? "w-80" : "w-0"
-        } overflow-hidden`}
+        className={`
+          bg-base-200 transition-all duration-300 ease-in-out overflow-hidden
+          fixed lg:static inset-y-0 left-0 z-50
+          ${isSidebarOpen ? "w-[clamp(280px,80vw,320px)] lg:w-[clamp(280px,20vw,360px)]" : "w-0"}
+        `}
       >
-        <div className="w-80 h-full">
-          <Sidebar />
+        <div className="w-[clamp(280px,80vw,320px)] lg:w-[clamp(280px,20vw,360px)] h-full">
+          <Sidebar onClose={closeSidebar} />
         </div>
       </aside>
 

@@ -1,12 +1,12 @@
 import React from "react";
 import {
   Route,
-  Routes,
   createBrowserRouter,
   createRoutesFromElements,
   RouterProvider,
   Navigate,
 } from "react-router-dom";
+import { answerSurveyChecker, getSurvey } from "./services/survey/survey.service.js";
 import PostPage from "./pages/PostPage.jsx";
 import LoginPage from "./pages/user/LoginPage.jsx";
 import SurveyPage from "./pages/survey/survey_respondent/SurveyPage.jsx";
@@ -52,7 +52,17 @@ const App = () => {
 
               {/* Survey routes (no RootRoute layout) */}
               <Route path="form">
-                <Route path="response/:id" element={<SurveyPage />} />
+                <Route 
+                  path="response/:id" 
+                  element={<SurveyPage />}
+                  loader={async ({ params }) => {
+                    const [answerCheck, surveyData] = await Promise.all([
+                      answerSurveyChecker(params.id),
+                      getSurvey(params.id)
+                    ]);
+                    return { answerCheck, surveyData };
+                  }}
+                />
                 <Route path="new" element={<SurveyBuilder />} />
                 <Route path="result/:id" element={<SurveyResult />} />
               </Route>

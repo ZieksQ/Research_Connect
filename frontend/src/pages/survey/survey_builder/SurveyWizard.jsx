@@ -1,14 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SurveyDetailsPage from './SurveyDetailsPage';
 import TargetAudiencePage from './TargetAudiencePage';
 import SortableForm from './SortableForm';
 import SurveyPreviewPage from './SurveyPreviewPage';
 import { publishSurvey } from '../../../services/survey/survey.service';
+import { MdCheckCircle, MdError, MdClose } from 'react-icons/md';
 // import { MdCheck } from 'react-icons/md';
 // import { log } from 'three';
 
 export default function SurveyWizard() {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
+  const [publishModal, setPublishModal] = useState({ show: false, success: false, message: '' });
+  const [isPublishing, setIsPublishing] = useState(false);
   const [surveyData, setSurveyData] = useState({
     surveyTitle: '',
     surveyDescription: '',
@@ -40,6 +45,17 @@ export default function SurveyWizard() {
     setCurrentStep(prev => Math.max(prev - 1, 0));
   };
 
+  // Auto-close modal and navigate on success
+  useEffect(() => {
+    if (publishModal.show && publishModal.success) {
+      const timer = setTimeout(() => {
+        setPublishModal({ show: false, success: false, message: '' });
+        navigate('/home');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [publishModal, navigate]);
+
   const handlePublish = async () => {
     // Helper function to convert type to camelCase
     const typeToCamelCase = (type) => {
@@ -51,7 +67,8 @@ export default function SurveyWizard() {
         'Rating': 'rating',
         'Dropdown': 'dropdown',
         'Date': 'date',
-        'Email': 'email'
+        'Email': 'email',
+        'Number': 'number'
       };
       return typeMap[type] || type.toLowerCase();
     };
@@ -115,9 +132,33 @@ export default function SurveyWizard() {
     }
     console.log("=== END ===");
 
-    alert("Survey published! Check the console for FormData contents.");
-
-    await publishSurvey(formData);
+    setIsPublishing(true);
+    try {
+      const response = await publishSurvey(formData);
+      
+      if (response && response.ok) {
+        setPublishModal({
+          show: true,
+          success: true,
+          message: response.message || 'Survey published successfully!'
+        });
+      } else {
+        setPublishModal({
+          show: true,
+          success: false,
+          message: response?.message || 'Failed to publish survey. Please try again.'
+        });
+      }
+    } catch (error) {
+      console.error('Error publishing survey:', error);
+      setPublishModal({
+        show: true,
+        success: false,
+        message: 'An unexpected error occurred. Please try again.'
+      });
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const CurrentStepComponent = steps[currentStep].component;
@@ -194,10 +235,81 @@ export default function SurveyWizard() {
           onBack={handleBack}
           updateData={updateSurveyData}
           onPublish={handlePublish}
+          isPublishing={isPublishing}
           isLastStep={currentStep === steps.length - 1}
           isFirstStep={currentStep === 0}
         />
       </div>
+
+      {/* Publishing Loading Overlay */}
+      {isPublishing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <div className="p-8 rounded-xl shadow-xl text-center" style={{ backgroundColor: '#ffffff', maxWidth: '300px' }}>
+            <span className="loading loading-spinner loading-lg" style={{ color: 'var(--color-accent-100)' }}></span>
+            <p className="mt-4 font-medium" style={{ color: 'var(--color-primary-color)' }}>
+              Publishing your survey...
+            </p>
+            <p className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+              Please wait
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Publish Result Modal */}
+      {publishModal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <div className="p-8 rounded-xl shadow-xl text-center" style={{ backgroundColor: '#ffffff', maxWidth: '400px', width: '90%' }}>
+            {publishModal.success ? (
+              <>
+                <MdCheckCircle 
+                  className="mx-auto mb-4" 
+                  style={{ fontSize: '4rem', color: '#22c55e' }} 
+                />
+                <h2 
+                  className="text-xl font-semibold mb-3" 
+                  style={{ color: 'var(--color-primary-color)' }}
+                >
+                  Success!
+                </h2>
+                <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+                  {publishModal.message}
+                </p>
+                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                  Redirecting to home in 3 seconds...
+                </p>
+              </>
+            ) : (
+              <>
+                <MdError 
+                  className="mx-auto mb-4" 
+                  style={{ fontSize: '4rem', color: '#dc2626' }} 
+                />
+                <h2 
+                  className="text-xl font-semibold mb-3" 
+                  style={{ color: 'var(--color-primary-color)' }}
+                >
+                  Publishing Failed
+                </h2>
+                <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+                  {publishModal.message}
+                </p>
+                <button
+                  onClick={() => setPublishModal({ show: false, success: false, message: '' })}
+                  className="btn"
+                  style={{
+                    backgroundColor: 'var(--color-primary-color)',
+                    borderColor: 'var(--color-primary-color)',
+                    color: '#ffffff'
+                  }}
+                >
+                  <MdClose className="mr-1" /> Close
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

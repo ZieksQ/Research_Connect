@@ -1,39 +1,134 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { getSurvey, submitSurveyResponse } from '../../../services/survey/survey.service';
-import { MdArrowBack, MdArrowForward, MdStar, MdStarBorder } from 'react-icons/md';
+import { useState } from 'react';
+import { useLoaderData, useNavigate } from 'react-router-dom';
+import { submitSurveyResponse } from '../../../services/survey/survey.service';
+import { MdArrowBack, MdArrowForward, MdStar, MdStarBorder, MdCheckCircle, MdError, MdHome } from 'react-icons/md';
 
 export default function SurveyPage() {
-  const { id } = useParams();
+  const { answerCheck, surveyData: loaderSurveyData } = useLoaderData();
+  const navigate = useNavigate();
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [responses, setResponses] = useState({});
   const [errors, setErrors] = useState({});
-  const [surveyData, setSurveyData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitResult, setSubmitResult] = useState(null); // { success: boolean, message: string }
+  
+  const surveyData = loaderSurveyData?.message;
+  const isAlreadyAnswered = answerCheck?.is_answered === true;
 
-  useEffect(() => {
-    fetchSurveyData();
-  }, [id]);
-
-  const fetchSurveyData = async () => {
-    setIsLoading(true);
-    try {
-      const data = await getSurvey(id);
-      console.log('Fetched survey data:', data);
-      setSurveyData(data?.message);
-    } catch (error) {
-      console.error('Error fetching survey:', error);
-    } finally {
-      setIsLoading(false);
-    }
+  // Email validation helper
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
-  if (isLoading) {
+  // Success/Error Screen after submission
+  if (submitResult) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
-        <div className="text-center">
-          <span className="loading loading-spinner loading-lg"></span>
-          <p className="mt-4" style={{ color: 'var(--color-text-secondary)' }}>Loading survey...</p>
+        <div className="text-center p-8 rounded-xl shadow-lg" style={{ backgroundColor: '#ffffff', maxWidth: '500px', width: '90%' }}>
+          {submitResult.success ? (
+            <>
+              <MdCheckCircle 
+                className="mx-auto mb-4" 
+                style={{ fontSize: '5rem', color: '#22c55e' }} 
+              />
+              <h2 
+                className="text-2xl font-semibold mb-4" 
+                style={{ color: 'var(--color-primary-color)' }}
+              >
+                Response Submitted!
+              </h2>
+              <p className="mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+                {submitResult.message || 'Thank you for completing this survey. Your response has been recorded.'}
+              </p>
+              <div className="border-t pt-6" style={{ borderColor: 'var(--color-secondary-background)' }}>
+                <p className="text-sm mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+                  {surveyData?.survey_title}
+                </p>
+                <button
+                  onClick={() => navigate('/home')}
+                  className="btn gap-2"
+                  style={{
+                    backgroundColor: 'var(--color-accent-100)',
+                    borderColor: 'var(--color-accent-100)',
+                    color: '#ffffff'
+                  }}
+                >
+                  <MdHome style={{ fontSize: '1.25rem' }} />
+                  Back to Home
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <MdError 
+                className="mx-auto mb-4" 
+                style={{ fontSize: '5rem', color: '#dc2626' }} 
+              />
+              <h2 
+                className="text-2xl font-semibold mb-4" 
+                style={{ color: 'var(--color-primary-color)' }}
+              >
+                Submission Failed
+              </h2>
+              <p className="mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+                {Array.isArray(submitResult.message) 
+                  ? submitResult.message.join(', ') 
+                  : submitResult.message || 'Something went wrong. Please try again.'}
+              </p>
+              {submitResult.extraMsg && (
+                <p className="text-sm mb-4" style={{ color: '#dc2626' }}>
+                  {submitResult.extraMsg}
+                </p>
+              )}
+              <div className="flex gap-3 justify-center mt-6">
+                <button
+                  onClick={() => setSubmitResult(null)}
+                  className="btn"
+                  style={{
+                    backgroundColor: 'var(--color-primary-color)',
+                    borderColor: 'var(--color-primary-color)',
+                    color: '#ffffff'
+                  }}
+                >
+                  Try Again
+                </button>
+                <button
+                  onClick={() => navigate('/home')}
+                  className="btn btn-outline"
+                  style={{
+                    borderColor: 'var(--color-primary-color)',
+                    color: 'var(--color-primary-color)'
+                  }}
+                >
+                  Go Home
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Show message if survey is already answered
+  if (isAlreadyAnswered) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
+        <div className="text-center p-8 rounded-xl shadow-lg" style={{ backgroundColor: '#ffffff', maxWidth: '500px' }}>
+          <MdCheckCircle 
+            className="mx-auto mb-4" 
+            style={{ fontSize: '4rem', color: 'var(--color-accent-100)' }} 
+          />
+          <h2 
+            className="text-2xl font-semibold mb-4" 
+            style={{ color: 'var(--color-primary-color)' }}
+          >
+            Survey Already Completed
+          </h2>
+          <p style={{ color: 'var(--color-text-secondary)' }}>
+            {answerCheck?.message || 'You have already answered this survey'}
+          </p>
         </div>
       </div>
     );
@@ -110,13 +205,15 @@ export default function SurveyPage() {
     const newErrors = {};
     
     currentSection.questions.forEach(question => {
+      const answer = responses[question.question_id]?.answer;
+      
+      // Check required fields
       if (question.question_required) {
-        const answer = responses[question.question_id]?.answer;
-        
         if (!answer || 
             (Array.isArray(answer) && answer.length === 0) || 
             (typeof answer === 'string' && answer.trim() === '')) {
           newErrors[question.question_id] = 'This question is required';
+          return; // Skip other validations if empty
         }
         
         // Validate multiple choice min/max
@@ -124,6 +221,13 @@ export default function SurveyPage() {
           if (answer.length < question.question_minChoice) {
             newErrors[question.question_id] = `Please select at least ${question.question_minChoice} option(s)`;
           }
+        }
+      }
+      
+      // Email validation (even if not required, validate format if provided)
+      if (['email', 'Email'].includes(question.question_type) && answer && answer.trim() !== '') {
+        if (!isValidEmail(answer)) {
+          newErrors[question.question_id] = 'Please enter a valid email address';
         }
       }
     });
@@ -146,6 +250,8 @@ export default function SurveyPage() {
 
   const handleSubmit = async () => {
     if (validateSection()) {
+      setIsSubmitting(true);
+      
       // Transform responses to match backend format
       const responsesBySection = {};
       
@@ -226,18 +332,26 @@ export default function SurveyPage() {
       try {
         const res = await submitSurveyResponse(surveyData.pk_survey_id, submissionData);
 
-        // Check if res exists and has ok property
         if (res && res.ok) {
-          alert('Survey submitted successfully!');
-          // TODO: Navigate to success page
-          // navigate('/survey/success');
+          setSubmitResult({
+            success: true,
+            message: res.message || 'Your response has been recorded successfully!'
+          });
         } else {
-          alert('Failed to submit survey. Please check the console for details.');
-          console.error('Submit response:', res);
+          setSubmitResult({
+            success: false,
+            message: res?.message || 'Failed to submit survey. Please try again.',
+            extraMsg: res?.extra_msg
+          });
         }
       } catch (error) {
         console.error('Error submitting survey:', error);
-        alert('Failed to submit survey. Please try again.');
+        setSubmitResult({
+          success: false,
+          message: 'An unexpected error occurred. Please try again.'
+        });
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -285,21 +399,80 @@ export default function SurveyPage() {
           />
         );
 
-      case 'email':
-      case 'Email':
+      case 'number':
+      case 'Number':
         return (
           <input
-            type="email"
+            type="number"
             value={responses[question.question_id]?.answer || ''}
             onChange={(e) => handleInputChange(question.question_id, e.target.value)}
+            onKeyDown={(e) => {
+              // Allow: backspace, delete, tab, escape, enter, decimal point
+              if ([46, 8, 9, 27, 13, 110, 190].includes(e.keyCode) ||
+                  // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                  (e.keyCode === 65 && e.ctrlKey === true) ||
+                  (e.keyCode === 67 && e.ctrlKey === true) ||
+                  (e.keyCode === 86 && e.ctrlKey === true) ||
+                  (e.keyCode === 88 && e.ctrlKey === true) ||
+                  // Allow: home, end, left, right
+                  (e.keyCode >= 35 && e.keyCode <= 39) ||
+                  // Allow: minus sign for negative numbers
+                  e.keyCode === 189 || e.keyCode === 109) {
+                return;
+              }
+              // Ensure that it is a number and stop the keypress if not
+              if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+              }
+            }}
             className={`input input-bordered w-full ${hasError ? 'input-error' : ''}`}
             style={{
               backgroundColor: 'var(--color-background)',
               borderColor: hasError ? '#dc2626' : 'var(--color-shade-primary)',
-              color: 'var(--color-primary-color)'
+              color: 'var(--color-primary-color)',
+              fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)',
+              padding: 'clamp(0.5rem, 1vw, 0.75rem)'
             }}
-            placeholder="your.email@example.com"
+            placeholder="Enter a number"
           />
+        );
+
+      case 'email':
+      case 'Email':
+        const emailValue = responses[question.question_id]?.answer || '';
+        const isEmailInvalid = emailValue && !isValidEmail(emailValue);
+        return (
+          <div>
+            <label className="input input-bordered flex items-center gap-2 w-full validator" style={{
+              backgroundColor: 'var(--color-background)',
+              borderColor: hasError || isEmailInvalid ? '#dc2626' : 'var(--color-shade-primary)',
+            }}>
+              <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
+                  <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                </g>
+              </svg>
+              <input
+                type="email"
+                value={emailValue}
+                onChange={(e) => handleInputChange(question.question_id, e.target.value)}
+                className="grow bg-transparent border-none outline-none"
+                style={{
+                  color: 'var(--color-primary-color)'
+                }}
+                placeholder="your.email@example.com"
+              />
+            </label>
+            {isEmailInvalid && !hasError && (
+              <p className="text-sm mt-2 flex items-center gap-1" style={{ color: '#dc2626' }}>
+                <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clipRule="evenodd" />
+                </svg>
+                Please enter a valid email address
+              </p>
+            )}
+          </div>
         );
 
       case 'date':
@@ -320,7 +493,7 @@ export default function SurveyPage() {
 
       case 'rating':
       case 'Rating':
-        const maxRating = question.question_maxChoice || question.maxRating || 5;
+        const maxRating = question.question_maxRating || question.question_maxChoice || 5;
         return (
           <div className="flex gap-2 flex-wrap">
             {Array.from({ length: maxRating }, (_, i) => i + 1).map((star) => (
@@ -669,17 +842,41 @@ export default function SurveyPage() {
           ) : (
             <button
               onClick={handleSubmit}
+              disabled={isSubmitting}
               className="btn flex-1"
               style={{
                 backgroundColor: 'var(--color-accent-100)',
                 borderColor: 'var(--color-accent-100)',
-                color: '#ffffff'
+                color: '#ffffff',
+                opacity: isSubmitting ? 0.7 : 1
               }}
             >
-              Submit Survey
+              {isSubmitting ? (
+                <>
+                  <span className="loading loading-spinner loading-sm"></span>
+                  Submitting...
+                </>
+              ) : (
+                'Submit Survey'
+              )}
             </button>
           )}
         </div>
+
+        {/* Loading Modal */}
+        {isSubmitting && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+            <div className="p-8 rounded-xl shadow-xl text-center" style={{ backgroundColor: '#ffffff', maxWidth: '300px' }}>
+              <span className="loading loading-spinner loading-lg" style={{ color: 'var(--color-accent-100)' }}></span>
+              <p className="mt-4 font-medium" style={{ color: 'var(--color-primary-color)' }}>
+                Submitting your response...
+              </p>
+              <p className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+                Please wait
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Progress Indicator */}
         <div className="mt-6">

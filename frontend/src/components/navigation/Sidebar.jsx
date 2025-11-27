@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { FiLogOut, FiSettings, FiUser } from "react-icons/fi";
+import { FiLogOut, FiSettings, FiUser, FiHome, FiX } from "react-icons/fi";
 import { logoutUser } from "../../services/auth";
 
-const Sidebar = () => {
+const Sidebar = ({ onClose }) => {
   const { userInfo, setUserInfo } = useAuth();
   const navigate = useNavigate();
   const profile_pic_url = userInfo?.message?.user_info?.profile_pic_url;
@@ -26,45 +26,64 @@ const Sidebar = () => {
 
   return (
     <div className="bg-base-200 flex h-full flex-col">
+      {/* Mobile Close Button */}
+      <div className="lg:hidden flex justify-end p-[clamp(12px,3vw,16px)]">
+        <button
+          onClick={onClose}
+          className="btn btn-ghost btn-sm btn-circle"
+          aria-label="Close sidebar"
+        >
+          <FiX size={20} />
+        </button>
+      </div>
       {/* Navigation Menu */}
-      <ul className="menu w-full text-base-content flex-1 space-y-2 p-4 ">
+      <ul className="menu w-full text-base-content flex-1 space-y-[clamp(8px,1vw,12px)] p-[clamp(12px,2vw,20px)] text-[clamp(14px,1vw,16px)]">
         <li>
           <NavLink
             to="/home"
-            className={({ isActive }) => (isActive ? "active-navbar" : "")}
+            className={({ isActive }) =>
+              `flex items-center gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] ${isActive ? "active-navbar" : ""}`
+            }
           >
+            <FiHome className="w-[clamp(18px,1.2vw,22px)] h-[clamp(18px,1.2vw,22px)]" />
             <span>Homepage</span>
           </NavLink>
         </li>
         <li>
           <NavLink
-            to="/home/profile"
-            className={({ isActive }) => (isActive ? "active-navbar" : "")}
+            to="/profile"
+            className={({ isActive }) =>
+              `flex items-center gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] ${isActive ? "active-navbar" : ""}`
+            }
           >
+            <FiUser className="w-[clamp(18px,1.2vw,22px)] h-[clamp(18px,1.2vw,22px)]" />
             <span>Profile</span>
           </NavLink>
         </li>
         <li>
           <NavLink
             to="/settings"
-            className={({ isActive }) => (isActive ? "active-navbar" : "")}
+            className={({ isActive }) =>
+              `flex items-center gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] ${isActive ? "active-navbar" : ""}`
+            }
           >
+            <FiSettings className="w-[clamp(18px,1.2vw,22px)] h-[clamp(18px,1.2vw,22px)]" />
             <span>Settings</span>
           </NavLink>
         </li>
       </ul>
 
       {/* Profile Section at Bottom */}
-      <div className="border-base-300 border-t p-4">
+      <div className="border-base-300 border-t p-[clamp(12px,2vw,20px)]">
         <div className="dropdown dropdown-top w-full">
           <div
             tabIndex={0}
             role="button"
-            className="btn btn-ghost hover:bg-base-300 h-auto w-full justify-start p-2"
+            className="btn btn-ghost hover:bg-base-300 h-auto w-full justify-start p-[clamp(8px,1vw,12px)]"
           >
-            <div className="flex w-full items-center gap-3">
+            <div className="flex w-full items-center gap-[clamp(10px,1.5vw,14px)]">
               <div className="avatar">
-                <div className="w-10 rounded-full">
+                <div className="w-[clamp(36px,3vw,48px)] rounded-full">
                   <img
                     src={profile_pic_url || "https://via.placeholder.com/150"}
                     alt="Profile"
@@ -72,10 +91,10 @@ const Sidebar = () => {
                 </div>
               </div>
               <div className="flex min-w-0 flex-1 flex-col items-start">
-                <span className="w-full truncate text-sm font-semibold">
+                <span className="w-full truncate text-[clamp(13px,0.9vw,15px)] font-semibold">
                   {username || "User"}
                 </span>
-                <span className="text-base-content/60 w-full truncate text-xs">
+                <span className="text-base-content/60 w-full truncate text-[clamp(11px,0.7vw,13px)]">
                   {school || "Unknown School"}
                 </span>
               </div>
@@ -84,23 +103,23 @@ const Sidebar = () => {
 
           <ul
             tabIndex={0}
-            className="dropdown-content menu bg-base-100 rounded-box z-[1] mb-2 w-full p-2 shadow-lg"
+            className="dropdown-content menu bg-base-100 rounded-box z-[1] mb-2 w-full p-[clamp(8px,1vw,12px)] shadow-lg text-[clamp(13px,0.9vw,15px)]"
           >
             <li>
               <button
-                onClick={() => navigate("/home/profile")}
-                className="flex items-center gap-2"
+                onClick={() => navigate("/profile")}
+                className="flex items-center gap-[clamp(8px,1vw,12px)]"
               >
-                <FiUser size={16} />
+                <FiUser className="w-[clamp(14px,1vw,18px)] h-[clamp(14px,1vw,18px)]" />
                 <span>View Profile</span>
               </button>
             </li>
             <li>
               <button
                 onClick={() => navigate("/settings")}
-                className="flex items-center gap-2"
+                className="flex items-center gap-[clamp(8px,1vw,12px)]"
               >
-                <FiSettings size={16} />
+                <FiSettings className="w-[clamp(14px,1vw,18px)] h-[clamp(14px,1vw,18px)]" />
                 <span>Settings</span>
               </button>
             </li>
@@ -108,9 +127,9 @@ const Sidebar = () => {
             <li>
               <button
                 onClick={handleLogout}
-                className="text-error hover:bg-error/10 flex items-center gap-2"
+                className="text-error hover:bg-error/10 flex items-center gap-[clamp(8px,1vw,12px)]"
               >
-                <FiLogOut size={16} />
+                <FiLogOut className="w-[clamp(14px,1vw,18px)] h-[clamp(14px,1vw,18px)]" />
                 <span>Logout</span>
               </button>
             </li>

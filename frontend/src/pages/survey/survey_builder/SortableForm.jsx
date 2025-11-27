@@ -22,6 +22,16 @@ import {
   MdUpload,
   MdExpandMore,
   MdExpandLess,
+  MdContentCopy,
+  MdShortText,
+  MdSubject,
+  MdRadioButtonChecked,
+  MdCheckBox,
+  MdStar,
+  MdArrowDropDownCircle,
+  MdCalendarToday,
+  MdEmail,
+  MdNumbers,
 } from 'react-icons/md';
 import { FaLink } from 'react-icons/fa';
 
@@ -63,6 +73,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
   const questionTypes = [
     'Short Text',
     'Long Text',
+    'Number',
     'Radio Button',
     'Checkbox',
     'Rating',
@@ -70,6 +81,19 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
     'Date',
     'Email',
   ];
+
+  // Question type icons mapping
+  const questionTypeIcons = {
+    'Short Text': MdShortText,
+    'Long Text': MdSubject,
+    'Number': MdNumbers,
+    'Radio Button': MdRadioButtonChecked,
+    'Checkbox': MdCheckBox,
+    'Rating': MdStar,
+    'Dropdown': MdArrowDropDownCircle,
+    'Date': MdCalendarToday,
+    'Email': MdEmail,
+  };
 
   const addSection = () => {
     const newSection = {
@@ -130,6 +154,33 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
           ? { ...s, questions: s.questions.filter((q) => q.id !== questionId) }
           : s
       )
+    );
+  };
+
+  const duplicateQuestion = (sectionId, questionId) => {
+    setSections(
+      sections.map((s) => {
+        if (s.id === sectionId) {
+          const questionIndex = s.questions.findIndex((q) => q.id === questionId);
+          if (questionIndex !== -1) {
+            const questionToDuplicate = s.questions[questionIndex];
+            const duplicatedQuestion = {
+              ...questionToDuplicate,
+              id: `question-${Date.now()}`,
+              title: questionToDuplicate.title ? `${questionToDuplicate.title} (Copy)` : '',
+              options: questionToDuplicate.options.map((opt) => ({
+                ...opt,
+                id: `option-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+              })),
+              image: questionToDuplicate.image ? { ...questionToDuplicate.image } : null,
+            };
+            const newQuestions = [...s.questions];
+            newQuestions.splice(questionIndex + 1, 0, duplicatedQuestion);
+            return { ...s, questions: newQuestions };
+          }
+        }
+        return s;
+      })
     );
   };
 
@@ -558,29 +609,55 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                     placeholder="Enter your question"
                                   />
 
-                                  <select
-                                    value={question.type}
-                                    onChange={(e) =>
-                                      updateQuestion(
-                                        section.id,
-                                        question.id,
-                                        'type',
-                                        e.target.value
-                                      )
-                                    }
-                                    className="select select-bordered select-sm w-full mb-3"
-                                    style={{ 
-                                      backgroundColor: 'var(--color-background)',
-                                      borderColor: 'var(--color-shade-primary)',
-                                      color: 'var(--color-primary-color)'
-                                    }}
-                                  >
-                                    {questionTypes.map((type) => (
-                                      <option key={type} value={type}>
-                                        {type}
-                                      </option>
-                                    ))}
-                                  </select>
+                                  <div className="dropdown dropdown-bottom w-full mb-3">
+                                    <div 
+                                      tabIndex={0} 
+                                      role="button" 
+                                      className="btn btn-sm w-full justify-between"
+                                      style={{ 
+                                        backgroundColor: 'var(--color-background)',
+                                        borderColor: 'var(--color-shade-primary)',
+                                        color: 'var(--color-primary-color)'
+                                      }}
+                                    >
+                                      <span className="flex items-center gap-2">
+                                        {(() => {
+                                          const IconComponent = questionTypeIcons[question.type];
+                                          return IconComponent ? <IconComponent className="text-lg" style={{ color: 'var(--color-accent-100)' }} /> : null;
+                                        })()}
+                                        {question.type}
+                                      </span>
+                                      <MdExpandMore className="text-lg" />
+                                    </div>
+                                    <ul 
+                                      tabIndex={0} 
+                                      className="dropdown-content z-[1] menu p-2 shadow-lg rounded-box w-full"
+                                      style={{ backgroundColor: '#ffffff', border: '1px solid var(--color-shade-primary)' }}
+                                    >
+                                      {questionTypes.map((type) => {
+                                        const IconComponent = questionTypeIcons[type];
+                                        return (
+                                          <li key={type}>
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                updateQuestion(section.id, question.id, 'type', type);
+                                                document.activeElement?.blur();
+                                              }}
+                                              className={`flex items-center gap-2 ${question.type === type ? 'active' : ''}`}
+                                              style={{ 
+                                                color: 'var(--color-primary-color)',
+                                                backgroundColor: question.type === type ? 'var(--color-secondary-background)' : 'transparent'
+                                              }}
+                                            >
+                                              {IconComponent && <IconComponent className="text-lg" style={{ color: 'var(--color-accent-100)' }} />}
+                                              {type}
+                                            </button>
+                                          </li>
+                                        );
+                                      })}
+                                    </ul>
+                                  </div>
 
                                   {question.type === 'Checkbox' && (
                                     <div className="grid grid-cols-2 gap-3 mb-3">
@@ -778,6 +855,18 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                         title="Add Video Link"
                                       >
                                         <FaLink className="text-base" />
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          duplicateQuestion(section.id, question.id)
+                                        }
+                                        className="btn btn-ghost btn-xs"
+                                        style={{ 
+                                          color: 'var(--color-shade-primary)'
+                                        }}
+                                        title="Duplicate Question"
+                                      >
+                                        <MdContentCopy className="text-lg" />
                                       </button>
                                     </div>
                                   </div>

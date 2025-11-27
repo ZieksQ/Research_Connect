@@ -1,24 +1,86 @@
 import React from 'react'
-import InfoCard from '../../components/profile/InfoCard.jsx'
-import { MdOutlineEmail, MdFingerprint } from "react-icons/md";
+import { MdOutlineEmail } from "react-icons/md";
 import { IoSchoolOutline } from "react-icons/io5";
 import { GoBook } from "react-icons/go";
 import { CiUser } from "react-icons/ci";
-import { LuPhone } from "react-icons/lu";
+import { useAuth } from '../../hooks/useAuth';
 
 // About Section in Profile Page
-// Change Color to 300 later if you want a lighter shade
 const ProfileAboutPage = () => {
+  const { userInfo, loading } = useAuth();
+
+  const user = userInfo?.message?.user_info;
+
+  const infoItems = [
+    {
+      icon: <CiUser className="w-5 h-5" />,
+      title: "Username",
+      value: user?.username || 'Not set',
+      gradient: "from-blue-500 to-blue-600"
+    },
+    {
+      icon: <MdOutlineEmail className="w-5 h-5" />,
+      title: "Email",
+      value: user?.email || 'No email linked',
+      gradient: "from-violet-500 to-purple-600"
+    },
+    {
+      icon: <IoSchoolOutline className="w-5 h-5" />,
+      title: "School",
+      value: user?.school || 'Not set',
+      gradient: "from-rose-500 to-red-600"
+    },
+    {
+      icon: <GoBook className="w-5 h-5" />,
+      title: "Program",
+      value: user?.program || 'Not set',
+      gradient: "from-cyan-500 to-teal-600"
+    }
+  ];
+
+  if (loading) {
+    return (
+      <main className="flex flex-col gap-3 px-4 py-2">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="animate-pulse flex items-center gap-3 p-4 bg-base-200 rounded-xl">
+            <div className="w-12 h-12 bg-base-300 rounded-xl"></div>
+            <div className="flex-1 space-y-2">
+              <div className="h-3 bg-base-300 rounded w-20"></div>
+              <div className="h-4 bg-base-300 rounded w-32"></div>
+            </div>
+          </div>
+        ))}
+      </main>
+    );
+  }
+
   return (
-    <main className='flex flex-col gap-2 px-4'>
-      <InfoCard Icon={<CiUser className='icon-md'/>} Title="Username" Value={"Andy Gabriel"} Color="bg-blue-500" />
-      <InfoCard Icon={<MdOutlineEmail className='icon-md'/>} Title="Email" Value={"AndyGabriel@sample.ph"} Color="bg-violet-500" />
-      <InfoCard Icon={<LuPhone className='icon-md'/>} Title="Phone Number" Value={"+63 xxxx904"} Color="bg-green-500" />
-      <InfoCard Icon={<MdFingerprint className='icon-md'/>} Title="School ID" Value={"0124-0000"} Color="bg-orange-500" />
-      <InfoCard Icon={<IoSchoolOutline className='icon-md'/>} Title="School" Value={"Laguna State Polytechnic University"} Color="bg-red-500" />
-      <InfoCard Icon={<GoBook className='icon-md'/>} Title="Course" Value={"BS Information Technology"} Color="bg-cyan-500" />
+    <main className="flex flex-col gap-3 px-4 py-2">
+      {infoItems.map((item, index) => (
+        <div
+          key={index}
+          className="group flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-base-200"
+        >
+          {/* Icon Container */}
+          <div
+            className={`flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform duration-200`}
+          >
+            {item.icon}
+          </div>
+
+          {/* Text Content */}
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-xs font-medium text-text-secondary uppercase tracking-wide">
+              {item.title}
+            </span>
+            <span className="text-base font-semibold text-primary-color truncate" title={item.value}>
+              {item.value}
+            </span>
+          </div>
+        </div>
+      ))}
     </main>
-  )
+  );
 }
 
 export default ProfileAboutPage

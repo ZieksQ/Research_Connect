@@ -1,12 +1,15 @@
 import React from "react";
 import {
   Route,
-  Routes,
   createBrowserRouter,
   createRoutesFromElements,
   RouterProvider,
   Navigate,
 } from "react-router-dom";
+import {
+  answerSurveyChecker,
+  getSurvey,
+} from "./services/survey/survey.service.js";
 import PostPage from "./pages/PostPage.jsx";
 import LoginPage from "./pages/user/LoginPage.jsx";
 import SurveyPage from "./pages/survey/survey_respondent/SurveyPage.jsx";
@@ -41,18 +44,28 @@ const App = () => {
             <Route element={<RootLayout />}>
               <Route path="home">
                 <Route index element={<HomePage />} />
-                <Route path="feed" element={<HomePage />} />
-                {/* Profile section (inherits RootRoute) */}
-                <Route path="profile" element={<ProfilePage />}>
-                  <Route index element={<Navigate to="posts" replace />} />
-                  <Route path="posts" element={<ProfilePostsPage />} />
-                  <Route path="about" element={<ProfileAboutPage />} />
-                </Route>
+              </Route>
+              
+              {/* Profile section (inherits RootRoute) */}
+              <Route path="profile" element={<ProfilePage />}>
+                <Route index element={<Navigate to="posts" replace />} />
+                <Route path="posts" element={<ProfilePostsPage />} />
+                <Route path="about" element={<ProfileAboutPage />} />
               </Route>
 
               {/* Survey routes (no RootRoute layout) */}
               <Route path="form">
-                <Route path="response/:id" element={<SurveyPage />} />
+                <Route
+                  path="response/:id"
+                  element={<SurveyPage />}
+                  loader={async ({ params }) => {
+                    const [answerCheck, surveyData] = await Promise.all([
+                      answerSurveyChecker(params.id),
+                      getSurvey(params.id),
+                    ]);
+                    return { answerCheck, surveyData };
+                  }}
+                />
                 <Route path="new" element={<SurveyBuilder />} />
                 <Route path="result/:id" element={<SurveyResult />} />
               </Route>

@@ -1,9 +1,10 @@
-import { MdMoreVert, MdAccessTime, MdPeople } from 'react-icons/md';
+import { MdMoreVert, MdAccessTime, MdPeople, MdBookmarkBorder, MdShare, MdFlag, MdCheck } from 'react-icons/md';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function PostCard({ post }) {
   const [showMenu, setShowMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
@@ -21,6 +22,21 @@ export default function PostCard({ post }) {
   const handleMenuClick = (action) => {
     console.log(`${action} clicked for post ${post.pk_survey_id}`);
     setShowMenu(false);
+  };
+
+  const handleShare = async () => {
+    const shareUrl = `http://localhost:5173/form/response/${post.pk_survey_id}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+        setShowMenu(false);
+      }, 1500);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      setShowMenu(false);
+    }
   };
 
   const handleTakeSurvey = () => {
@@ -100,50 +116,63 @@ export default function PostCard({ post }) {
           {/* Dropdown Menu */}
           {showMenu && (
             <div 
-              className="absolute right-0 z-10 rounded-lg shadow-lg"
+              className="absolute right-0 z-10 rounded-xl shadow-xl overflow-hidden"
               style={{
                 backgroundColor: '#ffffff',
                 border: '1px solid var(--color-shade-primary)',
-                minWidth: 'clamp(150px, 15vw, 180px)',
-                marginTop: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+                minWidth: '180px',
+                marginTop: '0.5rem',
+                animation: 'fadeIn 0.15s ease-out'
               }}
             >
-              <ul className="menu menu-sm">
-                <li>
-                  <button 
-                    onClick={() => handleMenuClick('Save')}
-                    style={{
-                      fontSize: 'clamp(0.8125rem, 1.25vw, 0.9375rem)',
-                      padding: 'clamp(0.5rem, 1vw, 0.75rem)'
-                    }}
-                  >
-                    Save Post
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => handleMenuClick('Share')}
-                    style={{
-                      fontSize: 'clamp(0.8125rem, 1.25vw, 0.9375rem)',
-                      padding: 'clamp(0.5rem, 1vw, 0.75rem)'
-                    }}
-                  >
-                    Share
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => handleMenuClick('Report')}
-                    style={{
-                      fontSize: 'clamp(0.8125rem, 1.25vw, 0.9375rem)',
-                      padding: 'clamp(0.5rem, 1vw, 0.75rem)',
-                      color: '#dc2626'
-                    }}
-                  >
-                    Report
-                  </button>
-                </li>
-              </ul>
+              <div className="py-1">
+                <button 
+                  onClick={() => handleMenuClick('Save')}
+                  className="w-full flex items-center gap-3 hover:bg-gray-50 transition-colors"
+                  style={{
+                    fontSize: '0.875rem',
+                    padding: '0.75rem 1rem',
+                    color: 'var(--color-primary-color)'
+                  }}
+                >
+                  <MdBookmarkBorder style={{ fontSize: '1.25rem', color: 'var(--color-text-secondary)' }} />
+                  Save Post
+                </button>
+                <button 
+                  onClick={handleShare}
+                  className="w-full flex items-center gap-3 hover:bg-gray-50 transition-colors"
+                  style={{
+                    fontSize: '0.875rem',
+                    padding: '0.75rem 1rem',
+                    color: copied ? '#22c55e' : 'var(--color-primary-color)'
+                  }}
+                >
+                  {copied ? (
+                    <>
+                      <MdCheck style={{ fontSize: '1.25rem', color: '#22c55e' }} />
+                      Link Copied!
+                    </>
+                  ) : (
+                    <>
+                      <MdShare style={{ fontSize: '1.25rem', color: 'var(--color-text-secondary)' }} />
+                      Share
+                    </>
+                  )}
+                </button>
+                <div style={{ height: '1px', backgroundColor: 'var(--color-shade-primary)', margin: '0.25rem 0' }} />
+                <button 
+                  onClick={() => handleMenuClick('Report')}
+                  className="w-full flex items-center gap-3 hover:bg-red-50 transition-colors"
+                  style={{
+                    fontSize: '0.875rem',
+                    padding: '0.75rem 1rem',
+                    color: '#dc2626'
+                  }}
+                >
+                  <MdFlag style={{ fontSize: '1.25rem' }} />
+                  Report
+                </button>
+              </div>
             </div>
           )}
         </div>

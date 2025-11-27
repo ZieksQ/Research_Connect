@@ -1,6 +1,6 @@
 import { MdCheckCircle } from 'react-icons/md';
 
-export default function SurveyPreviewPage({ data, onBack, onPublish }) {
+export default function SurveyPreviewPage({ data, onBack, onPublish, isPublishing }) {
   const totalQuestions = data.data?.reduce((sum, section) => sum + section.questions.length, 0) || 0;
 
   return (
@@ -141,25 +141,36 @@ export default function SurveyPreviewPage({ data, onBack, onPublish }) {
       <div className="flex gap-3">
         <button
           onClick={onBack}
+          disabled={isPublishing}
           className="btn flex-1"
           style={{
             backgroundColor: 'transparent',
             borderColor: 'var(--color-primary-color)',
-            color: 'var(--color-primary-color)'
+            color: 'var(--color-primary-color)',
+            opacity: isPublishing ? 0.5 : 1
           }}
         >
           Back
         </button>
         <button
           onClick={onPublish}
+          disabled={isPublishing}
           className="btn flex-1"
           style={{
             backgroundColor: 'var(--color-primary-color)',
             borderColor: 'var(--color-primary-color)',
-            color: '#ffffff'
+            color: '#ffffff',
+            opacity: isPublishing ? 0.5 : 1
           }}
         >
-          Publish
+          {isPublishing ? (
+            <>
+              <span className="loading loading-spinner loading-sm"></span>
+              Publishing...
+            </>
+          ) : (
+            'Publish'
+          )}
         </button>
       </div>
     </div>

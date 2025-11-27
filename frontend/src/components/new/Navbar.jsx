@@ -67,7 +67,7 @@ const Navbar = () => {
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-60 p-2 shadow"
           >
             <li>
-              <Link to="/home/profile" className="justify-between">
+              <Link to="/profile" className="justify-between">
                 Profile
                 <span className="badge badge-accent badge-sm">Beta</span>
               </Link>

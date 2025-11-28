@@ -106,6 +106,7 @@ class Oauth_Users(Root_User):
             "email": self.email,
             "school": self.school,
             "program": self.program,
+            "user_type": self.user_type,
         }
 
 

@@ -109,7 +109,6 @@ class Oauth_Users(Root_User):
             "user_type": self.user_type,
         }
 
-
 class RefreshToken(Base):
     __tablename__ = "user_refreshtoken"
 

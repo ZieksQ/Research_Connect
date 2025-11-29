@@ -24,7 +24,7 @@ who_user_query = lambda id, utype: db.get(Users, id) if utype == "local" else db
 @jwt_required()
 @limiter.limit("3 per 10 minute;10 per hour;30 per day")
 def send_otp():
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
 
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
@@ -188,7 +188,7 @@ def reset_pssw():
 @limiter.limit("3 per minute;100 per hour; 30 per day")
 def enter_email():
 
-    data: dict = request.get_json()
+    data: dict = request.get_json() or {}
     otp = data.get("otp")
 
     user_id = get_jwt_identity()

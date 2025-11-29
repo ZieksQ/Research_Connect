@@ -369,7 +369,7 @@ def answer_questionnaire(id):
 @check_user
 @limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
 def post_update_data():
-    data: dict = request.get_json()
+    data: dict = request.get_json(silent=True) or {}
 
     user_id = get_jwt_identity()
     post_id = data.get("id")
@@ -386,10 +386,10 @@ def post_update_data():
     
     survey: Surveys = post.survey_posts
     
-    post_title = data.get("title", post.title)
-    post_content = data.get("post_content", post.content)
-    post_desc = data.get("survey_description", survey.content)
-    status = data.get("status", PostStatus.OPEN.value)
+    post_title = data.get("title", post.title) or post.title
+    post_content = data.get("post_content", post.content) or post.content
+    post_desc = data.get("survey_description", survey.content) or survey.content
+    status = data.get("status", PostStatus.OPEN.value) or PostStatus.OPEN.value
 
     post_requirements, post_req_flag = handle_post_requirements(post_title, post_content)
     if post_req_flag:

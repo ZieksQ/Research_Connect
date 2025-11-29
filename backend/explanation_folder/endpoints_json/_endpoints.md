@@ -44,6 +44,7 @@ POST - http://127.0.0.1:5000/api/survey/answer/questionnaire/<int:id>
 POST - http://127.0.0.1:5000/api/survey/questionnaire/is_answered
 
 PATCH - http://127.0.0.1:5000/api/survey/post/archive
+PATCH - http://127.0.0.1:5000/api/survey/post/unarchive
 PATCH - http://127.0.0.1:5000/api/survey/post/update_data
 ```
 

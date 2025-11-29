@@ -98,6 +98,30 @@ def archive_post():
 
     return jsonify_template_user(200, True, f"You have archived post No.{post_id}")
 
+@survey_posting.route("/post/unarchive", methods=['PATCH'])
+@jwt_required()
+@check_user
+@limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
+def unarchive_post():
+    data: dict = request.get_json()
+    post_id = data.get("id")
+
+    post = db.get(Posts, int(post_id))
+    if not post:
+        logger.info("User tried to archive as non exixtent post")
+        return jsonify_template_user(404, False, "Post does not exists")
+    
+    post.archived = False
+
+    success, error = commit_session()
+    if not success:
+        logger.error(error)
+        return jsonify_template_user(500, False, "Database Error")
+    
+    logger.info(f"User has unarchived post No.{post_id}")
+
+    return jsonify_template_user(200, True, f"You have unarchived post No.{post_id}")
+
 @survey_posting.route("/post/get/questionnaire/<int:id>", methods=["GET"])
 @jwt_required()
 @check_user

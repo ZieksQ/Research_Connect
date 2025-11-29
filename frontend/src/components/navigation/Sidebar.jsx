@@ -1,10 +1,10 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { FiLogOut, FiSettings, FiUser, FiHome, FiX } from "react-icons/fi";
+import { FiLogOut, FiSettings, FiUser, FiX } from "react-icons/fi";
 import { logoutUser } from "../../services/auth";
 
-const Sidebar = ({ onClose }) => {
+const Sidebar = ({ onClose, navLinks = [] }) => {
   const { userInfo, setUserInfo } = useAuth();
   const navigate = useNavigate();
   const profile_pic_url = userInfo?.message?.user_info?.profile_pic_url;
@@ -38,39 +38,28 @@ const Sidebar = ({ onClose }) => {
       </div>
       {/* Navigation Menu */}
       <ul className="menu w-full text-base-content flex-1 space-y-[clamp(8px,1vw,12px)] p-[clamp(12px,2vw,20px)] text-[clamp(14px,1vw,16px)]">
-        <li>
-          <NavLink
-            to="/home"
-            className={({ isActive }) =>
-              `flex items-center gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] ${isActive ? "active-navbar" : ""}`
-            }
-          >
-            <FiHome className="w-[clamp(18px,1.2vw,22px)] h-[clamp(18px,1.2vw,22px)]" />
-            <span>Homepage</span>
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/profile"
-            className={({ isActive }) =>
-              `flex items-center gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] ${isActive ? "active-navbar" : ""}`
-            }
-          >
-            <FiUser className="w-[clamp(18px,1.2vw,22px)] h-[clamp(18px,1.2vw,22px)]" />
-            <span>Profile</span>
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/settings"
-            className={({ isActive }) =>
-              `flex items-center gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] ${isActive ? "active-navbar" : ""}`
-            }
-          >
-            <FiSettings className="w-[clamp(18px,1.2vw,22px)] h-[clamp(18px,1.2vw,22px)]" />
-            <span>Settings</span>
-          </NavLink>
-        </li>
+        {navLinks.map((link) => {
+          const IconComponent = link.icon;
+          return (
+            <li key={link.to}>
+              <NavLink
+                to={link.to}
+                className={({ isActive }) =>
+                  `flex items-center gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] ${
+                    link.isBackLink 
+                      ? 'hover:bg-warning/20 hover:text-warning' 
+                      : isActive 
+                        ? 'active-navbar' 
+                        : ''
+                  }`
+                }
+              >
+                <IconComponent className="w-[clamp(18px,1.2vw,22px)] h-[clamp(18px,1.2vw,22px)]" />
+                <span>{link.label}</span>
+              </NavLink>
+            </li>
+          );
+        })}
       </ul>
 
       {/* Profile Section at Bottom */}

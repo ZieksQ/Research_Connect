@@ -1,10 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Navbar from "../components/navigation/Navbar";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/navigation/Sidebar";
+import { FiHome, FiShield } from "react-icons/fi";
+import { useAuth } from "../hooks/useAuth";
 
 const RootLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { userInfo } = useAuth();
+  const userRole = userInfo?.message?.user_info?.role;
+
+  const rootNavLinks = useMemo(() => {
+    const links = [
+      { to: "/home", label: "Homepage", icon: FiHome },
+    ];
+
+    // Add Admin link if user is admin
+    if (userRole === "admin") {
+      links.push({ to: "/admin/request", label: "Admin", icon: FiShield });
+    }
+
+    return links;
+  }, [userRole]);
 
   const closeSidebar = () => setIsSidebarOpen(false);
 
@@ -27,7 +44,7 @@ const RootLayout = () => {
         `}
       >
         <div className="w-[clamp(280px,80vw,320px)] lg:w-[clamp(280px,20vw,360px)] h-full">
-          <Sidebar onClose={closeSidebar} />
+          <Sidebar onClose={closeSidebar} navLinks={rootNavLinks} />
         </div>
       </aside>
 

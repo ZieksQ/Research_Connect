@@ -5,12 +5,13 @@ from secrets import token_hex
 from functools import wraps
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import select
+from secrets import token_hex
 from App.database import db_session as db
 from App.helper_methods import logger_setup, commit_session, jsonify_template_user
 from App.helper_user_validation import handle_category_requirements
 from App.models.model_enums import User_Roles
 from App.models.model_post import Posts, Category
-from App.models.model_users import Root_User
+from App.models.model_users import Root_User, Users
 from App.models.model_otp import Code
 
 admin = Blueprint("admin", __name__)
@@ -107,6 +108,69 @@ def get_posts_not_approved():
     logger.info(f"{posts}")
 
     return jsonify_template_user(200, True, data)
+
+@admin.route("/generate/admin_acc/mass", methods=['GET'])
+def create_admin_mass():
+
+    HOW_MANY_ADMIN = 10
+
+    for _ in range(HOW_MANY_ADMIN):
+        user = Users(username=f"admin{token_hex(3)}")
+        user.role = User_Roles.ADMIN.value
+        user.set_password("1234")
+        db.add(user)
+
+    succ, err = commit_session()
+    if not succ:
+        logger.info(err)
+        return jsonify_template_user(500, False, "Somehow the usernames got duplicated, since username is unique, just press it again")
+    
+    stmt = select(Users).where(Users.role == User_Roles.ADMIN.value)
+
+    data = db.scalars(stmt).all()
+        
+    logger.info(f"You have created {len(data)} admin")
+    logger.info(data)
+    return jsonify_template_user(200,
+                                 True,
+                                 [f"{admin.username} : 1234" for admin in data])
+
+@admin.route("/generate/admin_acc/solo", methods=['POST'])
+def create_admin_solo():
+
+    data: dict = request.get_json()
+
+    username = data.get("username")
+    password = data.get("password")
+
+    if not username or not password:
+        return jsonify_template_user(400, False, "Damn nigga at least fill in these inputs, you asked for these routes")
+    
+    stmt = select(Users).where(Users.username == username)
+    if db.scalars(stmt).first():
+        return jsonify_template_user(409, False, "Username already exists")
+    
+    user = Users(username=username)
+    user.set_password(password)
+    user.role = User_Roles.ADMIN.value
+
+    db.add(user)
+
+    succ, err = commit_session()
+    if not succ:
+        logger.info(err)
+        return jsonify_template_user(500, False, err)
+    
+    stmt = select(Users).where(Users.role == User_Roles.ADMIN.value)
+
+    data = db.scalars(stmt).all()
+        
+    logger.info(f"You have created {len(data)} admin")
+    logger.info(data)
+    return jsonify_template_user(200,
+                                 True,
+                                 f"You have created {username} : {password}")
+
 
 @admin.route("/generate/post/category", methods=['POST'])
 @jwt_required()

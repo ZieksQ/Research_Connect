@@ -28,6 +28,8 @@ const ProfilePostsPage = lazy(() => import("./pages/profile/ProfilePostsPage.jsx
 const SurveyBuilder = lazy(() => import("./pages/survey/survey_builder/SurveyWizard.jsx"));
 const SurveyResult = lazy(() => import("./pages/survey/survey-results/SurveyResult.jsx"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
+const AdminRequest = lazy(() => import("./pages/admin/AdminRequest.jsx"));
+const AdminReviewPosts = lazy(() => import("./pages/admin/AdminReviewPosts.jsx"));
 const AdminLayout = lazy(() => import("./layout/AdminLayout.jsx"));
 const HomePage = lazy(() => import("./pages/home/HomePage.jsx"));
 const Settings = lazy(() => import("./components/settings/Settings.jsx"));
@@ -92,6 +94,8 @@ const App = () => {
           {/* Admin routes */}
           <Route path="admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
+            <Route path="request" element={<AdminRequest />} />
+            <Route path="request/review/:id" element={<AdminReviewPosts />} />
           </Route>
         </Route>
       </>,

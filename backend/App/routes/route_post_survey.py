@@ -13,7 +13,7 @@ from App.models.model_survey_q_a import Surveys, Question, Answers, Choice, Ques
 from App.models.model_users import Root_User
 from App.models.model_otp import Code
 from App.models.model_enums import QuestionType, Question_type_inter, PostStatus
-from App.models.model_association import RootUser_Survey
+from App.models.model_association import RootUser_Survey, RootUser_Post_Liked
 from App.helper_methods import ( jsonify_template_user, commit_session, flush_session,
                                 logger_setup, datetime_return_tzinfo )
 from App.helper_user_validation import (handle_post_input_exist, handle_post_requirements, handle_web_survey_input_exist, 
@@ -47,10 +47,30 @@ def check_user(func):
 def get_posts():
 
     # posts = Posts.query.order_by(order).all()
-    stmt = select(Posts)#.where(Posts.approved == True)
+    stmt = select(Posts).order_by(Posts.date_updated.asc())
+    #.where(Posts.approved == True)
     posts = db.scalars(stmt).all()
+    user_id = get_jwt_identity()
+    
+    stmt = select(RootUser_Post_Liked).where(RootUser_Post_Liked.root_user_id == int(user_id))
+    list_of_post_liked = [ l.post_id for l in db.scalars(stmt).all() ] or []
 
-    data = [post.get_post() for post in posts]
+    data = [{
+            "pk_survey_id": post.id,
+            "survey_title": post.title,
+            "survey_content": post.content,
+            "survey_category": post.category,
+            "survey_target_audience": post.target_audience,
+            "survey_date_created": post.date_created,
+            "survey_date_updated": post.date_updated,
+            "user_username": post.user.username,
+            "user_profile": post.user.profile_pic_url,
+            "user_program": post.user.program,
+            "approx_time": post.survey_posts.approx_time,
+            "num_of_responses": post.num_of_responses,
+            "num_of_likes": len(post.link_user_liked),
+            "is_liked": post.id in list_of_post_liked
+        } for post in posts]
     
     logger.info(f"{posts}")
 
@@ -66,8 +86,32 @@ def get_posts_solo(id):
 
     if not post:
         return jsonify_template_user(404, False, "Post not found")
+    
+    user_id = get_jwt_identity()
 
-    data = post.get_post()
+    if post.archived and post.user_id != int(user_id):
+        logger.info(f"{user_id} tried to access an archived post")
+        return jsonify_template_user(401, False, "Why are you visiting a deleted post")
+    
+    stmt = select(RootUser_Post_Liked).where(RootUser_Post_Liked.root_user_id == int(user_id))
+    list_of_post_liked = [ l.post_id for l in db.scalars(stmt).all() ] or []
+
+    data = {
+            "pk_survey_id": post.id,
+            "survey_title": post.title,
+            "survey_content": post.content,
+            "survey_category": post.category,
+            "survey_target_audience": post.target_audience,
+            "survey_date_created": post.date_created,
+            "survey_date_updated": post.date_updated,
+            "user_username": post.user.username,
+            "user_profile": post.user.profile_pic_url,
+            "user_program": post.user.program,
+            "approx_time": post.survey_posts.approx_time,
+            "num_of_responses": post.num_of_responses,
+            "num_of_likes": len(post.link_user_liked),
+            "is_liked": post.id in list_of_post_liked,
+        }
 
     logger.info(f"{post} {data}")
 
@@ -299,6 +343,12 @@ def answer_questionnaire(id):
     if not survey:
         logger.info("User tried to answer a questionnaire with no existing post")
         return jsonify_template_user(404, False, "There is no such post like that")
+    
+    post_db: Posts = survey.posts_survey
+    
+    if post_db.archived and post_db.user_id != int(user_id):
+        logger.info(f"{user_id} tried to access an archived post")
+        return jsonify_template_user(401, False, "Why are you visiting a deleted post")
     
     data: dict = request.get_json()
 
@@ -561,6 +611,55 @@ def survey_count_questions(id):
         data_dict[f"section{counter}"] = d[1]
 
     return jsonify_template_user(200, True, data_dict)
+
+@survey_posting.route("/post/like", methods=['POST'])
+@jwt_required()
+@limiter.limit("60 per minute;5000 per day", key_func=get_jwt_identity)
+def post_like():
+    data: dict = request.get_json()
+    post_id = data.get("post_id") or None
+
+    user_id = get_jwt_identity()
+    user = db.get(Root_User, int(user_id))
+
+    if not user:
+        logger.info("Someone tried to access like post wihtout logging int")
+        return jsonify_template_user(401, False, "Please log in")
+
+    if not post_id:
+        logger.info(f"{user_id} tried to tamper with the json body")
+        return jsonify_template_user(400, False, "Pleaase do not tamper with the json")
+    
+    post = db.get(Posts, int(post_id))
+
+    if not post:
+        logger.info(f"{user_id} tried to like a non existant post")
+        return jsonify_template_user(404, False, "The post you liked is non existent")
+    
+    stmt = select(RootUser_Post_Liked).where(
+        and_(RootUser_Post_Liked.root_user_id == user.id, 
+             RootUser_Post_Liked.post_id == post.id))
+    
+    liked_post = db.scalars(stmt).first()
+    if liked_post:
+        db.delete(liked_post)
+        succ, err = commit_session()
+        if not succ:
+            logger.info(err)
+            return jsonify_template_user(500, False, "Database Error")
+        
+        return jsonify_template_user(200, True, f"You have unliked post{post_id}")
+    
+    liked_post = RootUser_Post_Liked(post_id=post.id, root_user_id=user.id)
+    db.add(liked_post)
+    succ, err = commit_session()
+    if not succ:
+        logger.info(err)
+        return jsonify_template_user(500, False, "Database Error")
+    
+    return jsonify_template_user(200, True, f"You have liked post{post_id}")
+
+
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

@@ -27,6 +27,10 @@ class Posts(Base):
     user: Mapped["Root_User"] = relationship("Root_User", back_populates="posts")
     survey_posts: Mapped["Surveys"] = relationship("Surveys", back_populates="posts_survey",
                                                    cascade="all, delete-orphan", uselist=False)
+    
+    link_user_liked: Mapped[list["RootUser_Post_Liked"]] = relationship("RootUser_Post_Liked", 
+                                                          back_populates="post", uselist=True,
+                                                          cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"Post: {self.id}"

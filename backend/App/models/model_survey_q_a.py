@@ -24,7 +24,7 @@ class Surveys(Base):
     section_survey: Mapped[list["Section"]] = relationship( "Section", back_populates="survey_section", uselist=True,
                                                               cascade="all, delete-orphan", lazy="selectin")
     
-    link_user: Mapped["RootUser_Survey"] = relationship( "RootUser_Survey",
+    link_user: Mapped[list["RootUser_Survey"]] = relationship( "RootUser_Survey", uselist=True,
                                                         back_populates="survey",
                                                         cascade="all, delete-orphan")
 
@@ -40,7 +40,7 @@ class Surveys(Base):
             "survey_target_audience" : self.target_audience,
             "survey_section" : [s.get_date() for s in self.section_survey],
             "survey_tags" : self.tags,
-            "num_of_responses" : self.num_of_responses,
+            "num_of_responses" : len(self.link_user),
         }
 
 class Section(Base):

@@ -100,7 +100,8 @@ def generate_post_code():
 def get_posts_not_approved():
 
     # posts = Posts.query.order_by(order).all()
-    stmt = select(Posts).where(Posts.approved == False)
+    stmt = select(Posts).where(Posts.approved == False
+        ).order_by( Posts.date_created.desc())
     posts = db.scalars(stmt).all()
 
     data = [post.get_post() for post in posts]

@@ -78,7 +78,8 @@ def revoked_token_callback(jwt_header, jwt_payload):
         401, False,
         "This token has been revoked. Please log in again.",
         token_revoked=True,
-        token_msg="revoked token"
+        token_msg="revoked token",
+        you_need_to_log_in_again=True
     )
 
 # tandem para sa additional claims loader 

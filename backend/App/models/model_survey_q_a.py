@@ -18,6 +18,8 @@ class Surveys(Base):
     approx_time: Mapped[str] = mapped_column(String(128), nullable=False)
     target_audience: Mapped[list[str]] = mapped_column(JSON, nullable=False)
 
+    num_of_responses: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
     posts_survey: Mapped["Posts"] = relationship("Posts", back_populates="survey_posts")
     section_survey: Mapped[list["Section"]] = relationship( "Section", back_populates="survey_section", uselist=True,
                                                               cascade="all, delete-orphan", lazy="selectin")
@@ -38,6 +40,7 @@ class Surveys(Base):
             "survey_target_audience" : self.target_audience,
             "survey_section" : [s.get_date() for s in self.section_survey],
             "survey_tags" : self.tags,
+            "num_of_responses" : self.num_of_responses,
         }
 
 class Section(Base):

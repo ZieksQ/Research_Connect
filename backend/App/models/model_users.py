@@ -54,6 +54,8 @@ class Users(Root_User):
     email: Mapped[str] = mapped_column(String(256), nullable=True)
     school: Mapped[str] = mapped_column(String(256), nullable=True)
     program: Mapped[str] = mapped_column(String(256), nullable=True)
+
+    num_of_answered_survey: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     
     __mapper_args__ = {"polymorphic_identity": "local"}
 
@@ -70,6 +72,8 @@ class Users(Root_User):
             "school": self.school,
             "program": self.program,
             "user_type": self.user_type,
+            "num_post_created": len(self.posts),
+            "num_of_answered_survey": self.num_of_answered_survey
         }
 
     def check_password(self, password):

@@ -65,6 +65,7 @@ def get_posts():
             "survey_date_updated": post.date_updated,
             "user_username": post.user.username,
             "user_profile": post.user.profile_pic_url,
+            "user_program": post.user.program,
             "approx_time": post.survey_posts.approx_time,
             "num_of_responses": post.num_of_responses,
             "num_of_likes": len(post.link_user_liked),
@@ -87,6 +88,10 @@ def get_posts_solo(id):
         return jsonify_template_user(404, False, "Post not found")
     
     user_id = get_jwt_identity()
+
+    if post.archived and post.user_id != int(user_id):
+        logger.info(f"{user_id} tried to access an archived post")
+        return jsonify_template_user(401, False, "Why are you visiting a deleted post")
     
     stmt = select(RootUser_Post_Liked).where(RootUser_Post_Liked.root_user_id == int(user_id))
     list_of_post_liked = [ l.post_id for l in db.scalars(stmt).all() ] or []
@@ -101,6 +106,7 @@ def get_posts_solo(id):
             "survey_date_updated": post.date_updated,
             "user_username": post.user.username,
             "user_profile": post.user.profile_pic_url,
+            "user_program": post.user.program,
             "approx_time": post.survey_posts.approx_time,
             "num_of_responses": post.num_of_responses,
             "num_of_likes": len(post.link_user_liked),
@@ -337,6 +343,12 @@ def answer_questionnaire(id):
     if not survey:
         logger.info("User tried to answer a questionnaire with no existing post")
         return jsonify_template_user(404, False, "There is no such post like that")
+    
+    post_db: Posts = survey.posts_survey
+    
+    if post_db.archived and post_db.user_id != int(user_id):
+        logger.info(f"{user_id} tried to access an archived post")
+        return jsonify_template_user(401, False, "Why are you visiting a deleted post")
     
     data: dict = request.get_json()
 

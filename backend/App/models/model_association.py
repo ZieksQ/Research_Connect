@@ -18,5 +18,17 @@ class RootUser_Survey(Base):
 
     answered_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
-    user: Mapped["Root_User"] = relationship( "Root_User", back_populates="link_survey", uselist=True)
-    survey: Mapped["Surveys"] = relationship( "Surveys", back_populates="link_user", uselist=True)
+    user: Mapped["Root_User"] = relationship( "Root_User", back_populates="link_survey")
+    survey: Mapped["Surveys"] = relationship( "Surveys", back_populates="link_user")
+
+class RootUser_Post_Liked(Base):
+    __tablename__ = "rootUser_post_liked"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    root_user_id: Mapped[int] = mapped_column(ForeignKey("users_root.id"))
+    post_id: Mapped[int] = mapped_column(ForeignKey("users_posts.id"))
+
+    liked_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+
+    user: Mapped["Root_User"] = relationship( "Root_User", back_populates="link_post_liked")
+    post: Mapped["Posts"] = relationship( "Posts", back_populates="link_user_liked")

@@ -29,8 +29,13 @@ class Root_User(Base):
                                        back_populates="user",
                                        cascade="all, delete-orphan")
     
-    link_survey: Mapped["RootUser_Survey"] = relationship("RootUser_Survey",
+    link_survey: Mapped[list["RootUser_Survey"]] = relationship("RootUser_Survey", uselist=True,
                                                           back_populates="user",
+                                                          cascade="all, delete-orphan")
+    
+    
+    link_post_liked: Mapped[list["RootUser_Post_Liked"]] = relationship("RootUser_Post_Liked", 
+                                                          back_populates="user", uselist=True,
                                                           cascade="all, delete-orphan")
     
     def __repr__(self):
@@ -73,7 +78,8 @@ class Users(Root_User):
             "program": self.program,
             "user_type": self.user_type,
             "num_post_created": len(self.posts),
-            "num_of_answered_survey": self.num_of_answered_survey
+            "num_of_answered_survey": len(self.link_survey),
+            "num_of_post_liked": len(self.link_post_liked),
         }
 
     def check_password(self, password):
@@ -111,6 +117,9 @@ class Oauth_Users(Root_User):
             "school": self.school,
             "program": self.program,
             "user_type": self.user_type,
+            "num_post_created": len(self.posts),
+            "num_of_answered_survey": len(self.link_survey),
+            "num_of_post_liked": len(self.link_post_liked),
         }
 
 class RefreshToken(Base):

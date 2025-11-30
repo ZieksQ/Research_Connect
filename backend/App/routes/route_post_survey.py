@@ -69,7 +69,6 @@ def get_posts_solo(id):
 
     data = post.get_post()
 
-
     logger.info(f"{post} {data}")
 
     return jsonify_template_user(200, True, data)
@@ -352,7 +351,10 @@ def answer_questionnaire(id):
                 answer = Answers(user=user, answer_text=str(resp_answer_text))
                 question.answers.append(answer)
 
-    user_survey_answered = RootUser_Survey(user=user, survey=survey)
+    user_survey_answered = RootUser_Survey(root_user_id=user.id, svy_surveys_id=survey.id)
+    user.num_of_answered_survey += 1
+    survey.num_of_responses += 1
+    survey.posts_survey.num_of_responses += 1
 
     db.add(user_survey_answered)
     succ, err = commit_session()
@@ -370,6 +372,8 @@ def answer_questionnaire(id):
 @limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
 def post_update_data():
     data: dict = request.get_json(silent=True) or {}
+
+    logger.info(data)
 
     user_id = get_jwt_identity()
     post_id = data.get("id")
@@ -436,6 +440,12 @@ def survey_responses(id):
     choice_data = {}
     dates_data = {}
     rating_data = {}
+
+    stmt = select(func.count(RootUser_Survey.id)
+                  ).where(
+                      RootUser_Survey.svy_surveys_id == survey.id
+                  )
+    total_peeps_who_answered = db.scalars(stmt).first()
 
     for section in survey.section_survey:
         for question in section.question_section:
@@ -512,6 +522,7 @@ def survey_responses(id):
         "survey_tags": survey.tags,
         "survey_approx_time": survey.approx_time,
         "survey_target_audience": survey.target_audience,
+        "_total_peeps_who_answered": total_peeps_who_answered,
         "choices_data": choice_data if choice_data else None,
         "dates_data": dates_data if dates_data else None,
         "rating_data": rating_data if rating_data else None,

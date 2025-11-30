@@ -20,6 +20,8 @@ class Posts(Base):
     approved: Mapped[bool] = mapped_column(Boolean, default=False)
     status: Mapped[str] = mapped_column(String(16), nullable=False, default="open")
 
+    num_of_responses: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_root.id"), nullable=False)
 
     user: Mapped["Root_User"] = relationship("Root_User", back_populates="posts")
@@ -41,6 +43,7 @@ class Posts(Base):
             "user_username": self.user.username,
             "user_profile": self.user.profile_pic_url,
             "approx_time": self.survey_posts.approx_time,
+            "num_of_responses": self.num_of_responses
         }
     
 class Category(Base):

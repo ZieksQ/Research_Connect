@@ -1,9 +1,10 @@
 from App import supabase_client, limiter
 from flask import request, current_app, Blueprint, jsonify
 from datetime import datetime, timezone
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, and_, or_, func
 from App.database import db_session as db
 from App.models.model_users import Root_User, Users, Oauth_Users, RefreshToken
+from App.models.model_association import RootUser_Survey
 from App.models.model_enums import User_Roles
 from App.helper_user_validation import ( handle_user_input_exist, handle_validate_requirements, 
                                         handle_profile_pic, handle_password_reset_user, handle_user_info_requirements )
@@ -223,6 +224,7 @@ def get_user_data():
         return jsonify_template_user(400, False, "How did you even access this, you are not in the database")
 
     who_user =  who_user_query(int(user_id), user.user_type)
+
     user_info = who_user.get_user()
     user_posts = [post.get_post() for post in user.posts]
 

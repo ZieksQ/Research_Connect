@@ -48,6 +48,6 @@ export const apiFetch = async (url, options = {}) => {
     return data;
   } catch (err) {
     console.error("API Fetch Error:", err);
-    return;
+    return { ok: false, message: "Network error. Please check your connection." };
   }
 };

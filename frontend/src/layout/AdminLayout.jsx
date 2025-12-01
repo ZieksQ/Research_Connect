@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import Navbar from '../components/navigation/Navbar';
 import Sidebar from '../components/navigation/Sidebar';
 import { Outlet } from 'react-router-dom';
-import { FiClipboard, FiArrowLeft } from 'react-icons/fi';
+import { FiClipboard, FiArrowLeft, FiKey } from 'react-icons/fi';
 import { useAuth } from '../hooks/useAuth';
 import AdminUnauthorized from '../pages/admin/AdminUnauthorized';
 
 const adminNavLinks = [
   { to: '/admin/request', label: 'Requests', icon: FiClipboard },
+  { to: '/admin/generate-code', label: 'Generate Code', icon: FiKey },
   { to: '/home', label: 'Go back to Homepage', icon: FiArrowLeft, isBackLink: true },
 ];
 

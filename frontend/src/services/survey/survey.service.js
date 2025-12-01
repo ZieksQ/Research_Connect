@@ -6,7 +6,7 @@ import { apiFetch } from "../fetcher";
 
 // for publishing survey - sending for approval
 export const publishSurvey = async (surveyData) => {
-  await apiFetch("/api/survey/post/send/questionnaire/web", {
+  return await apiFetch("/api/survey/post/send/questionnaire/web", {
     method: "POST",
     body: surveyData,
   });
@@ -44,3 +44,10 @@ export const getSurvey = async (id) => {
     method: "GET",
   });
 };
+
+// delete post
+export const deleteSurvey = async (id) => 
+  await apiFetch(`/api/survey/post/archive`, {
+    method: "PATCH",
+    body: JSON.stringify(id),
+  })

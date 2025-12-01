@@ -20,7 +20,6 @@ import ProtectedLayout from "./layout/ProtectedLayout.jsx";
 import RootLayout from "./layout/RootLayout.jsx";
 
 // Lazy loaded components - loaded on demand
-const PostPage = lazy(() => import("./pages/PostPage.jsx"));
 const SurveyPage = lazy(() => import("./pages/survey/survey_respondent/SurveyPage.jsx"));
 const ProfilePage = lazy(() => import("./pages/profile/ProfilePage.jsx"));
 const ProfileAboutPage = lazy(() => import("./pages/profile/ProfileAboutPage.jsx"));
@@ -30,6 +29,7 @@ const SurveyResult = lazy(() => import("./pages/survey/survey-results/SurveyResu
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
 const AdminRequest = lazy(() => import("./pages/admin/AdminRequest.jsx"));
 const AdminReviewPosts = lazy(() => import("./pages/admin/AdminReviewPosts.jsx"));
+const AdminGenerateCode = lazy(() => import("./pages/admin/AdminGenerateCode.jsx"));
 const AdminLayout = lazy(() => import("./layout/AdminLayout.jsx"));
 const HomePage = lazy(() => import("./pages/home/HomePage.jsx"));
 const Settings = lazy(() => import("./components/settings/Settings.jsx"));
@@ -96,6 +96,7 @@ const App = () => {
             <Route index element={<AdminDashboard />} />
             <Route path="request" element={<AdminRequest />} />
             <Route path="request/review/:id" element={<AdminReviewPosts />} />
+            <Route path="generate-code" element={<AdminGenerateCode />} />
           </Route>
         </Route>
       </>,

@@ -44,6 +44,7 @@ class Posts(Base):
             "survey_target_audience": self.target_audience,
             "survey_date_created": self.date_created,
             "survey_date_updated": self.date_updated,
+            "status": self.status,
             "user_username": self.user.username,
             "user_profile": self.user.profile_pic_url,
             "approx_time": self.survey_posts.approx_time,

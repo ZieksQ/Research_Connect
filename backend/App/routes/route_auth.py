@@ -4,7 +4,8 @@ from datetime import datetime, timezone
 from sqlalchemy import select, and_, or_, func
 from App.database import db_session as db
 from App.models.model_users import Root_User, Users, Oauth_Users, RefreshToken
-from App.models.model_association import RootUser_Survey
+from App.models.model_post import Posts
+from App.models.model_association import RootUser_Survey, RootUser_Post_Liked
 from App.models.model_enums import User_Roles
 from App.helper_user_validation import ( handle_user_input_exist, handle_validate_requirements, 
                                         handle_profile_pic, handle_password_reset_user, handle_user_info_requirements )
@@ -225,8 +226,29 @@ def get_user_data():
 
     who_user =  who_user_query(int(user_id), user.user_type)
 
+    stmt = select(RootUser_Post_Liked).where(RootUser_Post_Liked.root_user_id == int(user_id))
+    list_of_post_liked = [ l.post_id for l in db.scalars(stmt).all() ] or []
+
+    posts: list[Posts] = user.posts
+
     user_info = who_user.get_user()
-    user_posts = [post.get_post() for post in user.posts]
+    user_posts = [{
+            "pk_survey_id": post.id,
+            "survey_title": post.title,
+            "survey_content": post.content,
+            "survey_category": post.category,
+            "status": post.status,
+            "survey_target_audience": post.target_audience,
+            "survey_date_created": post.date_created,
+            "survey_date_updated": post.date_updated,
+            "user_username": who_user.username,
+            "user_profile": who_user.profile_pic_url,
+            "user_program": who_user.program,
+            "approx_time": post.survey_posts.approx_time,
+            "num_of_responses": post.num_of_responses,
+            "num_of_likes": len(post.link_user_liked),
+            "is_liked": post.id in list_of_post_liked
+        } for post in posts]
 
     data = {"user_info": user_info, 
             "user_posts": user_posts,}

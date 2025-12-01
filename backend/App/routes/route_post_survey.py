@@ -47,8 +47,11 @@ def check_user(func):
 def get_posts():
 
     # posts = Posts.query.order_by(order).all()
-    stmt = select(Posts).order_by(Posts.date_updated.asc())
-    #.where(Posts.approved == True)
+    # also add you will only get the approved post
+    stmt = select(Posts).where(
+        Posts.status == PostStatus.OPEN.value
+        ).order_by(Posts.date_updated.asc())
+    
     posts = db.scalars(stmt).all()
     user_id = get_jwt_identity()
     
@@ -60,6 +63,7 @@ def get_posts():
             "survey_title": post.title,
             "survey_content": post.content,
             "survey_category": post.category,
+            "status": post.status,
             "survey_target_audience": post.target_audience,
             "survey_date_created": post.date_created,
             "survey_date_updated": post.date_updated,
@@ -89,6 +93,10 @@ def get_posts_solo(id):
     
     user_id = get_jwt_identity()
 
+    if post.status == PostStatus.CLOSED.value and post.user_id != int(user_id):
+        logger.info(f"{user_id} tried to access a closed post")
+        return jsonify_template_user(401, False, "Why are you visiting a closed post")
+
     if post.archived and post.user_id != int(user_id):
         logger.info(f"{user_id} tried to access an archived post")
         return jsonify_template_user(401, False, "Why are you visiting a deleted post")
@@ -101,6 +109,7 @@ def get_posts_solo(id):
             "survey_title": post.title,
             "survey_content": post.content,
             "survey_category": post.category,
+            "status": post.status,
             "survey_target_audience": post.target_audience,
             "survey_date_created": post.date_created,
             "survey_date_updated": post.date_updated,
@@ -437,6 +446,10 @@ def post_update_data():
     if not post:
         logger.info("Someone tried to updated a non existant post")
         return jsonify_template_user(404, False, "This post is non existant")
+    
+    if post.user.id != int(user_id):
+        logger.info(f"{user_id} tried to edit a post that is not theirs")
+        return jsonify_template_user(401, False, "You are not the owner of this post")
     
     survey: Surveys = post.survey_posts
     

@@ -22,6 +22,7 @@ class QuestionType(Enum):
 class PostStatus(Enum):
     OPEN = "open"
     CLOSED = "closed"
+    REJECTED = "rejected"
 
 class Question_type_inter:
     CHOICES_TYPE_WEB = ("radioButton", "checkBox", "dropdown")

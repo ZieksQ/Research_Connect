@@ -4,13 +4,14 @@ from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from secrets import token_hex
 from functools import wraps
 from datetime import datetime, timedelta, timezone
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from secrets import token_hex
 from App.database import db_session as db
 from App.helper_methods import logger_setup, commit_session, jsonify_template_user
 from App.helper_user_validation import handle_category_requirements
+from App.models.model_enums import PostStatus
 from App.models.model_enums import User_Roles
-from App.models.model_post import Posts, Category
+from App.models.model_post import Posts, Category, Rejected_Post
 from App.models.model_users import Root_User, Users
 from App.models.model_otp import Code
 
@@ -100,7 +101,7 @@ def generate_post_code():
 def get_posts_not_approved():
 
     # posts = Posts.query.order_by(order).all()
-    stmt = select(Posts).where(Posts.approved == False
+    stmt = select(Posts).where(and_(Posts.approved == False, Posts.archived == False)
         ).order_by( Posts.date_created.desc())
     posts = db.scalars(stmt).all()
 
@@ -109,6 +110,39 @@ def get_posts_not_approved():
     logger.info(f"{posts}")
 
     return jsonify_template_user(200, True, data)
+
+@admin.route("/post/reject", methods=['PATCH'])
+@jwt_required()
+@check_user_admin
+@limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
+def post_reject():
+
+    data: dict = request.get_json()
+    user_id = get_jwt_identity()
+
+    reject_msg: str = data.get("reject_msg").strip()
+    post_id = data.get("post_id")
+
+    post = db.get(Posts, int(post_id))
+
+    if not post:
+        logger.info(f"{user_id} tried to reject a non existent post")
+        return jsonify_template_user(404, False, "The post you tried to reject is non existent")
+    
+    if not reject_msg:
+        logger.info(f"{user_id} tried to reject a post without a message")
+        return jsonify_template_user(400, False, "You must provide a reject message")
+
+    reject_db = Rejected_Post(reject_msg=reject_msg)
+    post.status = PostStatus.REJECTED.value
+    post.reject_post = reject_db
+
+    succ, err = commit_session()
+    if not succ:
+        logger.info(err)
+        return jsonify_template_user(500, False, "Database Error")
+    
+    return jsonify_template_user(200, True, f"You have rejected {post_id}")
 
 @admin.route("/generate/admin_acc/mass", methods=['GET'])
 def create_admin_mass():
@@ -171,36 +205,3 @@ def create_admin_solo():
     return jsonify_template_user(200,
                                  True,
                                  f"You have created {username} : {password}")
-
-
-@admin.route("/generate/post/category", methods=['POST'])
-@jwt_required()
-@check_user_admin
-@limiter.limit("1 per minute;20 per hour;200 per day")
-def generate_post_category():
-    data: dict = request.get_json()
-    user_id = get_jwt_identity()
-
-    category_text: str = data.get("category")
-
-    if not category_text:
-        logger.info(f"Admin{user_id} failed to provide an input in category")
-        return jsonify_template_user(404, False, "Please provide a category")
-    
-    category_msg, category_flag = handle_category_requirements(category_text)
-
-    if category_flag:
-        logger.info(f"{user_id}: {category_msg}")
-        return jsonify_template_user(422, False, category_msg)
-    
-    category_db = Category( category_text=category_text )
-
-    db.add(category_db)
-    success, error = commit_session()
-    if not success:
-        logger.error(error)
-        return jsonify_template_user(500, False, "Database Error")
-    
-    logger.info(f"{user_id} has added {category_text}")
-    return jsonify_template_user(200, True, 
-                                 f"You have added {category_text}")

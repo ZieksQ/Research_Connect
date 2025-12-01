@@ -6,7 +6,7 @@ from App.database import db_session as db
 from App.models.model_users import Root_User, Users, Oauth_Users, RefreshToken
 from App.models.model_post import Posts
 from App.models.model_association import RootUser_Survey, RootUser_Post_Liked
-from App.models.model_enums import User_Roles
+from App.models.model_enums import User_Roles, PostStatus
 from App.helper_user_validation import ( handle_user_input_exist, handle_validate_requirements, 
                                         handle_profile_pic, handle_password_reset_user, handle_user_info_requirements )
 from App.helper_methods import ( commit_session, jsonify_template_user,
@@ -226,10 +226,16 @@ def get_user_data():
 
     who_user =  who_user_query(int(user_id), user.user_type)
 
-    stmt = select(RootUser_Post_Liked).where(RootUser_Post_Liked.root_user_id == int(user_id))
-    list_of_post_liked = [ l.post_id for l in db.scalars(stmt).all() ] or []
+    stmt1 = select(RootUser_Post_Liked).where(RootUser_Post_Liked.root_user_id == int(user_id))
+    list_of_post_liked = [ l.post_id for l in db.scalars(stmt1).all() ] or []
 
-    posts: list[Posts] = user.posts
+    stmt2 = select(Posts).where(
+        and_(Posts.user_id == int(user_id),
+             Posts.archived == False,
+             Posts.status != PostStatus.REJECTED.value)
+             ).order_by(Posts.date_updated.desc())
+
+    posts = db.scalars(stmt2).all()
 
     user_info = who_user.get_user()
     user_posts = [{
@@ -248,13 +254,52 @@ def get_user_data():
             "num_of_responses": post.num_of_responses,
             "num_of_likes": len(post.link_user_liked),
             "is_liked": post.id in list_of_post_liked
-        } for post in posts if not post.archived]
+        } for post in posts]
 
     data = {"user_info": user_info, 
-            "user_posts": user_posts,}
+            "user_posts": user_posts}
     
     logger.info("You have got the user data")
 
+    return jsonify_template_user(200, True, data)
+
+@user_auth.route("/post/rejected", methods=['GET'])
+@jwt_required()
+@limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
+def get_rejected_post():
+    user_id = get_jwt_identity()
+    user = db.get(Root_User, int(user_id))
+
+    if not user:
+        logger.error("Somehow, someone accessed the fucking route wihtout them being in the database")
+        return jsonify_template_user(400, False, "How did you even access this, you are not in the database")
+    
+    who_user =  who_user_query(int(user_id), user.user_type)
+    
+    stmt2 = select(Posts).where(
+        and_(Posts.user_id == user_id,
+             Posts.status == PostStatus.REJECTED.value)
+             ).order_by(Posts.date_updated.desc())
+    posts = db.scalars(stmt2).all()
+
+    data = [{
+            "pk_survey_id": post.id,
+            "survey_title": post.title,
+            "survey_content": post.content,
+            "survey_category": post.category,
+            "status": post.status,
+            "survey_target_audience": post.target_audience,
+            "survey_date_created": post.date_created,
+            "survey_date_updated": post.date_updated,
+            "user_username": who_user.username,
+            "user_profile": who_user.profile_pic_url,
+            "user_program": who_user.program,
+            "approx_time": post.survey_posts.approx_time,
+            "num_of_responses": post.num_of_responses,
+            "num_of_likes": len(post.link_user_liked),
+            "rejection_msg": post.reject_post.reject_msg,
+        } for post in posts]
+    
     return jsonify_template_user(200, True, data)
 
 @user_auth.route("/post/archived", methods=['GET'])

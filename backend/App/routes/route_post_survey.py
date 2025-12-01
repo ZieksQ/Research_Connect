@@ -47,10 +47,10 @@ def check_user(func):
 def get_posts():
 
     # posts = Posts.query.order_by(order).all()
-    # also add you will only get the approved post
     stmt = select(Posts).where(
         and_(Posts.status == PostStatus.OPEN.value,
-             Posts.archived == False)
+             Posts.archived == False,
+             Posts.approved == True)
         ).order_by(Posts.date_updated.asc())
     
     posts = db.scalars(stmt).all()
@@ -286,18 +286,6 @@ def search_by_title():
         return jsonify_template_user(404, True, "There is no such thing")
     
     logger.info("Search successful")
-    return jsonify_template_user(200, True, data)
-
-@survey_posting.route("/category/get", methods=['GET'])
-@jwt_required()
-@check_user
-@limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
-def get_category():
-    stmt = select(Category)
-    categories = db.scalars(stmt).all()
-
-    data = [ category.category_text for category in categories]
-
     return jsonify_template_user(200, True, data)
 
 @survey_posting.route("/questionnaire/is_answered", methods=['POST'])

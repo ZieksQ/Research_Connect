@@ -9,8 +9,11 @@ PATCH - http://127.0.0.1:5000/api/user/profile_upload
 POST - http://127.0.0.1:5000/api/user/refresh/logout
 GET - http://127.0.0.1:5000/api/user/login_success
 GET - http://127.0.0.1:5000/api/user/user_data
-GET - http://127.0.0.1:5000/api/user/post/archived
+
 PATCH - http://127.0.0.1:5000/api/user/update_data
+
+GET - http://127.0.0.1:5000/api/user/post/archived
+GET - http://127.0.0.1:5000/api/user/post/rejected
 
 Callback when token is expired
 See "Expired Token Callback" in JSON
@@ -81,6 +84,7 @@ POST - http://127.0.0.1:5000/api/admin/generate/post/category
 GET - http://127.0.0.1:5000/api/admin/generate/admin_acc/mass
 POST - http://127.0.0.1:5000/api/admin/generate/admin_acc/solo
 
+PATCH - http://127.0.0.1:5000/api/admin/post/reject
 ```
 
 ## JSON

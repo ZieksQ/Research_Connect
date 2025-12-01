@@ -9,6 +9,7 @@ PATCH - http://127.0.0.1:5000/api/user/profile_upload
 POST - http://127.0.0.1:5000/api/user/refresh/logout
 GET - http://127.0.0.1:5000/api/user/login_success
 GET - http://127.0.0.1:5000/api/user/user_data
+GET - http://127.0.0.1:5000/api/user/post/archived
 PATCH - http://127.0.0.1:5000/api/user/update_data
 
 Callback when token is expired

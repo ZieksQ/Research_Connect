@@ -49,7 +49,8 @@ def get_posts():
     # posts = Posts.query.order_by(order).all()
     # also add you will only get the approved post
     stmt = select(Posts).where(
-        Posts.status == PostStatus.OPEN.value
+        and_(Posts.status == PostStatus.OPEN.value,
+             Posts.archived == False)
         ).order_by(Posts.date_updated.asc())
     
     posts = db.scalars(stmt).all()
@@ -194,8 +195,8 @@ def get_questionnaire(id):
 @check_user
 @limiter.limit("100 per minute;5000 per day", key_func=get_jwt_identity)
 def search():
-    query = request.args.get("query", "").strip()
-    order = request.args.get("order", "asc").strip()
+    query = request.args.get("query", "").strip().lower()
+    order = request.args.get("order", "asc").strip().lower()
 
     post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
 
@@ -227,8 +228,8 @@ def search():
 @check_user
 @limiter.limit("100 per minute;5000 per day", key_func=get_jwt_identity)
 def search_category_audience():
-    query = request.args.get("query", "").strip()
-    order = request.args.get("order", "asc").strip()
+    query = request.args.get("query", "").strip().lower()
+    order = request.args.get("order", "asc").strip().lower()
 
     post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
 
@@ -258,8 +259,8 @@ def search_category_audience():
 @check_user
 @limiter.limit("100 per minute;5000 per day", key_func=get_jwt_identity)
 def search_by_title():
-    query = request.args.get("query", "").strip()
-    order = request.args.get("order", "asc").strip()
+    query = request.args.get("query", "").strip().lower()
+    order = request.args.get("order", "asc").strip().lower()
 
     post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
 

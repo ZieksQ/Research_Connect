@@ -17,7 +17,7 @@ export const logoutUser = async() =>
 
 export const refreshUser = async () => {
   try {
-    const res = await fetch("http://localhost:5000/api/user/refresh", {
+    const res = await fetch("/api/user/refresh", {
       method: "POST",
       credentials: "include", // send refresh cookie
     });

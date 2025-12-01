@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { getPendingPosts, approvePost } from '../../services/user/admin.service';
+import { getPendingPosts, approvePost, rejectPost } from '../../services/user/admin.service';
 import {
   PendingPostCard,
   ConfirmationModal,
+  RejectModal,
   ErrorModal,
   LoadingSpinner,
   EmptyState,
@@ -14,6 +15,7 @@ const AdminRequest = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState(null);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, type: 'approve' });
+  const [rejectModal, setRejectModal] = useState({ isOpen: false });
   const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' });
   const [processing, setProcessing] = useState(false);
 
@@ -52,7 +54,43 @@ const AdminRequest = () => {
 
   const handleRejectClick = (post) => {
     setSelectedPost(post);
-    setConfirmModal({ isOpen: true, type: 'reject' });
+    setRejectModal({ isOpen: true });
+  };
+
+  const handleRejectConfirm = async (rejectReason) => {
+    if (!selectedPost) return;
+
+    setProcessing(true);
+    setRejectModal({ isOpen: false });
+
+    try {
+      const response = await rejectPost(rejectReason, selectedPost.pk_survey_id);
+      
+      if (response.ok) {
+        // Remove rejected post from list
+        setPendingPosts((prev) =>
+          prev.filter((post) => post.pk_survey_id !== selectedPost.pk_survey_id)
+        );
+        setSelectedPost(null);
+      } else {
+        setErrorModal({
+          isOpen: true,
+          message: response.message || 'Failed to reject post',
+        });
+      }
+    } catch (error) {
+      setErrorModal({
+        isOpen: true,
+        message: 'An error occurred while rejecting the post',
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleCloseRejectModal = () => {
+    setRejectModal({ isOpen: false });
+    setSelectedPost(null);
   };
 
   const handleConfirmAction = async () => {
@@ -62,26 +100,18 @@ const AdminRequest = () => {
     setConfirmModal({ isOpen: false, type: 'approve' });
 
     try {
-      if (confirmModal.type === 'approve') {
-        const response = await approvePost({ id: selectedPost.pk_survey_id });
-        
-        if (response.ok) {
-          // Remove approved post from list
-          setPendingPosts((prev) =>
-            prev.filter((post) => post.pk_survey_id !== selectedPost.pk_survey_id)
-          );
-          setSelectedPost(null);
-        } else {
-          setErrorModal({
-            isOpen: true,
-            message: response.message || 'Failed to approve post',
-          });
-        }
+      const response = await approvePost({ id: selectedPost.pk_survey_id });
+      
+      if (response.ok) {
+        // Remove approved post from list
+        setPendingPosts((prev) =>
+          prev.filter((post) => post.pk_survey_id !== selectedPost.pk_survey_id)
+        );
+        setSelectedPost(null);
       } else {
-        // Reject functionality - endpoint not available yet
         setErrorModal({
           isOpen: true,
-          message: 'Reject functionality is not available yet',
+          message: response.message || 'Failed to approve post',
         });
       }
     } catch (error) {
@@ -156,17 +186,17 @@ const AdminRequest = () => {
         isOpen={confirmModal.isOpen}
         onClose={handleCloseConfirmModal}
         onConfirm={handleConfirmAction}
-        type={confirmModal.type}
-        title={
-          confirmModal.type === 'approve'
-            ? 'Approve Post'
-            : 'Reject Post'
-        }
-        message={
-          confirmModal.type === 'approve'
-            ? `Are you sure you want to approve "${selectedPost?.survey_title}"?`
-            : `Are you sure you want to reject "${selectedPost?.survey_title}"?`
-        }
+        type="approve"
+        title="Approve Post"
+        message={`Are you sure you want to approve "${selectedPost?.survey_title}"?`}
+      />
+
+      {/* Reject Modal */}
+      <RejectModal
+        isOpen={rejectModal.isOpen}
+        onClose={handleCloseRejectModal}
+        onReject={handleRejectConfirm}
+        postTitle={selectedPost?.survey_title}
       />
 
       {/* Error Modal */}

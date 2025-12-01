@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Signup from "../../components/user/Signup.jsx";
 import InquiraIcon from "../../assets/icons/Inquira.svg";
@@ -14,6 +14,14 @@ const SignupPage = () => {
 
   const navigate = useNavigate();
 
+  // Remove Error after 3 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   const handleSignup = async (e) => {
     e.preventDefault(); // prevents page to reload everytime you submit
     setLoading(true); // loading...
@@ -22,7 +30,7 @@ const SignupPage = () => {
 
     // confirm password validation
     if (password != confirmPassword) {
-      setError("Wrong Password");
+      setError("Passwords do not match");
       setLoading(false);
       return;
     }
@@ -30,9 +38,9 @@ const SignupPage = () => {
     const data = await registerUser(payload); // register user
 
     // checks returned data
-    if (!data.ok) {
+    if (!data || !data.ok) {
       setLoading(false);
-      console.log(data.message);
+      setError(data?.message || "Registration failed. Please try again.");
       return;
     }
 

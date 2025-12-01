@@ -31,9 +31,9 @@ const LoginPage = () => {
     const data = await loginUser(payload);  // logging in User
     
     // Checks returned data 
-    if (!data.ok) {
+    if (!data || !data.ok) {
       setLoading(false);
-      setError(data.message || "Something went wrong")
+      setError(data?.message || "Something went wrong")
       return;
     }
 

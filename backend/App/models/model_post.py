@@ -31,6 +31,10 @@ class Posts(Base):
     link_user_liked: Mapped[list["RootUser_Post_Liked"]] = relationship("RootUser_Post_Liked", 
                                                           back_populates="post", uselist=True,
                                                           cascade="all, delete-orphan")
+    
+    reject_post: Mapped["Rejected_Post"] = relationship("Rejected_Post", uselist=False,
+                                                        back_populates="post_reject",
+                                                        cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"Post: {self.id}"
@@ -44,6 +48,7 @@ class Posts(Base):
             "survey_target_audience": self.target_audience,
             "survey_date_created": self.date_created,
             "survey_date_updated": self.date_updated,
+            "status": self.status,
             "user_username": self.user.username,
             "user_profile": self.user.profile_pic_url,
             "approx_time": self.survey_posts.approx_time,
@@ -56,3 +61,11 @@ class Category(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     category_text: Mapped[str] = mapped_column(String(64), nullable=False)
 
+class Rejected_Post(Base):
+    __tablename__ = "rejected_post"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    reject_msg: Mapped[str] = mapped_column(Text, nullable=False)
+    post_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_posts.id"), nullable=False)
+
+    post_reject: Mapped["Posts"] = relationship("Posts", back_populates="reject_post")

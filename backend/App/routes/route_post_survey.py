@@ -47,8 +47,12 @@ def check_user(func):
 def get_posts():
 
     # posts = Posts.query.order_by(order).all()
-    stmt = select(Posts).order_by(Posts.date_updated.asc())
-    #.where(Posts.approved == True)
+    stmt = select(Posts).where(
+        and_(Posts.status == PostStatus.OPEN.value,
+             Posts.archived == False,
+             Posts.approved == True)
+        ).order_by(Posts.date_updated.asc())
+    
     posts = db.scalars(stmt).all()
     user_id = get_jwt_identity()
     
@@ -60,6 +64,7 @@ def get_posts():
             "survey_title": post.title,
             "survey_content": post.content,
             "survey_category": post.category,
+            "status": post.status,
             "survey_target_audience": post.target_audience,
             "survey_date_created": post.date_created,
             "survey_date_updated": post.date_updated,
@@ -89,6 +94,10 @@ def get_posts_solo(id):
     
     user_id = get_jwt_identity()
 
+    if post.status == PostStatus.CLOSED.value and post.user_id != int(user_id):
+        logger.info(f"{user_id} tried to access a closed post")
+        return jsonify_template_user(401, False, "Why are you visiting a closed post")
+
     if post.archived and post.user_id != int(user_id):
         logger.info(f"{user_id} tried to access an archived post")
         return jsonify_template_user(401, False, "Why are you visiting a deleted post")
@@ -101,6 +110,7 @@ def get_posts_solo(id):
             "survey_title": post.title,
             "survey_content": post.content,
             "survey_category": post.category,
+            "status": post.status,
             "survey_target_audience": post.target_audience,
             "survey_date_created": post.date_created,
             "survey_date_updated": post.date_updated,
@@ -185,8 +195,8 @@ def get_questionnaire(id):
 @check_user
 @limiter.limit("100 per minute;5000 per day", key_func=get_jwt_identity)
 def search():
-    query = request.args.get("query", "").strip()
-    order = request.args.get("order", "asc").strip()
+    query = request.args.get("query", "").strip().lower()
+    order = request.args.get("order", "asc").strip().lower()
 
     post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
 
@@ -218,8 +228,8 @@ def search():
 @check_user
 @limiter.limit("100 per minute;5000 per day", key_func=get_jwt_identity)
 def search_category_audience():
-    query = request.args.get("query", "").strip()
-    order = request.args.get("order", "asc").strip()
+    query = request.args.get("query", "").strip().lower()
+    order = request.args.get("order", "asc").strip().lower()
 
     post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
 
@@ -249,8 +259,8 @@ def search_category_audience():
 @check_user
 @limiter.limit("100 per minute;5000 per day", key_func=get_jwt_identity)
 def search_by_title():
-    query = request.args.get("query", "").strip()
-    order = request.args.get("order", "asc").strip()
+    query = request.args.get("query", "").strip().lower()
+    order = request.args.get("order", "asc").strip().lower()
 
     post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
 
@@ -276,18 +286,6 @@ def search_by_title():
         return jsonify_template_user(404, True, "There is no such thing")
     
     logger.info("Search successful")
-    return jsonify_template_user(200, True, data)
-
-@survey_posting.route("/category/get", methods=['GET'])
-@jwt_required()
-@check_user
-@limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
-def get_category():
-    stmt = select(Category)
-    categories = db.scalars(stmt).all()
-
-    data = [ category.category_text for category in categories]
-
     return jsonify_template_user(200, True, data)
 
 @survey_posting.route("/questionnaire/is_answered", methods=['POST'])
@@ -437,6 +435,10 @@ def post_update_data():
     if not post:
         logger.info("Someone tried to updated a non existant post")
         return jsonify_template_user(404, False, "This post is non existant")
+    
+    if post.user.id != int(user_id):
+        logger.info(f"{user_id} tried to edit a post that is not theirs")
+        return jsonify_template_user(401, False, "You are not the owner of this post")
     
     survey: Surveys = post.survey_posts
     

@@ -85,6 +85,7 @@ GET - http://127.0.0.1:5000/api/admin/generate/admin_acc/mass
 POST - http://127.0.0.1:5000/api/admin/generate/admin_acc/solo
 
 PATCH - http://127.0.0.1:5000/api/admin/post/reject
+GET - http://127.0.0.1:5000/api/admin/code/get
 ```
 
 ## JSON

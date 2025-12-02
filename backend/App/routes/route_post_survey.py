@@ -68,6 +68,7 @@ def get_posts():
             "survey_target_audience": post.target_audience,
             "survey_date_created": post.date_created,
             "survey_date_updated": post.date_updated,
+            "approved`": post.approved,
             "user_username": post.user.username,
             "user_profile": post.user.profile_pic_url,
             "user_program": post.user.program,
@@ -114,6 +115,7 @@ def get_posts_solo(id):
             "survey_target_audience": post.target_audience,
             "survey_date_created": post.date_created,
             "survey_date_updated": post.date_updated,
+            "approved`": post.approved,
             "user_username": post.user.username,
             "user_profile": post.user.profile_pic_url,
             "user_program": post.user.program,
@@ -721,7 +723,7 @@ def send_post_survey_web():
     tags: list = data.get("surveyTags")
     target_audience: list = data.get("target")
     
-    post_code: str = data.get("post_code")
+    post_code: str = data.get("post_code") or None
     svy_questions: list[dict[str, Any]] = data.get("data", {})
 
     survey_input_validate, survey_exist_flag = handle_post_input_exist(survey_title, survey_content, False)
@@ -876,7 +878,7 @@ def send_post_survey_mobile():
     tags: list = data.get("tags")
     target_audience: list = data.get("targetAudience")
     
-    post_code: str = data.get("post_code")
+    post_code: str = data.get("post_code") or None
     svy_questions: list[dict[str, Any]] = data.get("data", [])
     svy_sections: list[dict[str, Any]] = data.get("sections", [])
 

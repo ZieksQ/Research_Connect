@@ -23,3 +23,10 @@ class Code(Base):
     code_text: Mapped[str] = mapped_column(String(32), nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now)
     is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    def get_data(self):
+        return{
+            "text": self.code_text,
+            "expires_at": self.expires_at,
+            "is_used": self.is_used
+        }

@@ -1,11 +1,10 @@
-from App import limiter
+from App import limiter, mail
 from flask import Blueprint, request, session
 from flask_mail import Message
 from smtplib import SMTPException
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from secrets import randbelow
 from datetime import datetime, timedelta, timezone
-from App import mail
 from App.helper_methods import logger_setup, commit_session, jsonify_template_user, datetime_return_tzinfo
 from App.helper_user_validation import handle_validate_requirements, handle_password_reset_user
 from App.models.model_users import Root_User, Users, Oauth_Users

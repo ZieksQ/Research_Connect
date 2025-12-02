@@ -247,6 +247,7 @@ def get_user_data():
             "survey_target_audience": post.target_audience,
             "survey_date_created": post.date_created,
             "survey_date_updated": post.date_updated,
+            "approved`": post.approved,
             "user_username": who_user.username,
             "user_profile": who_user.profile_pic_url,
             "user_program": who_user.program,
@@ -275,7 +276,7 @@ def get_rejected_post():
         return jsonify_template_user(400, False, "How did you even access this, you are not in the database")
     
     who_user =  who_user_query(int(user_id), user.user_type)
-    
+
     stmt2 = select(Posts).where(
         and_(Posts.user_id == user_id,
              Posts.status == PostStatus.REJECTED.value)
@@ -291,6 +292,7 @@ def get_rejected_post():
             "survey_target_audience": post.target_audience,
             "survey_date_created": post.date_created,
             "survey_date_updated": post.date_updated,
+            "approved`": post.approved,
             "user_username": who_user.username,
             "user_profile": who_user.profile_pic_url,
             "user_program": who_user.program,
@@ -328,6 +330,7 @@ def get_archived_post():
             "survey_target_audience": post.target_audience,
             "survey_date_created": post.date_created,
             "survey_date_updated": post.date_updated,
+            "approved`": post.approved,
             "user_username": who_user.username,
             "user_profile": who_user.profile_pic_url,
             "user_program": who_user.program,

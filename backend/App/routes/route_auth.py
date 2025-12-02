@@ -264,6 +264,50 @@ def get_user_data():
 
     return jsonify_template_user(200, True, data)
 
+@user_auth.route("/post/liked", methods=['GET'])
+@jwt_required()
+@limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
+def get_liked_post():
+    user_id = get_jwt_identity()
+    user = db.get(Root_User, int(user_id))
+
+    if not user:
+        logger.error("Somehow, someone accessed the fucking route wihtout them being in the database")
+        return jsonify_template_user(400, False, "How did you even access this, you are not in the database")
+    
+    who_user =  who_user_query(int(user_id), user.user_type)
+
+
+    stmt = select(Posts
+                  ).join( RootUser_Post_Liked, RootUser_Post_Liked.post_id == Posts.id
+                    ).where( RootUser_Post_Liked.root_user_id == int(user_id)
+                    ).order_by( Posts.date_updated.desc())
+    posts = db.scalars(stmt).all()
+
+    stmt2 = select(RootUser_Post_Liked.post_id).where(RootUser_Post_Liked.root_user_id == int(user_id))
+    list_of_post_liked = db.scalars(stmt2).all() or []
+
+    data = [{
+            "pk_survey_id": post.id,
+            "survey_title": post.title,
+            "survey_content": post.content,
+            "survey_category": post.category,
+            "status": post.status,
+            "survey_target_audience": post.target_audience,
+            "survey_date_created": post.date_created,
+            "survey_date_updated": post.date_updated,
+            "approved`": post.approved,
+            "user_username": who_user.username,
+            "user_profile": who_user.profile_pic_url,
+            "user_program": who_user.program,
+            "approx_time": post.survey_posts.approx_time,
+            "num_of_responses": post.num_of_responses,
+            "num_of_likes": len(post.link_user_liked),
+            "is_liked": post.id in list_of_post_liked
+        } for post in posts]
+    
+    return jsonify_template_user(200, True, data)
+
 @user_auth.route("/post/rejected", methods=['GET'])
 @jwt_required()
 @limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
@@ -283,6 +327,9 @@ def get_rejected_post():
              ).order_by(Posts.date_updated.desc())
     posts = db.scalars(stmt2).all()
 
+    stmt2 = select(RootUser_Post_Liked.post_id).where(RootUser_Post_Liked.root_user_id == int(user_id))
+    list_of_post_liked = db.scalars(stmt2).all() or []
+
     data = [{
             "pk_survey_id": post.id,
             "survey_title": post.title,
@@ -300,6 +347,7 @@ def get_rejected_post():
             "num_of_responses": post.num_of_responses,
             "num_of_likes": len(post.link_user_liked),
             "rejection_msg": post.reject_post.reject_msg,
+            "is_liked": post.id in list_of_post_liked
         } for post in posts]
     
     return jsonify_template_user(200, True, data)
@@ -321,6 +369,9 @@ def get_archived_post():
                                     Posts.archived == True)).order_by(Posts.date_updated.desc())
     posts = db.scalars(stmt1).all()
 
+    stmt2 = select(RootUser_Post_Liked.post_id).where(RootUser_Post_Liked.root_user_id == int(user_id))
+    list_of_post_liked = db.scalars(stmt2).all() or []
+
     data = [{
             "pk_survey_id": post.id,
             "survey_title": post.title,
@@ -337,6 +388,7 @@ def get_archived_post():
             "approx_time": post.survey_posts.approx_time,
             "num_of_responses": post.num_of_responses,
             "num_of_likes": len(post.link_user_liked),
+            "is_liked": post.id in list_of_post_liked
         } for post in posts]
     
     return jsonify_template_user(200, True, data)

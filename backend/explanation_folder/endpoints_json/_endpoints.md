@@ -14,6 +14,8 @@ PATCH - http://127.0.0.1:5000/api/user/update_data
 
 GET - http://127.0.0.1:5000/api/user/post/archived
 GET - http://127.0.0.1:5000/api/user/post/rejected
+GET - http://127.0.0.1:5000/api/user/post/liked
+
 
 Callback when token is expired
 See "Expired Token Callback" in JSON

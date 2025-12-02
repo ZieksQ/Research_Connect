@@ -46,6 +46,20 @@ def check_user(func):
 @limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
 def get_posts():
 
+    '''
+
+    user_id = get_jwt_identity()
+
+    stmt2 = select(Posts.category).join(
+        RootUser_Post_Liked, RootUser_Post_Liked.post_id == Posts.id
+    ).where( RootUser_Post_Liked.root_user_id == int(user_id)
+            ).order_by( Posts.date_updated.desc())
+
+    pots_tags = db.scalars(stmt2).all()
+
+    '''
+    #------------------------------------------------------------------------------------------------------------------------------------------
+
     # posts = Posts.query.order_by(order).all()
     stmt = select(Posts).where(
         and_(Posts.status == PostStatus.OPEN.value,
@@ -56,8 +70,8 @@ def get_posts():
     posts = db.scalars(stmt).all()
     user_id = get_jwt_identity()
     
-    stmt = select(RootUser_Post_Liked).where(RootUser_Post_Liked.root_user_id == int(user_id))
-    list_of_post_liked = [ l.post_id for l in db.scalars(stmt).all() ] or []
+    stmt = select(RootUser_Post_Liked.post_id).where(RootUser_Post_Liked.root_user_id == int(user_id))
+    list_of_post_liked = db.scalars(stmt).all() or []
 
     data = [{
             "pk_survey_id": post.id,
@@ -103,8 +117,8 @@ def get_posts_solo(id):
         logger.info(f"{user_id} tried to access an archived post")
         return jsonify_template_user(401, False, "Why are you visiting a deleted post")
     
-    stmt = select(RootUser_Post_Liked).where(RootUser_Post_Liked.root_user_id == int(user_id))
-    list_of_post_liked = [ l.post_id for l in db.scalars(stmt).all() ] or []
+    stmt = select(RootUser_Post_Liked.post_id).where(RootUser_Post_Liked.root_user_id == int(user_id))
+    list_of_post_liked = db.scalars(stmt).all() or []
 
     data = {
             "pk_survey_id": post.id,
@@ -204,11 +218,12 @@ def search():
 
     stmt = (
         select(Posts)
-        .where(or_(
-            Posts.title.ilike(f"%{query}%"),
-            cast(Posts.category, String).ilike(f"%{query}%"),
-            cast(Posts.target_audience, String).ilike(f"%{query}%"),
-            Posts.content.ilike(f"%{query}%"),
+        .where(and_(
+                or_(Posts.title.ilike(f"%{query}%"),
+                    cast(Posts.category, String).ilike(f"%{query}%"),
+                    cast(Posts.target_audience, String).ilike(f"%{query}%"),
+                    Posts.content.ilike(f"%{query}%")), 
+                Posts.status == PostStatus.OPEN.value
             ))
         .order_by(post_order)
         .limit(100)
@@ -237,9 +252,11 @@ def search_category_audience():
 
     stmt = (
         select(Posts)
-        .where(or_(
-            cast(Posts.category, String).ilike(f"%{query}%"),
-            cast(Posts.target_audience, String).ilike(f"%{query}%"),
+        .where(and_(
+            or_( cast(Posts.category, String).ilike(f"%{query}%"),
+                cast(Posts.target_audience, String).ilike(f"%{query}%")
+            ),
+            Posts.status == PostStatus.OPEN.value
             ))
         .order_by(post_order)
         .limit(100)
@@ -268,9 +285,12 @@ def search_by_title():
 
     stmt = (
         select(Posts)
-        .where(or_(
-            Posts.title.ilike(f"%{query}%"),
-            ))
+        .where(and_(
+            or_(Posts.title.ilike(f"%{query}%"),
+                Posts.status == PostStatus.OPEN.value
+                ),
+            Posts.status == PostStatus.OPEN.value
+                ))
         .order_by(post_order)
         .limit(10)
         .offset(0)

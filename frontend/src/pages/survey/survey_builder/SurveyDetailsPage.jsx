@@ -3,6 +3,7 @@ import { MdAdd, MdClose } from 'react-icons/md';
 
 export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
   const [title, setTitle] = useState(data.surveyTitle || '');
+  const [content, setContent] = useState(data.surveyContent || '');
   const [description, setDescription] = useState(data.surveyDescription || '');
   const [selectedTime, setSelectedTime] = useState(data.surveyApproxTime || '');
   const [customTime, setCustomTime] = useState('');
@@ -11,6 +12,7 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
   const [customTag, setCustomTag] = useState('');
   const [showCustomTag, setShowCustomTag] = useState(false);
   const [titleError, setTitleError] = useState('');
+  const [contentError, setContentError] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
 
   const timeOptions = ['1-2 min', '3-4 min', '5-10 min', '10-15 min'];
@@ -82,6 +84,16 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
       setTitleError('');
     }
 
+    if (!content.trim()) {
+      setContentError('Please enter post content');
+      isValid = false;
+    } else if (countWords(content) < 5) {
+      setContentError('Post content must contain at least 5 words');
+      isValid = false;
+    } else {
+      setContentError('');
+    }
+
     if (description.trim() && countWords(description) < 5) {
       setDescriptionError('Survey description must contain at least 5 words if provided');
       isValid = false;
@@ -97,6 +109,7 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
     if (isValid) {
       onNext({
         surveyTitle: title,
+        surveyContent: content,
         surveyDescription: description,
         surveyApproxTime: selectedTime,
         surveyTags: tags
@@ -176,6 +189,56 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
             }}
           >
             {titleError}
+          </p>
+        )}
+      </div>
+
+      {/* Post Content */}
+      <div 
+        style={{ 
+          marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)'
+        }}
+      >
+        <label className="label">
+          <span 
+            className="label-text" 
+            style={{ 
+              color: 'var(--color-primary-color)',
+              fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
+            }}
+          >
+            Post Content <span style={{ color: '#dc2626' }}>*</span>
+          </span>
+        </label>
+        <p 
+          className="text-xs mb-2" 
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          This is the content that will be displayed on your post card in the homepage feed.
+        </p>
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="textarea textarea-bordered w-full"
+          style={{
+            backgroundColor: 'var(--color-background)',
+            borderColor: contentError ? '#dc2626' : 'var(--color-shade-primary)',
+            color: 'var(--color-primary-color)',
+            fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)',
+            padding: 'clamp(0.625rem, 1.2vw, 1rem)',
+            minHeight: 'clamp(5rem, 8vw, 6rem)'
+          }}
+          placeholder="Write a brief description about your survey that will appear on the post card..."
+        />
+        {contentError && (
+          <p 
+            style={{ 
+              color: '#dc2626',
+              fontSize: 'clamp(0.75rem, 1.25vw, 0.9375rem)',
+              marginTop: 'clamp(0.25rem, 0.5vw, 0.5rem)'
+            }}
+          >
+            {contentError}
           </p>
         )}
       </div>

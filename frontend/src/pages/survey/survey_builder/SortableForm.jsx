@@ -444,6 +444,23 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
       return;
     }
 
+    // Validate rating questions
+    const invalidRatingQuestions = [];
+    sections.forEach(section => {
+      section.questions.forEach(question => {
+        if (question.type === 'Rating') {
+          if (question.maxRating < 1 || question.maxRating > 10) {
+            invalidRatingQuestions.push(question.title || 'Untitled question');
+          }
+        }
+      });
+    });
+
+    if (invalidRatingQuestions.length > 0) {
+      alert(`Please fix the rating value (must be between 1-10) for: ${invalidRatingQuestions.join(', ')}`);
+      return;
+    }
+
     onNext();
   };
 
@@ -716,28 +733,39 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                   {question.type === 'Rating' && (
                                     <div className="mb-3">
                                       <label className="label py-1">
-                                        <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Max Rating</span>
+                                        <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Max Rating (1-10)</span>
                                       </label>
                                       <input
                                         type="number"
-                                        min="3"
+                                        min="1"
                                         max="10"
                                         value={question.maxRating || 5}
-                                        onChange={(e) =>
+                                        onChange={(e) => {
+                                          let value = parseInt(e.target.value);
+                                          // Clamp value between 1 and 10
+                                          if (value < 1) value = 1;
+                                          if (value > 10) value = 10;
                                           updateQuestion(
                                             section.id,
                                             question.id,
                                             'maxRating',
-                                            parseInt(e.target.value) || 5
-                                          )
-                                        }
-                                        className="input input-bordered input-sm w-full"
+                                            value || 5
+                                          );
+                                        }}
+                                        className={`input input-bordered input-sm w-full ${
+                                          (question.maxRating < 1 || question.maxRating > 10) ? 'input-error' : ''
+                                        }`}
                                         style={{ 
                                           backgroundColor: 'var(--color-background)',
-                                          borderColor: 'var(--color-shade-primary)',
+                                          borderColor: (question.maxRating < 1 || question.maxRating > 10) ? '#dc2626' : 'var(--color-shade-primary)',
                                           color: 'var(--color-primary-color)'
                                         }}
                                       />
+                                      {(question.maxRating < 1 || question.maxRating > 10) && (
+                                        <p className="text-xs mt-1" style={{ color: '#dc2626' }}>
+                                          Rating must be between 1 and 10
+                                        </p>
+                                      )}
                                     </div>
                                   )}
 

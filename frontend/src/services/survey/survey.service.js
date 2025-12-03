@@ -27,6 +27,12 @@ export const answerSurveyChecker = async (surveyId) =>
     body: JSON.stringify({ survey_id: surveyId }),
   })
 
+export const likePost = async (postId) =>
+  await apiFetch(`/api/survey/post/like`, {
+    method: "POST",
+    body: JSON.stringify({ post_id: postId }),
+  })
+
 // ---------------------------------
 // ============= GET ===============
 // ---------------------------------
@@ -44,6 +50,16 @@ export const getSurvey = async (id) => {
     method: "GET",
   });
 };
+
+// search survey
+export const searchSurvey = async (query, order) =>
+  await apiFetch(`/api/survey/post/search?query=${query}&order=${order}`, {
+    method: "GET",
+  })
+
+// ---------------------------------
+// ============ PATCH ==============
+// ---------------------------------
 
 // delete post
 export const deleteSurvey = async (id) => 

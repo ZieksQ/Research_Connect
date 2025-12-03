@@ -7,6 +7,7 @@ from functools import wraps
 from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
+from math import ceil
 from App.database import db_session as db
 from App.models.model_post import Posts, Category
 from App.models.model_survey_q_a import Surveys, Question, Answers, Choice, Question_Image, Section
@@ -15,7 +16,7 @@ from App.models.model_otp import Code
 from App.models.model_enums import QuestionType, Question_type_inter, PostStatus
 from App.models.model_association import RootUser_Survey, RootUser_Post_Liked
 from App.helper_methods import ( jsonify_template_user, commit_session, flush_session,
-                                logger_setup, datetime_return_tzinfo )
+                                logger_setup, datetime_return_tzinfo, get_top_tags )
 from App.helper_user_validation import (handle_post_input_exist, handle_post_requirements, handle_web_survey_input_exist, 
                                         handle_web_survey_input_requirements, handle_Mobile_survey_input_exist, 
                                         handle_mobile_survey_input_requirements, handle_survey_misc_input_requirements,
@@ -46,32 +47,71 @@ def check_user(func):
 @limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
 def get_posts():
 
-    '''
-
     user_id = get_jwt_identity()
 
-    stmt2 = select(Posts.category).join(
-        RootUser_Post_Liked, RootUser_Post_Liked.post_id == Posts.id
-    ).where( RootUser_Post_Liked.root_user_id == int(user_id)
-            ).order_by( Posts.date_updated.desc())
+    page = request.args.get("page", 1)
+    per_page = request.args.get("per_page", 1000)
 
-    pots_tags = db.scalars(stmt2).all()
+    try:
+        page = int(page)
+        per_page = int(per_page)
+    except Exception as e:
+        logger.info(f"{user_id} is tampering with the query args data")
+        logger.info(e)
+        return jsonify_template_user(400, False, "Don't you dare change the args param")
 
-    '''
-    #------------------------------------------------------------------------------------------------------------------------------------------
+    stmt = select(Posts.category
+                  ).join(RootUser_Post_Liked, RootUser_Post_Liked.post_id == Posts.id
+                         ).where( RootUser_Post_Liked.root_user_id == int(user_id)
+                                 ).order_by( Posts.date_updated.desc())
+    posts_tags = db.scalars(stmt).all()
 
-    # posts = Posts.query.order_by(order).all()
-    stmt = select(Posts).where(
-        and_(Posts.status == PostStatus.OPEN.value,
-             Posts.archived == False,
-             Posts.approved == True)
-        ).order_by(Posts.date_updated.asc())
+    sorted_tags, occurence_tags = get_top_tags(posts_tags)
+
+    base_filter = and_(
+        Posts.status == PostStatus.OPEN.value,
+        Posts.archived == False,
+        Posts.approved == True
+    )
+
+    seen_ids: set[int] = set()
+    posts: list[Posts] = []
+
+    for k, v in sorted_tags.items():
+        calc_percent = (v / occurence_tags) * 300
+        limit = max(1, ceil(calc_percent))
+
+        stmt_q = select(Posts
+                        ).where(and_(
+                            cast(Posts.category, String).ilike(f"%{k}%"), base_filter 
+                            )).order_by(Posts.date_updated.desc()
+                                        ).limit(limit)
+        posts_results = db.scalars(stmt_q).all()
+
+        for post in posts_results:
+            if post.id not in seen_ids:
+                seen_ids.add(post.id)
+                posts.append(post)
+
+    if seen_ids:
+        extra_posts = select(Posts).where(
+            and_( Posts.id.notin_(seen_ids), base_filter )
+            ).order_by(Posts.date_updated.desc())
+        
+        posts.extend( db.scalars(extra_posts).all() )
+    else:
+        extra_posts = select(Posts).where(base_filter
+                        ).order_by(Posts.date_updated.desc())
+        
+        posts.extend( db.scalars(extra_posts).all() )
     
-    posts = db.scalars(stmt).all()
-    user_id = get_jwt_identity()
-    
-    stmt = select(RootUser_Post_Liked.post_id).where(RootUser_Post_Liked.root_user_id == int(user_id))
-    list_of_post_liked = db.scalars(stmt).all() or []
+    stmt2 = select(RootUser_Post_Liked.post_id).where(RootUser_Post_Liked.root_user_id == int(user_id))
+    list_of_post_liked = db.scalars(stmt2).all() or []
+
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    paged_post = posts[start:end]
 
     data = [{
             "pk_survey_id": post.id,
@@ -90,7 +130,7 @@ def get_posts():
             "num_of_responses": post.num_of_responses,
             "num_of_likes": len(post.link_user_liked),
             "is_liked": post.id in list_of_post_liked
-        } for post in posts]
+        } for post in paged_post]
     
     logger.info(f"{posts}")
 
@@ -214,6 +254,8 @@ def search():
     query = request.args.get("query", "").strip().lower()
     order = request.args.get("order", "asc").strip().lower()
 
+    user_id = get_jwt_identity()
+
     post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
 
     stmt = (
@@ -223,7 +265,9 @@ def search():
                     cast(Posts.category, String).ilike(f"%{query}%"),
                     cast(Posts.target_audience, String).ilike(f"%{query}%"),
                     Posts.content.ilike(f"%{query}%")), 
-                Posts.status == PostStatus.OPEN.value
+                Posts.status == PostStatus.OPEN.value,
+                Posts.approved == True,
+                Posts.archived == False
             ))
         .order_by(post_order)
         .limit(100)
@@ -231,7 +275,27 @@ def search():
         )
     posts = db.scalars(stmt).all()
 
-    data = [post.get_post() for post in posts]
+    stmt2 = select(RootUser_Post_Liked.post_id).where(RootUser_Post_Liked.root_user_id == int(user_id))
+    list_of_post_liked = db.scalars(stmt2).all() or []
+
+    data = [{
+            "pk_survey_id": post.id,
+            "survey_title": post.title,
+            "survey_content": post.content,
+            "survey_category": post.category,
+            "status": post.status,
+            "survey_target_audience": post.target_audience,
+            "survey_date_created": post.date_created,
+            "survey_date_updated": post.date_updated,
+            "approved`": post.approved,
+            "user_username": post.user.username,
+            "user_profile": post.user.profile_pic_url,
+            "user_program": post.user.program,
+            "approx_time": post.survey_posts.approx_time,
+            "num_of_responses": post.num_of_responses,
+            "num_of_likes": len(post.link_user_liked),
+            "is_liked": post.id in list_of_post_liked
+        } for post in posts]
 
     if not data:
         logger.info("There is no post to be searched")
@@ -248,6 +312,8 @@ def search_category_audience():
     query = request.args.get("query", "").strip().lower()
     order = request.args.get("order", "asc").strip().lower()
 
+    user_id = get_jwt_identity()
+
     post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
 
     stmt = (
@@ -256,7 +322,9 @@ def search_category_audience():
             or_( cast(Posts.category, String).ilike(f"%{query}%"),
                 cast(Posts.target_audience, String).ilike(f"%{query}%")
             ),
-            Posts.status == PostStatus.OPEN.value
+            Posts.status == PostStatus.OPEN.value,
+            Posts.approved == True,
+            Posts.archived == False
             ))
         .order_by(post_order)
         .limit(100)
@@ -264,7 +332,27 @@ def search_category_audience():
         )
     posts = db.scalars(stmt).all()
 
-    data = [post.get_post() for post in posts]
+    stmt2 = select(RootUser_Post_Liked.post_id).where(RootUser_Post_Liked.root_user_id == int(user_id))
+    list_of_post_liked = db.scalars(stmt2).all() or []
+
+    data = [{
+            "pk_survey_id": post.id,
+            "survey_title": post.title,
+            "survey_content": post.content,
+            "survey_category": post.category,
+            "status": post.status,
+            "survey_target_audience": post.target_audience,
+            "survey_date_created": post.date_created,
+            "survey_date_updated": post.date_updated,
+            "approved`": post.approved,
+            "user_username": post.user.username,
+            "user_profile": post.user.profile_pic_url,
+            "user_program": post.user.program,
+            "approx_time": post.survey_posts.approx_time,
+            "num_of_responses": post.num_of_responses,
+            "num_of_likes": len(post.link_user_liked),
+            "is_liked": post.id in list_of_post_liked
+        } for post in posts]
 
     if not data:
         logger.info("There is no post to be searched")
@@ -286,10 +374,10 @@ def search_by_title():
     stmt = (
         select(Posts)
         .where(and_(
-            or_(Posts.title.ilike(f"%{query}%"),
-                Posts.status == PostStatus.OPEN.value
-                ),
-            Posts.status == PostStatus.OPEN.value
+            Posts.title.ilike(f"%{query}%"),
+            Posts.status == PostStatus.OPEN.value,
+            Posts.approved == True,
+            Posts.archived == False
                 ))
         .order_by(post_order)
         .limit(10)

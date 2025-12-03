@@ -18,7 +18,7 @@ jwt = JWTManager()
 bcrypt = Bcrypt()
 oauth = OAuth()
 mail = Mail()
-limiter = Limiter(key_func=get_remote_address, enabled=False)
+limiter = Limiter(key_func=get_remote_address, enabled=True)
 
 def run_app():
     app = Flask(__name__)

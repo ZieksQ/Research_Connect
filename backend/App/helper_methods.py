@@ -126,3 +126,35 @@ def limter_key_func():
     except Exception:
         pass
     return get_remote_address()
+
+
+def get_top_tags(posts_tags: list[list[str]]) -> tuple[dict[str, int], int]:
+    """Helper method to get the top 5 most liked tags, from highest to lowest
+
+    Args:
+        posts_tags (list[list[str]]): the collected tags from sql query
+
+    Returns:
+        tuple(dict[str, int], int): the sorted tags from highest to lowert. Only 5. and a total count of tags occurence
+    """
+
+    posts_tags_stats = {}
+    results = {}
+    total_num_tag_occur = 0
+
+    for l_t in posts_tags:
+        for t in l_t:
+            if t not in posts_tags_stats:
+                posts_tags_stats[t] = 1
+            else:
+                posts_tags_stats[t] += 1
+
+    sorted_data = { d[0]: d[1] for d in sorted(posts_tags_stats.items(), key=lambda k: k[1], reverse=True)}
+
+    for counter, (k, v) in enumerate(sorted_data.items()):
+        if counter >= 5:
+            break
+        total_num_tag_occur += v
+        results[k] = v
+    
+    return (results, total_num_tag_occur)

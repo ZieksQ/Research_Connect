@@ -1,21 +1,25 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import SurveyDetailsPage from './SurveyDetailsPage';
 import TargetAudiencePage from './TargetAudiencePage';
 import SortableForm from './SortableForm';
 import SurveyPreviewPage from './SurveyPreviewPage';
 import { publishSurvey } from '../../../services/survey/survey.service';
-import { MdCheckCircle, MdError, MdClose } from 'react-icons/md';
+import { MdCheckCircle, MdError, MdClose, MdVpnKey } from 'react-icons/md';
 // import { MdCheck } from 'react-icons/md';
 // import { log } from 'three';
 
 export default function SurveyWizard() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showCodeModal, setShowCodeModal] = useState(false);
+  const [postCode, setPostCode] = useState('');
   const [publishModal, setPublishModal] = useState({ show: false, success: false, message: '' });
   const [isPublishing, setIsPublishing] = useState(false);
   const [surveyData, setSurveyData] = useState({
     surveyTitle: '',
+    surveyContent: '',
     surveyDescription: '',
     surveyApproxTime: '',
     surveyTags: [],
@@ -56,7 +60,30 @@ export default function SurveyWizard() {
     }
   }, [publishModal, navigate]);
 
-  const handlePublish = async () => {
+  // Step 1: Show confirmation modal when publish is clicked
+  const handlePublishClick = () => {
+    setShowConfirmModal(true);
+  };
+
+  // Step 2: After confirmation, show code input modal
+  const handleConfirmPublish = () => {
+    setShowConfirmModal(false);
+    setShowCodeModal(true);
+  };
+
+  // Step 3a: Submit with code
+  const handleSubmitWithCode = () => {
+    setShowCodeModal(false);
+    handlePublish(postCode);
+  };
+
+  // Step 3b: Submit without code
+  const handleSubmitWithoutCode = () => {
+    setShowCodeModal(false);
+    handlePublish('');
+  };
+
+  const handlePublish = async (code = '') => {
     // Helper function to convert type to camelCase
     const typeToCamelCase = (type) => {
       const typeMap = {
@@ -79,10 +106,12 @@ export default function SurveyWizard() {
     // Prepare survey data for JSON (without File objects)
     const surveyDataForJson = {
       surveyTitle: surveyData.surveyTitle,
+      surveyContent: surveyData.surveyContent,
       surveyDescription: surveyData.surveyDescription,
       surveyApproxTime: surveyData.surveyApproxTime,
       surveyTags: surveyData.surveyTags,
       target: surveyData.target,
+      post_code: code, // Add post code for bypass approval
       data: surveyData.data.map((section) => ({
         ...section,
         questions: section.questions.map((question) => {
@@ -234,7 +263,7 @@ export default function SurveyWizard() {
           onNext={handleNext}
           onBack={handleBack}
           updateData={updateSurveyData}
-          onPublish={handlePublish}
+          onPublish={handlePublishClick}
           isPublishing={isPublishing}
           isLastStep={currentStep === steps.length - 1}
           isFirstStep={currentStep === 0}
@@ -307,6 +336,130 @@ export default function SurveyWizard() {
                 </button>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <div className="p-8 rounded-xl shadow-xl text-center" style={{ backgroundColor: '#ffffff', maxWidth: '450px', width: '90%' }}>
+            <div 
+              className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: 'var(--color-secondary-background)' }}
+            >
+              <MdCheckCircle style={{ fontSize: '2.5rem', color: 'var(--color-accent-100)' }} />
+            </div>
+            <h2 
+              className="text-xl font-semibold mb-3" 
+              style={{ color: 'var(--color-primary-color)' }}
+            >
+              Publish Survey?
+            </h2>
+            <p className="mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+              Are you sure you want to publish this survey? Once submitted, it will be sent for admin approval.
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="btn"
+                style={{
+                  backgroundColor: 'transparent',
+                  borderColor: 'var(--color-shade-primary)',
+                  color: 'var(--color-text-secondary)'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmPublish}
+                className="btn"
+                style={{
+                  backgroundColor: 'var(--color-accent-100)',
+                  borderColor: 'var(--color-accent-100)',
+                  color: '#ffffff'
+                }}
+              >
+                Yes, Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Code Input Modal */}
+      {showCodeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <div className="p-8 rounded-xl shadow-xl" style={{ backgroundColor: '#ffffff', maxWidth: '450px', width: '90%' }}>
+            <div 
+              className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: 'var(--color-secondary-background)' }}
+            >
+              <MdVpnKey style={{ fontSize: '2rem', color: 'var(--color-accent-100)' }} />
+            </div>
+            <h2 
+              className="text-xl font-semibold mb-2 text-center" 
+              style={{ color: 'var(--color-primary-color)' }}
+            >
+              Have an Approval Code?
+            </h2>
+            <p className="mb-4 text-center text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              If you have an approval code from an admin, enter it below to bypass the approval process. Otherwise, your survey will be sent for review.
+            </p>
+            
+            <div className="mb-6">
+              <label className="label">
+                <span className="label-text" style={{ color: 'var(--color-text-secondary)' }}>
+                  Approval Code (Optional)
+                </span>
+              </label>
+              <input
+                type="text"
+                value={postCode}
+                onChange={(e) => setPostCode(e.target.value)}
+                placeholder="Enter your code here..."
+                className="input input-bordered w-full"
+                style={{
+                  backgroundColor: 'var(--color-background)',
+                  borderColor: 'var(--color-shade-primary)',
+                  color: 'var(--color-primary-color)'
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {postCode.trim() && (
+                <button
+                  onClick={handleSubmitWithCode}
+                  className="btn w-full"
+                  style={{
+                    backgroundColor: 'var(--color-accent-100)',
+                    borderColor: 'var(--color-accent-100)',
+                    color: '#ffffff'
+                  }}
+                >
+                  Submit with Code
+                </button>
+              )}
+              <button
+                onClick={handleSubmitWithoutCode}
+                className="btn w-full"
+                style={{
+                  backgroundColor: postCode.trim() ? 'transparent' : 'var(--color-primary-color)',
+                  borderColor: postCode.trim() ? 'var(--color-shade-primary)' : 'var(--color-primary-color)',
+                  color: postCode.trim() ? 'var(--color-text-secondary)' : '#ffffff'
+                }}
+              >
+                {postCode.trim() ? 'Submit without Code' : 'Submit for Review'}
+              </button>
+              <Link 
+                to="/home"
+                className="text-center text-sm hover:underline"
+                style={{ color: 'var(--color-accent-100)' }}
+              >
+                Cancel and return to homepage
+              </Link>
+            </div>
           </div>
         </div>
       )}

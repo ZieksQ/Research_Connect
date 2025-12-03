@@ -121,22 +121,41 @@ const ProfilePostsPage = () => {
                   </div>
 
                   <div className="flex-1">
-                    <h3
-                      style={{
-                        color: 'var(--color-primary-color)',
-                        fontSize: 'clamp(0.9375rem, 1.5vw, 1.125rem)',
-                        fontWeight: '600',
-                        marginBottom: 'clamp(0.125rem, 0.25vw, 0.25rem)'
-                      }}
-                    >
-                      {post.user_username}
-                    </h3>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3
+                        style={{
+                          color: 'var(--color-primary-color)',
+                          fontSize: 'clamp(0.9375rem, 1.5vw, 1.125rem)',
+                          fontWeight: '600'
+                        }}
+                      >
+                        {post.user_username}
+                      </h3>
+                      {/* Status Badge */}
+                      {post.status && (
+                        <span 
+                          className="badge badge-sm"
+                          style={{
+                            backgroundColor: post.status === 'approved' ? '#22c55e' : 
+                                            post.status === 'pending' ? '#f59e0b' : 
+                                            post.status === 'rejected' ? '#dc2626' : '#6b7280',
+                            color: '#ffffff',
+                            border: 'none',
+                            fontSize: 'clamp(0.6rem, 1vw, 0.7rem)',
+                            textTransform: 'capitalize'
+                          }}
+                        >
+                          {post.status}
+                        </span>
+                      )}
+                    </div>
                     <p
                       style={{
                         color: 'var(--color-text-secondary)',
                         fontSize: 'clamp(0.6875rem, 1.25vw, 0.8125rem)',
                         textTransform: 'uppercase',
-                        letterSpacing: '0.025em'
+                        letterSpacing: '0.025em',
+                        marginTop: 'clamp(0.125rem, 0.25vw, 0.25rem)'
                       }}
                     >
                       {post.survey_category?.[0] || 'UNCATEGORIZED'}

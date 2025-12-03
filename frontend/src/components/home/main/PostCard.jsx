@@ -1,10 +1,13 @@
-import { MdMoreVert, MdAccessTime, MdPeople, MdBookmarkBorder, MdShare, MdFlag, MdCheck } from 'react-icons/md';
+import { MdMoreVert, MdAccessTime, MdPeople, MdBookmarkBorder, MdShare, MdFlag, MdCheck, MdFavorite, MdFavoriteBorder } from 'react-icons/md';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { likePost } from '../../../services/survey/survey.service';
 
 export default function PostCard({ post }) {
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isLiked, setIsLiked] = useState(post.is_liked || false);
+  const [isLiking, setIsLiking] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
@@ -43,6 +46,19 @@ export default function PostCard({ post }) {
     navigate(`/form/response/${post.pk_survey_id}`);
   };
 
+  const handleLike = async () => {
+    if (isLiking) return;
+    setIsLiking(true);
+    try {
+      await likePost(post.pk_survey_id);
+      setIsLiked(!isLiked);
+    } catch (err) {
+      console.error('Failed to like/unlike post:', err);
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
   return (
     <div 
       className="rounded-xl shadow-sm hover:shadow-md transition-shadow"
@@ -71,22 +87,41 @@ export default function PostCard({ post }) {
 
           {/* User Info */}
           <div className="flex-1">
-            <h3 
-              style={{ 
-                color: 'var(--color-primary-color)',
-                fontSize: 'clamp(0.9375rem, 1.5vw, 1.125rem)',
-                fontWeight: '600',
-                marginBottom: 'clamp(0.125rem, 0.25vw, 0.25rem)'
-              }}
-            >
-              {post.user_username}
-            </h3>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 
+                style={{ 
+                  color: 'var(--color-primary-color)',
+                  fontSize: 'clamp(0.9375rem, 1.5vw, 1.125rem)',
+                  fontWeight: '600'
+                }}
+              >
+                {post.user_username}
+              </h3>
+              {/* Status Badge */}
+              {post.status && (
+                <span 
+                  className="badge badge-sm"
+                  style={{
+                    backgroundColor: post.status === 'approved' ? '#22c55e' : 
+                                    post.status === 'pending' ? '#f59e0b' : 
+                                    post.status === 'rejected' ? '#dc2626' : '#6b7280',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontSize: 'clamp(0.6rem, 1vw, 0.7rem)',
+                    textTransform: 'capitalize'
+                  }}
+                >
+                  {post.status}
+                </span>
+              )}
+            </div>
             <p 
               style={{ 
                 color: 'var(--color-text-secondary)',
                 fontSize: 'clamp(0.6875rem, 1.25vw, 0.8125rem)',
                 textTransform: 'uppercase',
-                letterSpacing: '0.025em'
+                letterSpacing: '0.025em',
+                marginTop: 'clamp(0.125rem, 0.25vw, 0.25rem)'
               }}
             >
               {post.survey_category?.[0] || 'UNCATEGORIZED'}
@@ -189,11 +224,25 @@ export default function PostCard({ post }) {
             color: 'var(--color-primary-color)',
             fontSize: 'clamp(0.875rem, 1.5vw, 1rem)',
             lineHeight: '1.6',
-            marginBottom: 'clamp(0.75rem, 1.25vw, 1rem)'
+            marginBottom: 'clamp(0.5rem, 1vw, 0.75rem)'
           }}
         >
           {post.survey_title}
         </p>
+
+        {/* Survey Content */}
+        {post.survey_content && (
+          <p 
+            style={{ 
+              color: 'var(--color-text-secondary)',
+              fontSize: 'clamp(0.8rem, 1.35vw, 0.9rem)',
+              lineHeight: '1.6',
+              marginBottom: 'clamp(0.75rem, 1.25vw, 1rem)'
+            }}
+          >
+            {post.survey_content}
+          </p>
+        )}
 
         {/* Tags */}
         <div className="flex flex-wrap gap-2">
@@ -260,23 +309,47 @@ export default function PostCard({ post }) {
         </div>
 
         {/* Take Survey Button */}
-        <button
-          onClick={handleTakeSurvey}
-          className="btn btn-sm"
-          style={{
-            backgroundColor: 'var(--color-accent-100)',
-            borderColor: 'var(--color-accent-100)',
-            color: '#ffffff',
-            fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)',
-            padding: 'clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 1.75vw, 1.5rem)',
-            fontWeight: '600',
-            height: 'auto',
-            minHeight: 'clamp(2rem, 3vw, 2.5rem)',
-            borderRadius: 'clamp(0.375rem, 0.75vw, 0.5rem)'
-          }}
-        >
-          Take Survey
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Like Button */}
+          <button
+            onClick={handleLike}
+            disabled={isLiking}
+            className="btn btn-sm btn-ghost"
+            style={{
+              color: isLiked ? '#ef4444' : 'var(--color-text-secondary)',
+              fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)',
+              padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+              height: 'auto',
+              minHeight: 'clamp(2rem, 3vw, 2.5rem)',
+              borderRadius: 'clamp(0.375rem, 0.75vw, 0.5rem)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {isLiked ? (
+              <MdFavorite style={{ fontSize: 'clamp(1.25rem, 2vw, 1.5rem)' }} />
+            ) : (
+              <MdFavoriteBorder style={{ fontSize: 'clamp(1.25rem, 2vw, 1.5rem)' }} />
+            )}
+          </button>
+
+          <button
+            onClick={handleTakeSurvey}
+            className="btn btn-sm"
+            style={{
+              backgroundColor: 'var(--color-accent-100)',
+              borderColor: 'var(--color-accent-100)',
+              color: '#ffffff',
+              fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)',
+              padding: 'clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 1.75vw, 1.5rem)',
+              fontWeight: '600',
+              height: 'auto',
+              minHeight: 'clamp(2rem, 3vw, 2.5rem)',
+              borderRadius: 'clamp(0.375rem, 0.75vw, 0.5rem)'
+            }}
+          >
+            Take Survey
+          </button>
+        </div>
       </div>
     </div>
   );

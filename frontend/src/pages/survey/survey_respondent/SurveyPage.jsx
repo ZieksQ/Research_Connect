@@ -260,14 +260,8 @@ export default function SurveyPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
-      <div 
-        className="mx-auto" 
-        style={{ 
-          maxWidth: 'clamp(768px, 75vw, 1200px)',
-          padding: 'clamp(1rem, 2vw, 2rem)'
-        }}
-      >
+    <div className="min-h-screen bg-background py-8 lg:py-12">
+      <div className="mx-auto max-w-4xl px-4 lg:px-8">
         {/* Survey Header - Only show on first section */}
         {isFirstSection && (
           <SurveyHeader

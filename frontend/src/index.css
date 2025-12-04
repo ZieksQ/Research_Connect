@@ -126,11 +126,11 @@ html {
   /* User Registration Form */
 
   .registration {
-    @apply flex min-h-screen items-center justify-center lg:p-6;
+    @apply flex min-h-screen items-center justify-center bg-background lg:p-6;
   }
 
   .registration-card {
-    @apply flex h-full w-full flex-col justify-center p-8 lg:h-auto lg:max-w-sm lg:rounded-lg lg:p-10 lg:shadow-xl;
+    @apply flex h-full w-full flex-col justify-center bg-white p-8 lg:h-auto lg:max-w-sm lg:rounded-lg lg:p-10 lg:shadow-xl;
   }
 
   /* Profile Page */
@@ -160,6 +160,13 @@ html {
 }
 
 @layer utilities {
+  .font-giaza {
+    font-family: "Giaza", sans-serif;
+  }
+  .font-bebas {
+    font-family: "Bebas", sans-serif;
+  }
+
   /* Common Icon Size */
   .icon-size {
     @apply size-4;

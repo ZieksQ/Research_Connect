@@ -9,12 +9,12 @@ export default function HeroSection({ x1, x2, x3 }) {
 
   return (
     <section
-      className="relative flex flex-col justify-start selection:bg-black selection:text-white
+      className="relative flex flex-col justify-start selection:bg-custom-blue selection:text-white
                  pt-30 sm:pt-20 md:pt-12 lg:pt-0 px-4 md:px-8"
     >
       {/* Fake header - visible on lg only */}
       <motion.h1
-        className="mb-6 hidden lg:block text-[clamp(1.5rem,4vw,2.5rem)] font-bold text-black"
+        className="mb-6 hidden lg:block text-[clamp(1.5rem,4vw,2.5rem)] font-bold text-gray-900"
         initial="hidden"
         animate="visible"
         variants={textAnimation}
@@ -32,7 +32,7 @@ export default function HeroSection({ x1, x2, x3 }) {
       >
         <motion.h2
           style={{ x: x1 }}
-          className="whitespace-nowrap text-black
+          className="whitespace-nowrap text-gray-900
                      text-[clamp(2rem,5vw,4rem)] sm:text-[clamp(2.5rem,6vw,4.5rem)] 
                      md:text-[clamp(4rem,8vw,9rem)]
                      leading-[1.05] sm:leading-[1.1] md:leading-[1.2] 
@@ -46,7 +46,7 @@ export default function HeroSection({ x1, x2, x3 }) {
 
         <motion.h2
           style={{ x: x2 }}
-          className="whitespace-nowrap text-black
+          className="whitespace-nowrap text-gray-900
                      text-[clamp(2rem,5vw,4rem)] sm:text-[clamp(2.5rem,6vw,4.5rem)] 
                      md:text-[clamp(4rem,8vw,9rem)]
                      leading-[1.05] sm:leading-[1.1] md:leading-[1.2] 
@@ -60,7 +60,7 @@ export default function HeroSection({ x1, x2, x3 }) {
 
         {/* HeroBackground placement for small screens */}
         <motion.div
-          className="flex flex-wrap items-center gap-4 sm:gap-5 md:gap-6 whitespace-nowrap text-black
+          className="flex flex-wrap items-center gap-4 sm:gap-5 md:gap-6 whitespace-nowrap text-gray-900
                      text-[clamp(2rem,5vw,4rem)] sm:text-[clamp(2.5rem,6vw,4.5rem)] md:text-[clamp(4rem,8vw,9rem)]
                      leading-[1.05] sm:leading-[1.1] md:leading-[1.2]
                      flex-col sm:flex-row sm:items-center"

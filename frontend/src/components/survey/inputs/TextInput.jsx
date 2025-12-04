@@ -12,14 +12,9 @@ export default function TextInput({ value, onChange, hasError, placeholder = 'Yo
       type="text"
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
-      className={`input input-bordered w-full ${hasError ? 'input-error' : ''}`}
-      style={{
-        backgroundColor: 'var(--color-background)',
-        borderColor: hasError ? '#dc2626' : 'var(--color-shade-primary)',
-        color: 'var(--color-primary-color)',
-        fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)',
-        padding: 'clamp(0.5rem, 1vw, 0.75rem)'
-      }}
+      className={`input input-bordered w-full bg-gray-50 focus:bg-white focus:border-custom-blue text-gray-900 placeholder-gray-400 text-base lg:text-lg p-2 lg:p-3 ${
+        hasError ? 'input-error' : 'border-gray-300'
+      }`}
       placeholder={placeholder}
     />
   );

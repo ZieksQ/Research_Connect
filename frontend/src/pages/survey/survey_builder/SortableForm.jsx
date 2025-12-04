@@ -466,22 +466,17 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
 
   return (
     <div>
-      <div className="rounded-xl shadow-lg p-4 mb-4" style={{ backgroundColor: '#ffffff' }}>
+      <div className="bg-white rounded-xl shadow-lg p-4 mb-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 style={{ color: 'var(--color-primary-color)' }}>Survey Questions</h2>
-            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            <h2 className="text-custom-blue font-bold text-lg">Survey Questions</h2>
+            <p className="text-sm text-gray-500">
               Build your form with drag and drop functionality
             </p>
           </div>
           <button
             onClick={addSection}
-            className="btn btn-sm"
-            style={{ 
-              backgroundColor: 'var(--color-accent-100)', 
-              borderColor: 'var(--color-accent-100)',
-              color: '#ffffff'
-            }}
+            className="btn btn-sm bg-custom-green border-custom-green text-white hover:bg-green-600 hover:border-green-600"
           >
             <MdAdd className="text-lg" /> Add Section
           </button>
@@ -500,15 +495,13 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
           {sections.map((section, sectionIndex) => (
             <SortableItem key={section.id} id={section.id} className="mb-4">
               <div
-                className="rounded-xl shadow-lg"
-                style={{ backgroundColor: '#ffffff', border: '1px solid var(--color-shade-primary)' }}
+                className="bg-white rounded-xl shadow-lg border border-gray-200"
               >
-                <div className="p-4 flex items-center justify-between border-b" style={{ borderColor: 'var(--color-shade-primary)', paddingLeft: '2.5rem' }}>
+                <div className="p-4 flex items-center justify-between border-b border-gray-200 pl-10">
                   <div className="flex-1 flex items-center gap-3">
                     <button
                       onClick={() => toggleSection(section.id)}
-                      className="btn btn-ghost btn-sm btn-square"
-                      style={{ color: 'var(--color-shade-primary)' }}
+                      className="btn btn-ghost btn-sm btn-square text-gray-500"
                     >
                       {section.collapsed ? <MdExpandMore className="text-xl" /> : <MdExpandLess className="text-xl" />}
                     </button>
@@ -517,24 +510,14 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                         type="text"
                         value={section.title}
                         onChange={(e) => updateSection(section.id, 'title', e.target.value)}
-                        className="input input-sm w-full border-0 p-0"
-                        style={{ 
-                          backgroundColor: 'transparent',
-                          color: 'var(--color-primary-color)',
-                          fontWeight: '600'
-                        }}
+                        className="input input-sm w-full border-0 p-0 bg-transparent text-custom-blue font-bold focus:outline-none focus:ring-0"
                         placeholder="Section Title"
                       />
                       <input
                         type="text"
                         value={section.description}
                         onChange={(e) => updateSection(section.id, 'description', e.target.value)}
-                        className="input input-sm w-full border-0 p-0 mt-1"
-                        style={{ 
-                          backgroundColor: 'transparent',
-                          color: 'var(--color-text-secondary)',
-                          fontSize: '0.875rem'
-                        }}
+                        className="input input-sm w-full border-0 p-0 mt-1 bg-transparent text-gray-500 text-sm focus:outline-none focus:ring-0"
                         placeholder="Section Description (optional)"
                       />
                     </div>
@@ -542,8 +525,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                   {sections.length > 1 && (
                     <button
                       onClick={() => deleteSection(section.id)}
-                      className="btn btn-ghost btn-sm"
-                      style={{ color: '#dc2626' }}
+                      className="btn btn-ghost btn-sm text-red-500 hover:bg-red-50"
                     >
                       <MdDelete className="text-xl" />
                     </button>
@@ -551,22 +533,15 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                 </div>
 
                 {!section.collapsed && (
-                  <div className="p-4"
-                    style={{ backgroundColor: 'var(--color-background)' }}
-                  >
+                  <div className="p-4 bg-gray-50">
 
                     {section.questions.length === 0 ? (
                       <div className="text-center py-12">
-                        <div className="text-6xl mb-3" style={{ color: 'var(--color-shade-primary)', opacity: '0.3' }}>📝</div>
-                        <p style={{ color: 'var(--color-text-secondary)' }}>No questions in this section</p>
+                        <div className="text-6xl mb-3 text-gray-300">📝</div>
+                        <p className="text-gray-500">No questions in this section</p>
                         <button
                           onClick={() => addQuestion(section.id)}
-                          className="btn btn-sm mt-4"
-                          style={{ 
-                            backgroundColor: 'var(--color-primary-color)',
-                            borderColor: 'var(--color-primary-color)',
-                            color: '#ffffff'
-                          }}
+                          className="btn btn-sm mt-4 bg-custom-blue border-custom-blue text-white hover:bg-blue-700 hover:border-blue-700"
                         >
                           <MdAdd className="text-lg" /> Add Question
                         </button>
@@ -583,24 +558,15 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                         >
                           {section.questions.map((question, qIndex) => (
                             <SortableItem key={question.id} id={question.id} className="mb-3">
-                              <div className="card shadow-sm rounded-lg" style={{ 
-                                backgroundColor: '#ffffff', 
-                                border: '1px solid var(--color-shade-primary)',
-                                paddingLeft: '2.5rem'
-                              }}>
+                              <div className="card shadow-sm rounded-lg bg-white border border-gray-200 pl-10">
                                 <div className="p-4">
                                   <div className="flex items-center justify-between mb-3">
-                                    <div className="badge badge-sm" style={{ 
-                                      backgroundColor: 'var(--color-secondary-background)',
-                                      color: 'var(--color-primary-color)',
-                                      border: 'none'
-                                    }}>
+                                    <div className="badge badge-sm bg-blue-50 text-custom-blue border-none">
                                       {question.type.toUpperCase()}
                                     </div>
                                     <button
                                       onClick={() => deleteQuestion(section.id, question.id)}
-                                      className="btn btn-ghost btn-xs"
-                                      style={{ color: '#dc2626' }}
+                                      className="btn btn-ghost btn-xs text-red-500 hover:bg-red-50"
                                     >
                                       <MdDelete className="text-lg" />
                                     </button>
@@ -617,12 +583,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                         e.target.value
                                       )
                                     }
-                                    className="input input-bordered input-sm w-full mb-3"
-                                    style={{ 
-                                      backgroundColor: 'var(--color-background)',
-                                      borderColor: 'var(--color-shade-primary)',
-                                      color: 'var(--color-primary-color)'
-                                    }}
+                                    className="input input-bordered input-sm w-full mb-3 bg-gray-50 border-gray-300 text-custom-blue focus:border-custom-blue focus:outline-none"
                                     placeholder="Enter your question"
                                   />
 
@@ -630,17 +591,12 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                     <div 
                                       tabIndex={0} 
                                       role="button" 
-                                      className="btn btn-sm w-full justify-between"
-                                      style={{ 
-                                        backgroundColor: 'var(--color-background)',
-                                        borderColor: 'var(--color-shade-primary)',
-                                        color: 'var(--color-primary-color)'
-                                      }}
+                                      className="btn btn-sm w-full justify-between bg-gray-50 border-gray-300 text-custom-blue hover:bg-gray-100"
                                     >
                                       <span className="flex items-center gap-2">
                                         {(() => {
                                           const IconComponent = questionTypeIcons[question.type];
-                                          return IconComponent ? <IconComponent className="text-lg" style={{ color: 'var(--color-accent-100)' }} /> : null;
+                                          return IconComponent ? <IconComponent className="text-lg text-custom-green" /> : null;
                                         })()}
                                         {question.type}
                                       </span>
@@ -648,8 +604,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                     </div>
                                     <ul 
                                       tabIndex={0} 
-                                      className="dropdown-content z-[1] menu p-2 shadow-lg rounded-box w-full"
-                                      style={{ backgroundColor: '#ffffff', border: '1px solid var(--color-shade-primary)' }}
+                                      className="dropdown-content z-[1] menu p-2 shadow-lg rounded-box w-full bg-white border border-gray-200"
                                     >
                                       {questionTypes.map((type) => {
                                         const IconComponent = questionTypeIcons[type];
@@ -661,13 +616,9 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                                 updateQuestion(section.id, question.id, 'type', type);
                                                 document.activeElement?.blur();
                                               }}
-                                              className={`flex items-center gap-2 ${question.type === type ? 'active' : ''}`}
-                                              style={{ 
-                                                color: 'var(--color-primary-color)',
-                                                backgroundColor: question.type === type ? 'var(--color-secondary-background)' : 'transparent'
-                                              }}
+                                              className={`flex items-center gap-2 ${question.type === type ? 'bg-blue-50 text-custom-blue' : 'text-gray-700 hover:bg-gray-50'}`}
                                             >
-                                              {IconComponent && <IconComponent className="text-lg" style={{ color: 'var(--color-accent-100)' }} />}
+                                              {IconComponent && <IconComponent className="text-lg text-custom-green" />}
                                               {type}
                                             </button>
                                           </li>
@@ -680,7 +631,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                     <div className="grid grid-cols-2 gap-3 mb-3">
                                       <div>
                                         <label className="label py-1">
-                                          <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Min Choices</span>
+                                          <span className="label-text text-xs text-gray-500">Min Choices</span>
                                         </label>
                                         <input
                                           type="number"
@@ -694,17 +645,12 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                               parseInt(e.target.value) || 1
                                             )
                                           }
-                                          className="input input-bordered input-sm w-full"
-                                          style={{ 
-                                            backgroundColor: 'var(--color-background)',
-                                            borderColor: 'var(--color-shade-primary)',
-                                            color: 'var(--color-primary-color)'
-                                          }}
+                                          className="input input-bordered input-sm w-full bg-gray-50 border-gray-300 text-custom-blue focus:border-custom-blue"
                                         />
                                       </div>
                                       <div>
                                         <label className="label py-1">
-                                          <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Max Choices (max: {question.options.length || 0})</span>
+                                          <span className="label-text text-xs text-gray-500">Max Choices (max: {question.options.length || 0})</span>
                                         </label>
                                         <input
                                           type="number"
@@ -719,12 +665,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                               parseInt(e.target.value) || 1
                                             )
                                           }
-                                          className="input input-bordered input-sm w-full"
-                                          style={{ 
-                                            backgroundColor: 'var(--color-background)',
-                                            borderColor: 'var(--color-shade-primary)',
-                                            color: 'var(--color-primary-color)'
-                                          }}
+                                          className="input input-bordered input-sm w-full bg-gray-50 border-gray-300 text-custom-blue focus:border-custom-blue"
                                         />
                                       </div>
                                     </div>
@@ -733,7 +674,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                   {question.type === 'Rating' && (
                                     <div className="mb-3">
                                       <label className="label py-1">
-                                        <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Max Rating (1-10)</span>
+                                        <span className="label-text text-xs text-gray-500">Max Rating (1-10)</span>
                                       </label>
                                       <input
                                         type="number"
@@ -752,17 +693,12 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                             value || 5
                                           );
                                         }}
-                                        className={`input input-bordered input-sm w-full ${
-                                          (question.maxRating < 1 || question.maxRating > 10) ? 'input-error' : ''
+                                        className={`input input-bordered input-sm w-full bg-gray-50 text-custom-blue focus:border-custom-blue ${
+                                          (question.maxRating < 1 || question.maxRating > 10) ? 'input-error' : 'border-gray-300'
                                         }`}
-                                        style={{ 
-                                          backgroundColor: 'var(--color-background)',
-                                          borderColor: (question.maxRating < 1 || question.maxRating > 10) ? '#dc2626' : 'var(--color-shade-primary)',
-                                          color: 'var(--color-primary-color)'
-                                        }}
                                       />
                                       {(question.maxRating < 1 || question.maxRating > 10) && (
-                                        <p className="text-xs mt-1" style={{ color: '#dc2626' }}>
+                                        <p className="text-xs mt-1 text-red-500">
                                           Rating must be between 1 and 10
                                         </p>
                                       )}
@@ -774,7 +710,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                   ) && (
                                     <div className="mb-3">
                                       <label className="label py-1">
-                                        <span className="label-text text-xs" style={{ color: 'var(--color-text-secondary)' }}>Options</span>
+                                        <span className="label-text text-xs text-gray-500">Options</span>
                                       </label>
                                       <DndContext
                                         sensors={sensors}
@@ -791,8 +727,8 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                               id={option.id}
                                               className="mb-2"
                                             >
-                                              <div className="flex items-center gap-2" style={{ paddingLeft: '2rem' }}>
-                                                <div className="w-5 h-5 rounded-full border-2 flex-shrink-0" style={{ borderColor: 'var(--color-shade-primary)' }}></div>
+                                              <div className="flex items-center gap-2 pl-8">
+                                                <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0"></div>
                                                 <input
                                                   type="text"
                                                   value={option.text || ''}
@@ -804,20 +740,14 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                                       e.target.value
                                                     )
                                                   }
-                                                  className="input input-sm flex-1 border-0 border-b rounded-none"
-                                                  style={{ 
-                                                    backgroundColor: 'transparent',
-                                                    borderColor: 'var(--color-shade-primary)',
-                                                    color: 'var(--color-primary-color)'
-                                                  }}
+                                                  className="input input-sm flex-1 border-0 border-b border-gray-300 rounded-none bg-transparent text-custom-blue focus:border-custom-blue focus:outline-none"
                                                   placeholder={`Option ${optionIndex + 1}`}
                                                 />
                                                 <button
                                                   onClick={() =>
                                                     deleteOption(section.id, question.id, option.id)
                                                   }
-                                                  className="btn btn-ghost btn-xs"
-                                                  style={{ color: '#dc2626' }}
+                                                  className="btn btn-ghost btn-xs text-red-500 hover:bg-red-50"
                                                 >
                                                   <MdClose />
                                                 </button>
@@ -828,18 +758,14 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                       </DndContext>
                                       <button
                                         onClick={() => addOption(section.id, question.id)}
-                                        className="btn btn-ghost btn-xs mt-2"
-                                        style={{ 
-                                          color: 'var(--color-accent-100)',
-                                          paddingLeft: '2rem'
-                                        }}
+                                        className="btn btn-ghost btn-xs mt-2 pl-8 text-custom-green hover:bg-green-50"
                                       >
                                         <MdAdd /> Add Option
                                       </button>
                                     </div>
                                   )}
 
-                                  <div className="flex items-center justify-between border-t pt-3 mt-3" style={{ borderColor: 'var(--color-shade-primary)' }}>
+                                  <div className="flex items-center justify-between border-t border-gray-200 pt-3 mt-3">
                                     <div className="flex items-center gap-2">
                                       <div className="flex items-center gap-1">
                                         <input
@@ -853,9 +779,9 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                               e.target.checked
                                             )
                                           }
-                                          className="toggle toggle-sm"
+                                          className="toggle toggle-sm toggle-primary"
                                         />
-                                        <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Required</span>
+                                        <span className="text-xs text-gray-500">Required</span>
                                       </div>
                                     </div>
                                     
@@ -864,10 +790,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                         onClick={() =>
                                           openMediaModal('image', section.id, question.id)
                                         }
-                                        className="btn btn-ghost btn-xs"
-                                        style={{ 
-                                          color: 'var(--color-shade-primary)'
-                                        }}
+                                        className="btn btn-ghost btn-xs text-gray-500 hover:text-custom-blue"
                                         title="Add Image"
                                       >
                                         <MdImage className="text-lg" />
@@ -876,10 +799,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                         onClick={() =>
                                           openMediaModal('video', section.id, question.id)
                                         }
-                                        className="btn btn-ghost btn-xs"
-                                        style={{ 
-                                          color: 'var(--color-shade-primary)'
-                                        }}
+                                        className="btn btn-ghost btn-xs text-gray-500 hover:text-custom-blue"
                                         title="Add Video Link"
                                       >
                                         <FaLink className="text-base" />
@@ -888,10 +808,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                         onClick={() =>
                                           duplicateQuestion(section.id, question.id)
                                         }
-                                        className="btn btn-ghost btn-xs"
-                                        style={{ 
-                                          color: 'var(--color-shade-primary)'
-                                        }}
+                                        className="btn btn-ghost btn-xs text-gray-500 hover:text-custom-blue"
                                         title="Duplicate Question"
                                       >
                                         <MdContentCopy className="text-lg" />
@@ -904,15 +821,13 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                       <img
                                         src={question.image.preview}
                                         alt="Question"
-                                        className="max-w-full h-auto rounded-lg"
-                                        style={{ maxHeight: '200px' }}
+                                        className="max-w-full h-auto rounded-lg max-h-[200px]"
                                       />
                                       <button
                                         onClick={() =>
                                           updateQuestion(section.id, question.id, 'image', null)
                                         }
-                                        className="btn btn-xs btn-circle absolute top-2 right-2"
-                                        style={{ backgroundColor: '#dc2626', borderColor: '#dc2626', color: '#ffffff' }}
+                                        className="btn btn-xs btn-circle absolute top-2 right-2 bg-red-500 border-red-500 text-white hover:bg-red-600 hover:border-red-600"
                                       >
                                         <MdClose />
                                       </button>
@@ -921,10 +836,10 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
 
                                   {question.video && (
                                     <div className="mt-3 relative">
-                                      <div className="p-3 rounded-lg flex items-center justify-between" style={{ backgroundColor: 'var(--color-background)' }}>
+                                      <div className="p-3 rounded-lg flex items-center justify-between bg-gray-50">
                                         <div className="flex items-center gap-2">
-                                          <FaLink style={{ color: 'var(--color-accent-100)' }} />
-                                          <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                          <FaLink className="text-custom-green" />
+                                          <span className="text-xs text-gray-500">
                                             Video Link Added
                                           </span>
                                         </div>
@@ -932,8 +847,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                                           onClick={() =>
                                             updateQuestion(section.id, question.id, 'video', null)
                                           }
-                                          className="btn btn-ghost btn-xs"
-                                          style={{ color: '#dc2626' }}
+                                          className="btn btn-ghost btn-xs text-red-500 hover:bg-red-50"
                                         >
                                           <MdClose />
                                         </button>
@@ -951,12 +865,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                     {section.questions.length > 0 && (
                       <button
                         onClick={() => addQuestion(section.id)}
-                        className="btn btn-sm mt-3 w-full"
-                        style={{ 
-                          backgroundColor: 'transparent',
-                          borderColor: 'var(--color-primary-color)',
-                          color: 'var(--color-primary-color)'
-                        }}
+                        className="btn btn-sm mt-3 w-full bg-transparent border-custom-blue text-custom-blue hover:bg-blue-50"
                       >
                         <MdAdd className="text-lg" /> Add Question
                       </button>
@@ -973,23 +882,13 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
       <div className="flex gap-3 mt-6">
         <button
           onClick={onBack}
-          className="btn flex-1"
-          style={{
-            backgroundColor: 'transparent',
-            borderColor: 'var(--color-primary-color)',
-            color: 'var(--color-primary-color)'
-          }}
+          className="btn flex-1 bg-transparent border-custom-blue text-custom-blue hover:bg-blue-50"
         >
           Back
         </button>
         <button
           onClick={handleContinue}
-          className="btn flex-1"
-          style={{
-            backgroundColor: 'var(--color-primary-color)',
-            borderColor: 'var(--color-primary-color)',
-            color: '#ffffff'
-          }}
+          className="btn flex-1 bg-custom-blue border-custom-blue text-white hover:bg-blue-700 hover:border-blue-700"
         >
           Next
         </button>
@@ -997,15 +896,14 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
 
       {showMediaModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="rounded-xl p-6 max-w-md w-full mx-4" style={{ backgroundColor: '#ffffff' }}>
+          <div className="rounded-xl p-6 max-w-md w-full mx-4 bg-white">
             <div className="flex items-center justify-between mb-4">
-              <h3 style={{ color: 'var(--color-primary-color)' }}>
+              <h3 className="text-custom-blue font-bold">
                 {mediaType === 'image' ? 'Add Image' : 'Add Video Link'}
               </h3>
               <button
                 onClick={closeMediaModal}
-                className="btn btn-ghost btn-sm btn-circle"
-                style={{ color: 'var(--color-shade-primary)' }}
+                className="btn btn-ghost btn-sm btn-circle text-gray-500"
               >
                 <MdClose className="text-xl" />
               </button>
@@ -1014,22 +912,20 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
             {mediaType === 'image' ? (
               <div>
                 <div
-                  className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors"
-                  style={{
-                    borderColor: dragActive ? 'var(--color-accent-100)' : 'var(--color-shade-primary)',
-                    backgroundColor: dragActive ? 'rgba(80, 87, 233, 0.05)' : 'transparent'
-                  }}
+                  className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                    dragActive ? 'border-custom-green bg-green-50' : 'border-gray-300 bg-transparent'
+                  }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <MdUpload className="text-5xl mx-auto mb-3" style={{ color: 'var(--color-shade-primary)' }} />
-                  <p className="mb-1" style={{ color: 'var(--color-primary-color)' }}>
+                  <MdUpload className="text-5xl mx-auto mb-3 text-gray-400" />
+                  <p className="mb-1 text-custom-blue font-medium">
                     Drag and drop an image here
                   </p>
-                  <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                  <p className="text-xs text-gray-500">
                     or click to browse
                   </p>
                 </div>
@@ -1044,7 +940,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
             ) : (
               <div>
                 <label className="label">
-                  <span className="label-text" style={{ color: 'var(--color-text-secondary)' }}>
+                  <span className="label-text text-gray-500">
                     YouTube or Google Drive Link
                   </span>
                 </label>
@@ -1052,22 +948,12 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
                   type="text"
                   value={mediaLink}
                   onChange={(e) => setMediaLink(e.target.value)}
-                  className="input input-bordered w-full mb-4"
-                  style={{
-                    backgroundColor: 'var(--color-background)',
-                    borderColor: 'var(--color-shade-primary)',
-                    color: 'var(--color-primary-color)'
-                  }}
+                  className="input input-bordered w-full mb-4 bg-gray-50 border-gray-300 text-custom-blue focus:border-custom-blue"
                   placeholder="https://youtube.com/watch?v=..."
                 />
                 <button
                   onClick={handleLinkSubmit}
-                  className="btn w-full"
-                  style={{
-                    backgroundColor: 'var(--color-accent-100)',
-                    borderColor: 'var(--color-accent-100)',
-                    color: '#ffffff'
-                  }}
+                  className="btn w-full bg-custom-green border-custom-green text-white hover:bg-green-600 hover:border-green-600"
                 >
                   Add Link
                 </button>

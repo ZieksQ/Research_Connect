@@ -7,19 +7,15 @@ import { MdCheckCircle } from 'react-icons/md';
  */
 export default function SurveyAlreadyAnswered({ message }) {
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
-      <div className="text-center p-8 rounded-xl shadow-lg" style={{ backgroundColor: '#ffffff', maxWidth: '500px' }}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center p-8 rounded-xl shadow-lg bg-white max-w-lg w-full mx-4">
         <MdCheckCircle 
-          className="mx-auto mb-4" 
-          style={{ fontSize: '4rem', color: 'var(--color-accent-100)' }} 
+          className="mx-auto mb-4 text-6xl text-custom-green" 
         />
-        <h2 
-          className="text-2xl font-semibold mb-4" 
-          style={{ color: 'var(--color-primary-color)' }}
-        >
+        <h2 className="text-2xl font-semibold mb-4 text-gray-900">
           Survey Already Completed
         </h2>
-        <p style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="text-gray-500">
           {message || 'You have already answered this survey'}
         </p>
       </div>

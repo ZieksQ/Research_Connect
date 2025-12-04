@@ -23,12 +23,7 @@ export default function SurveyNavigation({
       {!isFirstSection && (
         <button
           onClick={onBack}
-          className="btn"
-          style={{
-            backgroundColor: 'transparent',
-            borderColor: 'var(--color-primary-color)',
-            color: 'var(--color-primary-color)'
-          }}
+          className="btn bg-transparent border-custom-blue text-custom-blue hover:bg-blue-50"
         >
           <MdArrowBack /> Back
         </button>
@@ -37,12 +32,7 @@ export default function SurveyNavigation({
       {!isLastSection ? (
         <button
           onClick={onNext}
-          className="btn flex-1"
-          style={{
-            backgroundColor: 'var(--color-primary-color)',
-            borderColor: 'var(--color-primary-color)',
-            color: '#ffffff'
-          }}
+          className="btn flex-1 bg-custom-blue border-custom-blue text-white hover:bg-blue-800 hover:border-blue-800"
         >
           Next <MdArrowForward />
         </button>
@@ -50,13 +40,7 @@ export default function SurveyNavigation({
         <button
           onClick={onSubmit}
           disabled={isSubmitting}
-          className="btn flex-1"
-          style={{
-            backgroundColor: 'var(--color-accent-100)',
-            borderColor: 'var(--color-accent-100)',
-            color: '#ffffff',
-            opacity: isSubmitting ? 0.7 : 1
-          }}
+          className="btn flex-1 bg-custom-green border-custom-green text-white hover:bg-green-600 hover:border-green-600 disabled:opacity-50 disabled:bg-custom-green"
         >
           {isSubmitting ? (
             <>

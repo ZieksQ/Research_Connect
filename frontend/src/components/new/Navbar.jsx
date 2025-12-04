@@ -64,21 +64,21 @@ const Navbar = () => {
           {/* Dropdown Menu */}
           <ul
             tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-60 p-2 shadow"
+            className="menu menu-sm dropdown-content bg-white rounded-box z-50 mt-3 w-60 p-2 shadow border border-gray-200"
           >
             <li>
-              <Link to="/profile" className="justify-between">
+              <Link to="/profile" className="justify-between hover:bg-blue-50 hover:text-custom-blue">
                 Profile
-                <span className="badge badge-accent badge-sm">Beta</span>
+                <span className="badge bg-custom-green text-white border-none badge-sm">Beta</span>
               </Link>
             </li>
             <li>
-              <a href="#">Settings</a>
+              <a href="#" className="hover:bg-blue-50 hover:text-custom-blue">Settings</a>
             </li>
             <li>
               <a
                 href="#"
-                className="hover:bg-error hover:text-white"
+                className="hover:bg-red-50 hover:text-red-600"
                 onClick={handleLogout}
               >
                 Logout

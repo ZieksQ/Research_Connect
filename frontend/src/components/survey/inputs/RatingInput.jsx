@@ -9,38 +9,27 @@ import { MdStar, MdStarBorder } from 'react-icons/md';
  */
 export default function RatingInput({ value, onChange, maxRating = 5 }) {
   return (
-    <div className="flex gap-2 flex-wrap">
+    <div className="flex gap-2 flex-wrap items-center">
       {Array.from({ length: maxRating }, (_, i) => i + 1).map((star) => (
         <button
           key={star}
           type="button"
           onClick={() => onChange(star)}
-          className="btn btn-ghost btn-lg p-0"
-          style={{ color: 'var(--color-accent-100)' }}
+          className="btn btn-ghost btn-lg p-0 hover:bg-transparent"
         >
           {value >= star ? (
             <MdStar 
-              style={{ 
-                fontSize: 'clamp(2rem, 4vw, 2.5rem)'
-              }} 
+              className="text-yellow-400 text-4xl lg:text-5xl transition-transform hover:scale-110"
             />
           ) : (
             <MdStarBorder 
-              style={{ 
-                fontSize: 'clamp(2rem, 4vw, 2.5rem)'
-              }} 
+              className="text-gray-300 text-4xl lg:text-5xl transition-transform hover:scale-110 hover:text-yellow-200"
             />
           )}
         </button>
       ))}
       {value && (
-        <span 
-          className="ml-3 self-center" 
-          style={{ 
-            color: 'var(--color-text-secondary)',
-            fontSize: 'clamp(0.875rem, 1.5vw, 1rem)'
-          }}
-        >
+        <span className="ml-3 text-gray-500 font-medium text-base lg:text-lg">
           {value} / {maxRating}
         </span>
       )}

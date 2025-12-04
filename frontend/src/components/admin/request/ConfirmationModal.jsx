@@ -8,23 +8,23 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, type = 
 
   return (
     <dialog className="modal modal-open">
-      <div className="modal-box">
-        <h3 className="font-bold text-lg flex items-center gap-2">
+      <div className="modal-box bg-white">
+        <h3 className={`font-bold text-lg flex items-center gap-2 ${isApprove ? 'text-custom-green' : 'text-red-500'}`}>
           {isApprove ? (
-            <FaCheckCircle className="text-success" />
+            <FaCheckCircle />
           ) : (
-            <FaTimesCircle className="text-error" />
+            <FaTimesCircle />
           )}
           {title}
         </h3>
-        <p className="py-4">{message}</p>
+        <p className="py-4 text-gray-700">{message}</p>
         <div className="modal-action">
-          <button onClick={onClose} className="btn btn-ghost">
+          <button onClick={onClose} className="btn btn-ghost text-gray-600 hover:bg-gray-100">
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className={`btn ${isApprove ? 'btn-success' : 'btn-error'}`}
+            className={`btn ${isApprove ? 'bg-custom-green border-custom-green text-white hover:bg-green-600 hover:border-green-600' : 'bg-red-500 border-red-500 text-white hover:bg-red-600 hover:border-red-600'}`}
           >
             {isApprove ? 'Approve' : 'Reject'}
           </button>

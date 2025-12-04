@@ -1,24 +1,12 @@
 import PostCard from './PostCard';
+import { FiInbox, FiCheckCircle } from 'react-icons/fi';
 
 export default function PostsList({ posts, isLoading, isLoadingMore, hasMore, loadMoreRef }) {
   if (isLoading) {
     return (
-      <div 
-        className="text-center rounded-xl"
-        style={{
-          padding: 'clamp(3rem, 5vw, 4rem)',
-          backgroundColor: '#ffffff',
-          border: '1px solid var(--color-shade-primary)'
-        }}
-      >
-        <span className="loading loading-spinner loading-lg"></span>
-        <p 
-          style={{ 
-            color: 'var(--color-text-secondary)',
-            fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)',
-            marginTop: '1rem'
-          }}
-        >
+      <div className="text-center rounded-xl bg-white border border-gray-200 p-12 lg:p-16">
+        <span className="loading loading-spinner loading-lg text-custom-blue"></span>
+        <p className="text-gray-600 text-sm lg:text-lg mt-4">
           Loading surveys...
         </p>
       </div>
@@ -27,29 +15,11 @@ export default function PostsList({ posts, isLoading, isLoadingMore, hasMore, lo
 
   if (!posts || posts.length === 0) {
     return (
-      <div 
-        className="text-center rounded-xl"
-        style={{
-          padding: 'clamp(3rem, 5vw, 4rem)',
-          backgroundColor: '#ffffff',
-          border: '1px solid var(--color-shade-primary)'
-        }}
-      >
-        <div 
-          style={{ 
-            fontSize: 'clamp(3rem, 5vw, 4rem)',
-            marginBottom: 'clamp(1rem, 2vw, 1.5rem)',
-            opacity: 0.3
-          }}
-        >
-          📭
+      <div className="text-center rounded-xl bg-white border border-gray-200 p-12 lg:p-16">
+        <div className="text-6xl lg:text-7xl mb-4 lg:mb-6 opacity-30 flex justify-center">
+          <FiInbox />
         </div>
-        <p 
-          style={{ 
-            color: 'var(--color-text-secondary)',
-            fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
-          }}
-        >
+        <p className="text-gray-600 text-sm lg:text-lg">
           No surveys found. Try adjusting your filters.
         </p>
       </div>
@@ -63,39 +33,20 @@ export default function PostsList({ posts, isLoading, isLoadingMore, hasMore, lo
       ))}
       
       {/* Load More Trigger / Loading Indicator */}
-      <div ref={loadMoreRef} style={{ minHeight: '20px', marginTop: '1rem' }}>
+      <div ref={loadMoreRef} className="min-h-[20px] mt-4">
         {isLoadingMore && (
-          <div 
-            className="text-center rounded-xl"
-            style={{
-              padding: 'clamp(1.5rem, 2.5vw, 2rem)',
-              backgroundColor: '#ffffff',
-              border: '1px solid var(--color-shade-primary)'
-            }}
-          >
-            <span className="loading loading-spinner loading-md"></span>
-            <p 
-              style={{ 
-                color: 'var(--color-text-secondary)',
-                fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)',
-                marginTop: '0.5rem'
-              }}
-            >
+          <div className="text-center rounded-xl bg-white border border-gray-200 p-6 lg:p-8">
+            <span className="loading loading-spinner loading-md text-custom-blue"></span>
+            <p className="text-gray-600 text-xs lg:text-sm mt-2">
               Loading more surveys...
             </p>
           </div>
         )}
         
         {!hasMore && posts.length > 0 && !isLoadingMore && (
-          <div 
-            className="text-center"
-            style={{
-              padding: 'clamp(1rem, 2vw, 1.5rem)',
-              color: 'var(--color-text-secondary)',
-              fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)'
-            }}
-          >
-            You've reached the end of the surveys 🎉
+          <div className="text-center p-4 lg:p-6 text-gray-600 text-xs lg:text-sm flex items-center justify-center gap-2">
+            <FiCheckCircle className="text-custom-green" />
+            You've reached the end of the surveys
           </div>
         )}
       </div>

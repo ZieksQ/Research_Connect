@@ -2,40 +2,17 @@ import { MdSearch } from 'react-icons/md';
 
 export default function SearchBar({ value, onChange, placeholder }) {
   return (
-    <div 
-      className="form-control"
-      style={{
-        marginBottom: 'clamp(1rem, 2vw, 1.5rem)'
-      }}
-    >
-      <div className="input-group">
-        <span 
-          className="bg-white border-r-0"
-          style={{
-            borderColor: 'var(--color-shade-primary)',
-            padding: 'clamp(0.625rem, 1.2vw, 0.875rem)'
-          }}
-        >
-          <MdSearch 
-            style={{ 
-              fontSize: 'clamp(1.25rem, 2vw, 1.5rem)',
-              color: 'var(--color-text-secondary)'
-            }} 
-          />
-        </span>
+    <div className="form-control mb-4 lg:mb-6">
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <MdSearch className="text-xl text-gray-400" />
+        </div>
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder || "Filter Surveys"}
-          className="input input-bordered w-full border-l-0"
-          style={{
-            backgroundColor: '#ffffff',
-            borderColor: 'var(--color-shade-primary)',
-            color: 'var(--color-primary-color)',
-            fontSize: 'clamp(0.875rem, 1.5vw, 1rem)',
-            padding: 'clamp(0.625rem, 1.2vw, 0.875rem)'
-          }}
+          className="input input-bordered w-full pl-10 bg-white border-gray-200 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900 placeholder-gray-400"
         />
       </div>
     </div>

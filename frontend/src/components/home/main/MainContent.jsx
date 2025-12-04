@@ -142,36 +142,17 @@ export default function MainContent() {
   });
 
   return (
-    <div 
-      className=""
-      style={{
-        backgroundColor: 'var(--color-background)',
-        padding: 'clamp(1.5rem, 2.5vw, 2.5rem)',
-        overflowY: 'auto',
-        minHeight: '100vh'
-      }}
-    >
-      <div 
-        style={{ 
-          maxWidth: 'clamp(600px, 70vw, 900px)',
-          margin: '0 auto'
-        }}
-      >
+    <div className="bg-background p-6 lg:p-10 min-h-screen overflow-y-auto">
+      <div className="max-w-4xl mx-auto">
         {/* Search Results Indicator */}
         {searchQuery && (
-          <div 
-            className="mb-4 p-3 rounded-lg"
-            style={{
-              backgroundColor: 'var(--color-secondary-background)',
-              border: '1px solid var(--color-shade-primary)',
-            }}
-          >
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: 'clamp(0.8rem, 1.25vw, 0.9rem)' }}>
+          <div className="mb-4 p-3 rounded-lg bg-white border border-gray-200 shadow-sm">
+            <p className="text-gray-600 text-sm">
               {isSearching ? (
                 'Searching...'
               ) : (
                 <>
-                  Showing results for "<strong style={{ color: 'var(--color-primary-color)' }}>{searchQuery}</strong>" 
+                  Showing results for "<strong className="text-custom-blue">{searchQuery}</strong>" 
                   <span className="ml-2">({filteredPosts.length} {filteredPosts.length === 1 ? 'result' : 'results'})</span>
                 </>
               )}

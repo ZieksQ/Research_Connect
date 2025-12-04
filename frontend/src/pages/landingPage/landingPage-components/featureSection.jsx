@@ -96,7 +96,7 @@ const cardVariant = {
 
 export default function FeatureSection() {
   return (
-    <section className="mt-24 bg-white text-black">
+    <section className="mt-24 bg-white text-gray-900">
       <motion.div
         initial="hidden"
         whileInView="visible"
@@ -122,14 +122,14 @@ export default function FeatureSection() {
               variants={cardVariant}
               whileHover={{ scale: 1.03 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border border-black rounded-2xl p-10 transition-all duration-700 hover:bg-black hover:text-white sm:flex-row-reverse"
+              className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border border-gray-200 rounded-2xl p-10 transition-all duration-700 hover:bg-custom-blue hover:text-white sm:flex-row-reverse"
             >
-              <div className="flex-shrink-0 mb-4 sm:mb-0 text-black group-hover:text-white flex justify-center sm:justify-end">
+              <div className="flex-shrink-0 mb-4 sm:mb-0 text-gray-900 group-hover:text-white flex justify-center sm:justify-end">
                 {feature.icon}
               </div>
               <div className="text-center sm:text-left sm:max-w-lg">
                 <h3 className="text-2xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-700 text-lg leading-relaxed group-hover:text-gray-200">
+                <p className="text-gray-700 text-lg leading-relaxed group-hover:text-blue-50">
                   {feature.desc}
                 </p>
               </div>

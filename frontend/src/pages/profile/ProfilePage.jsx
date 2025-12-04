@@ -31,7 +31,7 @@ const ProfilePage = () => {
   return (
     <section className="page-margin lg:mx-auto lg:max-w-4xl">
       {/* Profile Header Card */}
-      <div className="bg-base-100 border-base-200 overflow-hidden rounded-2xl border shadow-sm">
+      <div className="bg-white border border-gray-200 overflow-hidden rounded-2xl shadow-sm">
         {/* Cover/Background Area */}
         <div className="from-custom-blue/70 via-custom-green/40 to-custom-maroon/30 h-32 bg-gradient-to-br"></div>
 
@@ -41,7 +41,7 @@ const ProfilePage = () => {
             {/* Left side: Profile Picture */}
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
               <div
-                className={`ring-base-100 rounded-full ring-4 ${isLoading ? "skeleton" : ""}`}
+                className={`ring-white rounded-full ring-4 ${isLoading ? "skeleton" : ""}`}
               >
                 <ProfilePicture src={profilePicUrl} />
               </div>
@@ -64,11 +64,19 @@ const ProfilePage = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <nav role="tablist" className="tabs tabs-border mt-6 mb-6">
-        <NavLink to="/profile/posts" role="tab" className={`tab`}>
+      <nav role="tablist" className="tabs tabs-bordered mt-6 mb-6">
+        <NavLink 
+          to="/profile/posts" 
+          role="tab" 
+          className={({ isActive }) => `tab ${isActive ? 'tab-active !border-custom-blue !text-custom-blue font-semibold' : ''}`}
+        >
           Posts
         </NavLink>
-        <NavLink to="/profile/about" role="tab" className={`tab`}>
+        <NavLink 
+          to="/profile/about" 
+          role="tab" 
+          className={({ isActive }) => `tab ${isActive ? 'tab-active !border-custom-blue !text-custom-blue font-semibold' : ''}`}
+        >
           About
         </NavLink>
       </nav>

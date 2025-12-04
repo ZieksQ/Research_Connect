@@ -215,65 +215,31 @@ export default function SurveyWizard() {
   const CurrentStepComponent = steps[currentStep].component;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
-      <div 
-        className="mx-auto" 
-        style={{ 
-          maxWidth: 'clamp(960px, 85vw, 1400px)',
-          padding: 'clamp(1rem, 2vw, 2rem)'
-        }}
-      >
+    <div className="min-h-screen bg-gray-50 pb-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div 
-          className="rounded-xl shadow-lg mb-6" 
-          style={{ 
-            backgroundColor: 'var(--color-secondary-background)',
-            padding: 'clamp(1.5rem, 3vw, 2.5rem)'
-          }}
-        >
-          <h1 
-            className="text-center" 
-            style={{ 
-              color: 'var(--color-primary-color)',
-              fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
-              marginBottom: 'clamp(0.25rem, 0.5vw, 0.5rem)'
-            }}
-          >
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-8 mb-8">
+          <h1 className="text-center text-3xl lg:text-4xl font-giaza text-custom-blue mb-2">
             Create Survey
           </h1>
-          <p 
-            className="text-center" 
-            style={{ 
-              color: 'var(--color-text-secondary)',
-              fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
-            }}
-          >
+          <p className="text-center text-gray-500 text-lg">
             {steps[currentStep].name}
           </p>
         </div>
 
         {/* Progress Stepper */}
-        <div 
-          className="flex justify-center" 
-          style={{ 
-            marginBottom: 'clamp(2rem, 3vw, 3rem)'
-          }}
-        >
-          <ul className="steps">
+        <div className="flex justify-center mb-12">
+          <ul className="steps w-full max-w-4xl">
             {steps.map((step, index) => (
               <li
                 key={index}
                 className={`step ${index <= currentStep ? 'step-primary' : ''} ${
                   index < currentStep ? 'cursor-pointer' : ''
                 }`}
-                style={{
-                  '--step-color': 'var(--color-primary-color)',
-                  fontSize: 'clamp(0.75rem, 1.25vw, 1rem)'
-                }}
                 onClick={() => index < currentStep && setCurrentStep(index)}
               >
-                <span className="hidden md:inline">{step.name}</span>
-                <span className="md:hidden">Step {index + 1}</span>
+                <span className="hidden md:inline font-medium">{step.name}</span>
+                <span className="md:hidden font-medium">Step {index + 1}</span>
               </li>
             ))}
           </ul>
@@ -294,13 +260,13 @@ export default function SurveyWizard() {
 
       {/* Publishing Loading Overlay */}
       {isPublishing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <div className="p-8 rounded-xl shadow-xl text-center" style={{ backgroundColor: '#ffffff', maxWidth: '300px' }}>
-            <span className="loading loading-spinner loading-lg" style={{ color: 'var(--color-accent-100)' }}></span>
-            <p className="mt-4 font-medium" style={{ color: 'var(--color-primary-color)' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="p-8 rounded-xl shadow-xl text-center bg-white max-w-xs w-full">
+            <span className="loading loading-spinner loading-lg text-custom-blue"></span>
+            <p className="mt-4 font-medium text-gray-900">
               Publishing your survey...
             </p>
-            <p className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+            <p className="text-sm mt-2 text-gray-500">
               Please wait
             </p>
           </div>
@@ -309,50 +275,33 @@ export default function SurveyWizard() {
 
       {/* Publish Result Modal */}
       {publishModal.show && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <div className="p-8 rounded-xl shadow-xl text-center" style={{ backgroundColor: '#ffffff', maxWidth: '400px', width: '90%' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="p-8 rounded-xl shadow-xl text-center bg-white max-w-md w-[90%]">
             {publishModal.success ? (
               <>
-                <MdCheckCircle 
-                  className="mx-auto mb-4" 
-                  style={{ fontSize: '4rem', color: '#22c55e' }} 
-                />
-                <h2 
-                  className="text-xl font-semibold mb-3" 
-                  style={{ color: 'var(--color-primary-color)' }}
-                >
+                <MdCheckCircle className="mx-auto mb-4 text-6xl text-custom-green" />
+                <h2 className="text-xl font-bold mb-3 text-gray-900">
                   Success!
                 </h2>
-                <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+                <p className="mb-4 text-gray-600">
                   {publishModal.message}
                 </p>
-                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                <p className="text-sm text-gray-500">
                   Redirecting to home in 3 seconds...
                 </p>
               </>
             ) : (
               <>
-                <MdError 
-                  className="mx-auto mb-4" 
-                  style={{ fontSize: '4rem', color: '#dc2626' }} 
-                />
-                <h2 
-                  className="text-xl font-semibold mb-3" 
-                  style={{ color: 'var(--color-primary-color)' }}
-                >
+                <MdError className="mx-auto mb-4 text-6xl text-red-600" />
+                <h2 className="text-xl font-bold mb-3 text-gray-900">
                   Publishing Failed
                 </h2>
-                <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+                <p className="mb-4 text-gray-600">
                   {publishModal.message}
                 </p>
                 <button
                   onClick={() => setPublishModal({ show: false, success: false, message: '' })}
-                  className="btn"
-                  style={{
-                    backgroundColor: 'var(--color-primary-color)',
-                    borderColor: 'var(--color-primary-color)',
-                    color: '#ffffff'
-                  }}
+                  className="btn bg-custom-blue hover:bg-blue-700 text-white border-none"
                 >
                   <MdClose className="mr-1" /> Close
                 </button>
@@ -364,43 +313,27 @@ export default function SurveyWizard() {
 
       {/* Confirmation Modal */}
       {showConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <div className="p-8 rounded-xl shadow-xl text-center" style={{ backgroundColor: '#ffffff', maxWidth: '450px', width: '90%' }}>
-            <div 
-              className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: 'var(--color-secondary-background)' }}
-            >
-              <MdCheckCircle style={{ fontSize: '2.5rem', color: 'var(--color-accent-100)' }} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="p-8 rounded-xl shadow-xl text-center bg-white max-w-md w-[90%]">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center">
+              <MdCheckCircle className="text-4xl text-custom-blue" />
             </div>
-            <h2 
-              className="text-xl font-semibold mb-3" 
-              style={{ color: 'var(--color-primary-color)' }}
-            >
+            <h2 className="text-xl font-bold mb-3 text-gray-900">
               Publish Survey?
             </h2>
-            <p className="mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+            <p className="mb-6 text-gray-600">
               Are you sure you want to publish this survey? Once submitted, it will be sent for admin approval.
             </p>
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => setShowConfirmModal(false)}
-                className="btn"
-                style={{
-                  backgroundColor: 'transparent',
-                  borderColor: 'var(--color-shade-primary)',
-                  color: 'var(--color-text-secondary)'
-                }}
+                className="btn btn-ghost text-gray-500 hover:bg-gray-100"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmPublish}
-                className="btn"
-                style={{
-                  backgroundColor: 'var(--color-accent-100)',
-                  borderColor: 'var(--color-accent-100)',
-                  color: '#ffffff'
-                }}
+                className="btn bg-custom-blue hover:bg-blue-700 text-white border-none"
               >
                 Yes, Continue
               </button>
@@ -411,27 +344,21 @@ export default function SurveyWizard() {
 
       {/* Code Input Modal */}
       {showCodeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <div className="p-8 rounded-xl shadow-xl" style={{ backgroundColor: '#ffffff', maxWidth: '450px', width: '90%' }}>
-            <div 
-              className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: 'var(--color-secondary-background)' }}
-            >
-              <MdVpnKey style={{ fontSize: '2rem', color: 'var(--color-accent-100)' }} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="p-8 rounded-xl shadow-xl bg-white max-w-md w-[90%]">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center">
+              <MdVpnKey className="text-3xl text-custom-blue" />
             </div>
-            <h2 
-              className="text-xl font-semibold mb-2 text-center" 
-              style={{ color: 'var(--color-primary-color)' }}
-            >
+            <h2 className="text-xl font-bold mb-2 text-center text-gray-900">
               Have an Approval Code?
             </h2>
-            <p className="mb-4 text-center text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            <p className="mb-4 text-center text-sm text-gray-600">
               If you have an approval code from an admin, enter it below to bypass the approval process. Otherwise, your survey will be sent for review.
             </p>
             
             <div className="mb-6">
               <label className="label">
-                <span className="label-text" style={{ color: 'var(--color-text-secondary)' }}>
+                <span className="label-text text-gray-600 font-medium">
                   Approval Code (Optional)
                 </span>
               </label>
@@ -440,12 +367,7 @@ export default function SurveyWizard() {
                 value={postCode}
                 onChange={(e) => setPostCode(e.target.value)}
                 placeholder="Enter your code here..."
-                className="input input-bordered w-full"
-                style={{
-                  backgroundColor: 'var(--color-background)',
-                  borderColor: 'var(--color-shade-primary)',
-                  color: 'var(--color-primary-color)'
-                }}
+                className="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-custom-blue text-gray-900"
               />
             </div>
 
@@ -453,31 +375,24 @@ export default function SurveyWizard() {
               {postCode.trim() && (
                 <button
                   onClick={handleSubmitWithCode}
-                  className="btn w-full"
-                  style={{
-                    backgroundColor: 'var(--color-accent-100)',
-                    borderColor: 'var(--color-accent-100)',
-                    color: '#ffffff'
-                  }}
+                  className="btn w-full bg-custom-blue hover:bg-blue-700 text-white border-none"
                 >
                   Submit with Code
                 </button>
               )}
               <button
                 onClick={handleSubmitWithoutCode}
-                className="btn w-full"
-                style={{
-                  backgroundColor: postCode.trim() ? 'transparent' : 'var(--color-primary-color)',
-                  borderColor: postCode.trim() ? 'var(--color-shade-primary)' : 'var(--color-primary-color)',
-                  color: postCode.trim() ? 'var(--color-text-secondary)' : '#ffffff'
-                }}
+                className={`btn w-full ${
+                  postCode.trim() 
+                    ? 'btn-ghost text-gray-500 hover:bg-gray-100' 
+                    : 'bg-custom-blue hover:bg-blue-700 text-white border-none'
+                }`}
               >
                 {postCode.trim() ? 'Submit without Code' : 'Submit for Review'}
               </button>
               <Link 
                 to="/home"
-                className="text-center text-sm hover:underline"
-                style={{ color: 'var(--color-accent-100)' }}
+                className="text-center text-sm text-custom-blue hover:underline mt-2"
               >
                 Cancel and return to homepage
               </Link>

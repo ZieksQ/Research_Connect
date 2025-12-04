@@ -144,10 +144,10 @@ const AdminRequest = () => {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <FaClipboardList className="text-3xl text-primary" />
-          <h1 className="text-3xl font-bold">Pending Requests</h1>
+          <FaClipboardList className="text-3xl text-custom-blue" />
+          <h1 className="text-3xl font-bold text-custom-blue">Pending Requests</h1>
         </div>
-        <p className="text-base-content/60">
+        <p className="text-gray-500">
           Review and approve pending survey submissions
         </p>
         <div className="divider"></div>
@@ -159,11 +159,11 @@ const AdminRequest = () => {
       ) : (
         <>
           {/* Stats */}
-          <div className="stats shadow mb-6">
+          <div className="stats shadow mb-6 bg-white border border-gray-200">
             <div className="stat">
-              <div className="stat-title">Pending Posts</div>
-              <div className="stat-value text-primary">{pendingPosts.length}</div>
-              <div className="stat-desc">Awaiting review</div>
+              <div className="stat-title text-gray-500">Pending Posts</div>
+              <div className="stat-value text-custom-blue">{pendingPosts.length}</div>
+              <div className="stat-desc text-gray-400">Awaiting review</div>
             </div>
           </div>
 
@@ -209,9 +209,9 @@ const AdminRequest = () => {
       {/* Processing Overlay */}
       {processing && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-base-100 p-6 rounded-lg shadow-xl">
-            <span className="loading loading-spinner loading-lg text-primary"></span>
-            <p className="mt-4 text-base-content">Processing...</p>
+          <div className="bg-white p-6 rounded-lg shadow-xl">
+            <span className="loading loading-spinner loading-lg text-custom-blue"></span>
+            <p className="mt-4 text-gray-700">Processing...</p>
           </div>
         </div>
       )}

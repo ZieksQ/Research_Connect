@@ -90,74 +90,44 @@ const ProfilePostsPage = () => {
     <>
       <section className="space-y-4">
         {userPosts.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <div style={{ fontSize: 'clamp(3rem, 5vw, 4rem)', marginBottom: '1rem', opacity: 0.3 }}>📭</div>
-            <p className="text-text-secondary">You have not published any surveys yet.</p>
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center border border-gray-200">
+            <div className="text-6xl mb-4 opacity-30 flex justify-center">📭</div>
+            <p className="text-gray-500">You have not published any surveys yet.</p>
           </div>
         ) : (
           userPosts.map((post) => (
             <article
               key={post.pk_survey_id}
-              className="rounded-xl shadow-sm hover:shadow-md transition-shadow"
-              style={{
-                backgroundColor: '#ffffff',
-                border: '1px solid var(--color-shade-primary)',
-                padding: 'clamp(1.25rem, 2vw, 1.5rem)'
-              }}
+              className="rounded-xl shadow-sm hover:shadow-md transition-shadow bg-white border border-gray-200 p-5 lg:p-6"
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-start gap-3 flex-1">
                   <div className="avatar">
-                    <div
-                      className="rounded-full"
-                      style={{
-                        width: 'clamp(2.5rem, 4vw, 3rem)',
-                        height: 'clamp(2.5rem, 4vw, 3rem)'
-                      }}
-                    >
+                    <div className="rounded-full w-10 h-10 lg:w-12 lg:h-12">
                       <img src={post.user_profile} alt={post.user_username} className="object-cover w-full h-full rounded-full" />
                     </div>
                   </div>
 
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3
-                        style={{
-                          color: 'var(--color-primary-color)',
-                          fontSize: 'clamp(0.9375rem, 1.5vw, 1.125rem)',
-                          fontWeight: '600'
-                        }}
-                      >
+                      <h3 className="text-gray-900 text-sm lg:text-lg font-semibold">
                         {post.user_username}
                       </h3>
                       {/* Status Badge */}
                       {post.status && (
                         <span 
-                          className="badge badge-sm"
-                          style={{
-                            backgroundColor: post.status === 'approved' ? '#22c55e' : 
-                                            post.status === 'pending' ? '#f59e0b' : 
-                                            post.status === 'rejected' ? '#dc2626' : '#6b7280',
-                            color: '#ffffff',
-                            border: 'none',
-                            fontSize: 'clamp(0.6rem, 1vw, 0.7rem)',
-                            textTransform: 'capitalize'
-                          }}
+                          className={`badge badge-sm text-white border-none text-[10px] lg:text-xs capitalize ${
+                            post.status === 'approved' ? 'bg-custom-green' : 
+                            post.status === 'pending' ? 'bg-yellow-500' : 
+                            post.status === 'rejected' ? 'bg-red-600' : 'bg-gray-500'
+                          }`}
                         >
                           {post.status}
                         </span>
                       )}
                     </div>
-                    <p
-                      style={{
-                        color: 'var(--color-text-secondary)',
-                        fontSize: 'clamp(0.6875rem, 1.25vw, 0.8125rem)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.025em',
-                        marginTop: 'clamp(0.125rem, 0.25vw, 0.25rem)'
-                      }}
-                    >
+                    <p className="text-gray-500 text-[11px] lg:text-[13px] uppercase tracking-wide mt-1">
                       {post.survey_category?.[0] || 'UNCATEGORIZED'}
                     </p>
                   </div>
@@ -167,62 +137,37 @@ const ProfilePostsPage = () => {
                 <div className="relative" ref={(el) => (menuRefs.current[post.pk_survey_id] = el)}>
                   <button
                     onClick={() => setOpenMenuId(openMenuId === post.pk_survey_id ? null : post.pk_survey_id)}
-                    className="btn btn-ghost btn-sm btn-circle"
-                    style={{
-                      color: 'var(--color-text-secondary)',
-                      minHeight: 'clamp(2rem, 3vw, 2.5rem)',
-                      width: 'clamp(2rem, 3vw, 2.5rem)',
-                      height: 'clamp(2rem, 3vw, 2.5rem)'
-                    }}
+                    className="btn btn-ghost btn-sm btn-circle text-gray-500 w-8 h-8 lg:w-10 lg:h-10 min-h-0"
                   >
-                    <MdMoreVert style={{ fontSize: 'clamp(1.25rem, 2vw, 1.5rem)' }} />
+                    <MdMoreVert className="text-xl lg:text-2xl" />
                   </button>
 
                   {/* Dropdown Menu */}
                   {openMenuId === post.pk_survey_id && (
-                    <div
-                      className="absolute right-0 z-10 rounded-xl shadow-xl overflow-hidden"
-                      style={{
-                        backgroundColor: '#ffffff',
-                        border: '1px solid var(--color-shade-primary)',
-                        minWidth: '180px',
-                        marginTop: '0.5rem',
-                        animation: 'fadeIn 0.15s ease-out'
-                      }}
-                    >
+                    <div className="absolute right-0 z-10 rounded-xl shadow-xl overflow-hidden bg-white border border-gray-200 min-w-[180px] mt-2 animate-[fadeIn_0.15s_ease-out]">
                       <div className="py-1">
                         <button
                           onClick={() => handleShare(post.pk_survey_id)}
-                          className="w-full flex items-center gap-3 hover:bg-gray-50 transition-colors"
-                          style={{
-                            fontSize: '0.875rem',
-                            padding: '0.75rem 1rem',
-                            color: copiedId === post.pk_survey_id ? '#22c55e' : 'var(--color-primary-color)'
-                          }}
+                          className={`w-full flex items-center gap-3 hover:bg-gray-50 transition-colors text-sm p-3 ${copiedId === post.pk_survey_id ? 'text-custom-green' : 'text-gray-900'}`}
                         >
                           {copiedId === post.pk_survey_id ? (
                             <>
-                              <MdCheck style={{ fontSize: '1.25rem', color: '#22c55e' }} />
+                              <MdCheck className="text-xl text-custom-green" />
                               Link Copied!
                             </>
                           ) : (
                             <>
-                              <MdShare style={{ fontSize: '1.25rem', color: 'var(--color-text-secondary)' }} />
+                              <MdShare className="text-xl text-gray-500" />
                               Copy Link
                             </>
                           )}
                         </button>
-                        <div style={{ height: '1px', backgroundColor: 'var(--color-shade-primary)', margin: '0.25rem 0' }} />
+                        <div className="h-px bg-gray-200 my-1" />
                         <button
                           onClick={() => handleDeleteClick(post)}
-                          className="w-full flex items-center gap-3 hover:bg-red-50 transition-colors"
-                          style={{
-                            fontSize: '0.875rem',
-                            padding: '0.75rem 1rem',
-                            color: '#dc2626'
-                          }}
+                          className="w-full flex items-center gap-3 hover:bg-red-50 transition-colors text-sm p-3 text-red-600"
                         >
-                          <MdDelete style={{ fontSize: '1.25rem' }} />
+                          <MdDelete className="text-xl" />
                           Delete Post
                         </button>
                       </div>
@@ -232,19 +177,12 @@ const ProfilePostsPage = () => {
               </div>
 
               {/* Content */}
-              <div style={{ marginBottom: 'clamp(1rem, 1.5vw, 1.25rem)' }}>
-                <p
-                  style={{
-                    color: 'var(--color-primary-color)',
-                    fontSize: 'clamp(0.875rem, 1.5vw, 1rem)',
-                    lineHeight: '1.6',
-                    marginBottom: 'clamp(0.75rem, 1.25vw, 1rem)'
-                  }}
-                >
+              <div className="mb-4 lg:mb-5">
+                <p className="text-gray-900 text-sm lg:text-base leading-relaxed mb-2 lg:mb-3 font-medium">
                   {post.survey_title}
                 </p>
 
-                <p className="text-text-secondary" style={{ marginBottom: 'clamp(0.5rem, 1vw, 0.75rem)' }}>
+                <p className="text-gray-600 text-xs lg:text-sm leading-relaxed mb-3 lg:mb-4">
                   {post.survey_content}
                 </p>
 
@@ -252,15 +190,7 @@ const ProfilePostsPage = () => {
                   {post.survey_category?.map((tag, i) => (
                     <div
                       key={i}
-                      className="badge badge-sm"
-                      style={{
-                        backgroundColor: 'var(--color-secondary-background)',
-                        color: 'var(--color-accent-100)',
-                        border: 'none',
-                        fontSize: 'clamp(0.6875rem, 1.15vw, 0.8125rem)',
-                        padding: 'clamp(0.375rem, 0.75vw, 0.5rem) clamp(0.625rem, 1.25vw, 0.875rem)',
-                        fontWeight: '500'
-                      }}
+                      className="badge badge-sm bg-gray-100 text-custom-blue border-none text-[11px] lg:text-[13px] px-2.5 py-2 font-medium"
                     >
                       #{tag}
                     </div>
@@ -272,15 +202,15 @@ const ProfilePostsPage = () => {
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-4 flex-wrap">
                   <div className="flex items-center gap-1">
-                    <MdAccessTime style={{ fontSize: 'clamp(1rem, 1.5vw, 1.125rem)', color: '#22c55e' }} />
-                    <span style={{ color: 'var(--color-text-secondary)', fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)' }}>
+                    <MdAccessTime className="text-base lg:text-lg text-custom-green" />
+                    <span className="text-gray-500 text-xs lg:text-sm">
                       {post.survey_date_created ? new Date(post.survey_date_created).toLocaleDateString() : ''}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <MdPeople style={{ fontSize: 'clamp(1rem, 1.5vw, 1.125rem)', color: 'var(--color-accent-100)' }} />
-                    <span style={{ color: 'var(--color-text-secondary)', fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)' }} title={post.survey_target_audience?.join(', ')}>
+                    <MdPeople className="text-base lg:text-lg text-custom-blue" />
+                    <span className="text-gray-500 text-xs lg:text-sm" title={post.survey_target_audience?.join(', ')}>
                       {post.survey_target_audience?.join(', ')}
                     </span>
                   </div>
@@ -288,18 +218,7 @@ const ProfilePostsPage = () => {
 
                 <button
                   onClick={() => navigate(`/form/result/${post.pk_survey_id}`)}
-                  className="btn btn-sm"
-                  style={{
-                    backgroundColor: 'var(--color-accent-100)',
-                    borderColor: 'var(--color-accent-100)',
-                    color: '#ffffff',
-                    fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)',
-                    padding: 'clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 1.75vw, 1.5rem)',
-                    fontWeight: '600',
-                    height: 'auto',
-                    minHeight: 'clamp(2rem, 3vw, 2.5rem)',
-                    borderRadius: 'clamp(0.375rem, 0.75vw, 0.5rem)'
-                  }}
+                  className="btn btn-sm bg-custom-blue border-custom-blue text-white text-xs lg:text-sm px-4 lg:px-6 font-semibold h-auto min-h-[2rem] lg:min-h-[2.5rem] rounded-lg hover:bg-blue-800 hover:border-blue-800"
                 >
                   View Results
                 </button>
@@ -319,45 +238,26 @@ const ProfilePostsPage = () => {
           />
           
           {/* Modal */}
-          <div 
-            className="relative bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4"
-            style={{
-              animation: 'fadeIn 0.2s ease-out'
-            }}
-          >
-            <h3 
-              className="text-lg font-semibold mb-2"
-              style={{ color: 'var(--color-primary-color)' }}
-            >
+          <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 animate-[fadeIn_0.2s_ease-out]">
+            <h3 className="text-lg font-semibold mb-2 text-gray-900">
               Delete Post
             </h3>
-            <p 
-              className="mb-6"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
+            <p className="mb-6 text-gray-600">
               Are you sure you want to delete "<strong>{postToDelete?.survey_title}</strong>"? This action cannot be undone.
             </p>
             
             <div className="flex justify-end gap-3">
               <button
                 onClick={handleCancelDelete}
-                className="btn btn-ghost"
+                className="btn btn-ghost text-gray-600"
                 disabled={isDeleting}
-                style={{
-                  color: 'var(--color-text-secondary)'
-                }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmDelete}
-                className="btn"
+                className="btn bg-red-600 border-red-600 text-white hover:bg-red-700 hover:border-red-700"
                 disabled={isDeleting}
-                style={{
-                  backgroundColor: '#dc2626',
-                  borderColor: '#dc2626',
-                  color: '#ffffff'
-                }}
               >
                 {isDeleting ? (
                   <span className="loading loading-spinner loading-sm"></span>

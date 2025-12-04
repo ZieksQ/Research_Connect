@@ -5,9 +5,9 @@
  */
 export default function SurveyNotFound({ message = 'Survey not found' }) {
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
-      <div className="text-center">
-        <p style={{ color: 'var(--color-text-secondary)' }}>{message}</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center p-8">
+        <p className="text-gray-500 text-lg font-medium">{message}</p>
       </div>
     </div>
   );

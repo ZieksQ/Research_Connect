@@ -14,8 +14,8 @@ const ProtectedLayout = () => {
 
   if (!userInfo || userInfo === null) {
     return (
-      <section className="fixed content-position-center">
-        <span className="loading loading-ring loading-xl"></span>
+      <section className="fixed content-position-center flex flex-col items-center">
+        <span className="loading loading-infinity loading-lg text-custom-blue"></span>
       </section>
     )
   }

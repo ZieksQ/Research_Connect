@@ -4,7 +4,11 @@ const RadioButton = ({ name, id, label, value, checked, onChange }) => {
   return (
     <label
       htmlFor={id}
-      className="scale-transition hover:bg-neutral-content active:bg-primary-content flex cursor-pointer items-center rounded-md border-1 p-2 shadow"
+      className={`flex cursor-pointer items-center rounded-lg border p-3 transition-all duration-200 ${
+        checked 
+          ? 'bg-blue-50 border-custom-blue shadow-sm' 
+          : 'bg-white border-gray-200 hover:bg-gray-50'
+      }`}
     >
       <input
         type="radio"
@@ -13,9 +17,11 @@ const RadioButton = ({ name, id, label, value, checked, onChange }) => {
         value={value}
         onChange={onChange}
         checked={checked}
-        className="radio radio-sm mr-2"
+        className="radio radio-sm radio-primary mr-3 border-gray-400 checked:border-custom-blue checked:bg-custom-blue"
       />
-      {label}
+      <span className={`text-sm ${checked ? 'text-custom-blue font-medium' : 'text-gray-700'}`}>
+        {label}
+      </span>
     </label>
   );
 };

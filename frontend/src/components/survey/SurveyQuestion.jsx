@@ -140,35 +140,31 @@ export default function SurveyQuestion({
   };
 
   return (
-    <div
-      className="rounded-xl shadow-lg p-6 mb-4"
-      style={{ backgroundColor: '#ffffff' }}
-    >
+    <div className="rounded-xl shadow-lg p-6 lg:p-8 mb-4 bg-white border border-gray-100">
       <div className="mb-4">
-        <label className="block mb-2">
-          <span style={{ color: 'var(--color-primary-color)' }}>
+        <label className="block mb-4">
+          <span className="text-gray-900 text-base lg:text-lg font-medium block mb-2">
             {index + 1}. {question.question_text}
             {question.question_required && (
-              <span style={{ color: '#dc2626' }}> *</span>
+              <span className="text-red-600 ml-1">*</span>
             )}
           </span>
         </label>
 
         {/* Question Image */}
         {question.question_image && (
-          <div className="mb-4">
+          <div className="mb-6">
             <img
               src={typeof question.question_image === 'string' ? question.question_image : question.question_image?.img_url}
               alt="Question"
-              className="max-w-full h-auto rounded-lg"
-              style={{ maxHeight: '300px' }}
+              className="max-w-full h-auto rounded-lg max-h-[300px] object-contain"
             />
           </div>
         )}
 
         {/* Question Video */}
         {question.question_url && (
-          <div className="mb-4">
+          <div className="mb-6">
             <iframe
               width="100%"
               height="315"
@@ -179,15 +175,20 @@ export default function SurveyQuestion({
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
-              className="rounded-lg"
+              className="rounded-lg w-full aspect-video"
             ></iframe>
           </div>
         )}
 
-        {renderQuestionInput()}
+        <div className="mt-2">
+          {renderQuestionInput()}
+        </div>
 
         {error && (
-          <p className="text-sm mt-2" style={{ color: '#dc2626' }}>
+          <p className="text-sm mt-2 text-red-600 font-medium flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
             {error}
           </p>
         )}

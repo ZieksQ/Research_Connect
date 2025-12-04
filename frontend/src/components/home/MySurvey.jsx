@@ -2,9 +2,9 @@ import React from "react";
 
 const MySurvey = () => {
   return (
-    <div className="padding-sm hover:bg-secondary-background rounded text-sm border border-gray-200">
-      <h3 className="font-semibold">Survey Title</h3>
-      <p className="text-text-secondary">Survey Description...</p>
+    <div className="p-3 hover:bg-gray-50 rounded-lg text-sm border border-gray-200 transition-colors cursor-pointer group">
+      <h3 className="font-semibold text-gray-900 group-hover:text-custom-blue transition-colors">Survey Title</h3>
+      <p className="text-gray-500 text-xs mt-1 line-clamp-1">Survey Description...</p>
     </div>
   );
 };

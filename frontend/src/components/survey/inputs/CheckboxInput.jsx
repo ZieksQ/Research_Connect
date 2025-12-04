@@ -9,7 +9,7 @@
  */
 export default function CheckboxInput({ value = [], onChange, options, minChoice = 1, maxChoice = 1 }) {
   if (!options || options.length === 0) {
-    return <p style={{ color: 'var(--color-text-secondary)' }}>No options available</p>;
+    return <p className="text-gray-500 italic">No options available</p>;
   }
 
   const selectedCount = value.length;
@@ -17,7 +17,7 @@ export default function CheckboxInput({ value = [], onChange, options, minChoice
   return (
     <div>
       {maxChoice > 1 && (
-        <p className="text-xs mb-3" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="text-xs mb-3 text-gray-500 font-medium">
           Select {minChoice === maxChoice 
             ? `exactly ${maxChoice}`
             : `${minChoice} to ${maxChoice}`} option(s)
@@ -32,21 +32,21 @@ export default function CheckboxInput({ value = [], onChange, options, minChoice
           return (
             <label
               key={optionId || idx}
-              className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-opacity-50 transition-colors"
-              style={{
-                backgroundColor: isSelected
-                  ? 'rgba(80, 87, 233, 0.1)'
-                  : 'var(--color-background)'
-              }}
+              className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all border ${
+                isSelected 
+                  ? 'bg-custom-blue/10 border-custom-blue' 
+                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+              }`}
             >
               <input
                 type="checkbox"
                 checked={isSelected}
                 onChange={() => onChange(optionId)}
-                className="checkbox"
-                style={{ borderColor: 'var(--color-accent-100)' }}
+                className="checkbox checkbox-sm border-gray-300 checked:border-custom-blue [--chkbg:theme(colors.custom-blue)] [--chkfg:white]"
               />
-              <span style={{ color: 'var(--color-primary-color)' }}>{optionText}</span>
+              <span className={`text-base ${isSelected ? 'text-custom-blue font-medium' : 'text-gray-700'}`}>
+                {optionText}
+              </span>
             </label>
           );
         })}

@@ -5,13 +5,13 @@ import InquiraIcon from "../../assets/icons/Inquira.svg"
 
 const Login = ({ value, onChangeEmail, onChangePassword, submit, error, loading, handleGoogleLogin }) => {
   return (
-    <form onSubmit={submit}>
+    <form onSubmit={submit} className="space-y-4">
       {/* Error Handling */}
       {error && (
-        <div role="alert" className="alert alert-error rounded-md shadow-sm">
+        <div role="alert" className="alert alert-error rounded-lg shadow-sm text-sm py-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 shrink-0 stroke-current"
+            className="h-5 w-5 shrink-0 stroke-current"
             fill="none"
             viewBox="0 0 24 24"
           >
@@ -27,44 +27,47 @@ const Login = ({ value, onChangeEmail, onChangePassword, submit, error, loading,
       )}
 
       {/* Username Input */}
-      <label className="floating-label mb-4">
-        <span>Username</span>
+      <div className="form-control w-full">
+        <label className="label">
+          <span className="label-text font-medium text-gray-700">Username</span>
+        </label>
         <input
           type="text"
-          className="input w-full"
-          placeholder="Username"
+          className="input input-bordered w-full bg-white border-gray-300 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900"
+          placeholder="Enter your username"
           required
           value={value.email}
           onChange={onChangeEmail}
         />
-      </label>
-
-      {/* Password Input */}
-      <div>
-        
-        <label className="floating-label mb-2">
-          <span>Password</span>
-          <input
-            type="password"
-            className="input w-full"
-            placeholder="Password"
-            min={8}
-            required
-            value={value.password}
-            onChange={onChangePassword}
-          />
-        </label>
-  
       </div>
 
-      <div className="flex">
-        <a href="#" className="ml-auto text-xs text-blue-600 hover:text-blue-700 underline">
-          Forgot password?
-        </a>
+      {/* Password Input */}
+      <div className="form-control w-full">
+        <label className="label">
+          <span className="label-text font-medium text-gray-700">Password</span>
+        </label>
+        <input
+          type="password"
+          className="input input-bordered w-full bg-white border-gray-300 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900"
+          placeholder="Enter your password"
+          min={8}
+          required
+          value={value.password}
+          onChange={onChangePassword}
+        />
+        <label className="label">
+          <a href="#" className="label-text-alt link link-hover text-custom-blue">
+            Forgot password?
+          </a>
+        </label>
       </div>
 
       {/* Sign In Button */}
-      <button className="btn btn-neutral w-full mt-6" type="submit">
+      <button 
+        className="btn bg-custom-blue text-white hover:bg-blue-800 border-none w-full mt-2" 
+        type="submit"
+        disabled={loading}
+      >
         {loading ? <span className="loading loading-dots loading-md"></span> : "Login"}
       </button>
 
@@ -72,15 +75,19 @@ const Login = ({ value, onChangeEmail, onChangePassword, submit, error, loading,
       <div className="divider text-gray-400 text-xs my-4">or</div>
 
       {/* Google Login */}
-      <button type="button" onClick={handleGoogleLogin} className="btn bg-white border border-gray-300 w-full hover:bg-gray-50">
-        <img src={GoogleLogo} alt="google icon" className="icon-size w-5 h-5" />
+      <button 
+        type="button" 
+        onClick={handleGoogleLogin} 
+        className="btn bg-white border border-gray-300 w-full hover:bg-gray-50 text-gray-700 hover:border-gray-400"
+      >
+        <img src={GoogleLogo} alt="google icon" className="w-5 h-5" />
         Login with Google
       </button>
 
       {/* Sign Up Link */}
       <p className="text-center text-sm text-gray-600 mt-6">
         Don't have an account?{" "}
-        <Link to={"/signup"} className="font-semibold text-blue-600 hover:text-blue-700">
+        <Link to={"/signup"} className="font-semibold text-custom-blue hover:text-blue-800 hover:underline">
           Register
         </Link>
       </p>

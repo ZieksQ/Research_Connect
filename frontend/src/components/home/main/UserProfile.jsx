@@ -8,59 +8,26 @@ export default function UserProfile({ user }) {
   };
 
   return (
-    <div 
-      className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-opacity-80 transition-all"
-      style={{
-        backgroundColor: 'var(--color-secondary-background)',
-        margin: 'clamp(1rem, 1.5vw, 1.5rem)',
-        marginTop: 'auto'
-      }}
-    >
+    <div className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-gray-100 transition-all mt-auto mx-4 mb-4 border border-transparent hover:border-gray-200">
       {/* Avatar */}
       <div className="avatar">
-        <div 
-          className="rounded-full"
-          style={{
-            width: 'clamp(2.5rem, 3.5vw, 3rem)',
-            height: 'clamp(2.5rem, 3.5vw, 3rem)'
-          }}
-        >
+        <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full ring ring-white ring-offset-base-100 ring-offset-1">
           <img src={defaultUser.avatar} alt={defaultUser.name} />
         </div>
       </div>
 
       {/* User Info */}
-      <div className="flex-1 min-w-0">
-        <p 
-          className="truncate"
-          style={{ 
-            color: 'var(--color-primary-color)',
-            fontSize: 'clamp(0.8125rem, 1.35vw, 0.9375rem)',
-            fontWeight: '600',
-            marginBottom: '0.125rem'
-          }}
-        >
+      <div className="flex-1 min-w-0 hidden md:block">
+        <p className="truncate text-sm font-semibold text-gray-900">
           {defaultUser.name}
         </p>
-        <p 
-          className="truncate"
-          style={{ 
-            color: 'var(--color-text-secondary)',
-            fontSize: 'clamp(0.6875rem, 1.15vw, 0.8125rem)'
-          }}
-        >
+        <p className="truncate text-xs text-gray-500">
           {defaultUser.email}
         </p>
       </div>
 
       {/* Dropdown Icon */}
-      <MdExpandMore 
-        style={{ 
-          fontSize: 'clamp(1.25rem, 2vw, 1.5rem)',
-          color: 'var(--color-text-secondary)',
-          flexShrink: 0
-        }} 
-      />
+      <MdExpandMore className="text-xl text-gray-400 hidden md:block" />
     </div>
   );
 }

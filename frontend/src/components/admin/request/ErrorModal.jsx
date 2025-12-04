@@ -6,14 +6,14 @@ const ErrorModal = ({ isOpen, onClose, message }) => {
 
   return (
     <dialog className="modal modal-open">
-      <div className="modal-box">
-        <h3 className="font-bold text-lg flex items-center gap-2 text-error">
+      <div className="modal-box bg-white">
+        <h3 className="font-bold text-lg flex items-center gap-2 text-red-500">
           <FaExclamationTriangle />
           Error
         </h3>
-        <p className="py-4">{message}</p>
+        <p className="py-4 text-gray-700">{message}</p>
         <div className="modal-action">
-          <button onClick={onClose} className="btn">
+          <button onClick={onClose} className="btn bg-gray-200 text-gray-800 hover:bg-gray-300 border-none">
             Close
           </button>
         </div>

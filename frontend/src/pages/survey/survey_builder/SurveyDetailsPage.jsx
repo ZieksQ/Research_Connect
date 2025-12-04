@@ -118,184 +118,91 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
   };
 
   return (
-    <div 
-      className="rounded-xl shadow-lg" 
-      style={{ 
-        backgroundColor: '#ffffff',
-        padding: 'clamp(1.5rem, 3vw, 3rem)'
-      }}
-    >
-      <div 
-        style={{ 
-          marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)'
-        }}
-      >
-        <h2 
-          style={{ 
-            color: 'var(--color-primary-color)',
-            marginBottom: 'clamp(0.5rem, 1vw, 1rem)',
-            fontSize: 'clamp(1.25rem, 2.5vw, 1.875rem)'
-          }}
-        >
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-12">
+      <div className="mb-8 lg:mb-10">
+        <h2 className="text-2xl lg:text-3xl font-giaza text-custom-blue mb-2">
           Create Your Survey
         </h2>
-        <p 
-          style={{ 
-            color: 'var(--color-text-secondary)',
-            fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
-          }}
-        >
+        <p className="text-gray-500 text-base lg:text-lg">
           Fill in the basic information about your survey to get started
         </p>
       </div>
 
       {/* Survey Title */}
-      <div 
-        style={{ 
-          marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)'
-        }}
-      >
+      <div className="mb-8">
         <label className="label">
-          <span 
-            className="label-text" 
-            style={{ 
-              color: 'var(--color-primary-color)',
-              fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
-            }}
-          >
-            Survey Title <span style={{ color: '#dc2626' }}>*</span>
+          <span className="label-text text-gray-700 font-medium text-base lg:text-lg">
+            Survey Title <span className="text-red-600">*</span>
           </span>
         </label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="input input-bordered w-full"
-          style={{
-            backgroundColor: 'var(--color-background)',
-            borderColor: titleError ? '#dc2626' : 'var(--color-shade-primary)',
-            color: 'var(--color-primary-color)',
-            fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)',
-            padding: 'clamp(0.625rem, 1.2vw, 1rem)'
-          }}
+          className={`input input-bordered w-full bg-gray-50 focus:bg-white focus:border-custom-blue text-gray-900 text-base lg:text-lg p-4 h-auto ${
+            titleError ? 'input-error' : 'border-gray-300'
+          }`}
           placeholder="Enter survey title"
         />
         {titleError && (
-          <p 
-            style={{ 
-              color: '#dc2626',
-              fontSize: 'clamp(0.75rem, 1.25vw, 0.9375rem)',
-              marginTop: 'clamp(0.25rem, 0.5vw, 0.5rem)'
-            }}
-          >
+          <p className="text-red-600 text-sm mt-2 font-medium">
             {titleError}
           </p>
         )}
       </div>
 
       {/* Post Content */}
-      <div 
-        style={{ 
-          marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)'
-        }}
-      >
+      <div className="mb-8">
         <label className="label">
-          <span 
-            className="label-text" 
-            style={{ 
-              color: 'var(--color-primary-color)',
-              fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
-            }}
-          >
-            Post Content <span style={{ color: '#dc2626' }}>*</span>
+          <span className="label-text text-gray-700 font-medium text-base lg:text-lg">
+            Post Content <span className="text-red-600">*</span>
           </span>
         </label>
-        <p 
-          className="text-xs mb-2" 
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
+        <p className="text-xs mb-2 text-gray-500">
           This is the content that will be displayed on your post card in the homepage feed.
         </p>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="textarea textarea-bordered w-full"
-          style={{
-            backgroundColor: 'var(--color-background)',
-            borderColor: contentError ? '#dc2626' : 'var(--color-shade-primary)',
-            color: 'var(--color-primary-color)',
-            fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)',
-            padding: 'clamp(0.625rem, 1.2vw, 1rem)',
-            minHeight: 'clamp(5rem, 8vw, 6rem)'
-          }}
+          className={`textarea textarea-bordered w-full bg-gray-50 focus:bg-white focus:border-custom-blue text-gray-900 text-base lg:text-lg p-4 min-h-[100px] ${
+            contentError ? 'textarea-error' : 'border-gray-300'
+          }`}
           placeholder="Write a brief description about your survey that will appear on the post card..."
         />
         {contentError && (
-          <p 
-            style={{ 
-              color: '#dc2626',
-              fontSize: 'clamp(0.75rem, 1.25vw, 0.9375rem)',
-              marginTop: 'clamp(0.25rem, 0.5vw, 0.5rem)'
-            }}
-          >
+          <p className="text-red-600 text-sm mt-2 font-medium">
             {contentError}
           </p>
         )}
       </div>
 
       {/* Survey Description */}
-      <div 
-        style={{ 
-          marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)'
-        }}
-      >
+      <div className="mb-8">
         <label className="label">
-          <span 
-            className="label-text" 
-            style={{ 
-              color: 'var(--color-primary-color)',
-              fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)'
-            }}
-          >
-            Survey Description <span style={{ color: '#dc2626' }}>*</span>
+          <span className="label-text text-gray-700 font-medium text-base lg:text-lg">
+            Survey Description <span className="text-red-600">*</span>
           </span>
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="textarea textarea-bordered w-full"
-          style={{
-            backgroundColor: 'var(--color-background)',
-            borderColor: descriptionError ? '#dc2626' : 'var(--color-shade-primary)',
-            color: 'var(--color-primary-color)',
-            fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)',
-            padding: 'clamp(0.625rem, 1.2vw, 1rem)',
-            minHeight: 'clamp(6rem, 10vw, 8rem)'
-          }}
+          className={`textarea textarea-bordered w-full bg-gray-50 focus:bg-white focus:border-custom-blue text-gray-900 text-base lg:text-lg p-4 min-h-[120px] ${
+            descriptionError ? 'textarea-error' : 'border-gray-300'
+          }`}
           placeholder="Describe what your survey is about"
         />
         {descriptionError && (
-          <p 
-            style={{ 
-              color: '#dc2626',
-              fontSize: 'clamp(0.75rem, 1.25vw, 0.9375rem)',
-              marginTop: 'clamp(0.25rem, 0.5vw, 0.5rem)'
-            }}
-          >
+          <p className="text-red-600 text-sm mt-2 font-medium">
             {descriptionError}
           </p>
         )}
       </div>
 
       {/* Approximate Time */}
-      <div 
-        style={{ 
-          marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)'
-        }}
-      >
+      <div className="mb-8">
         <label className="label">
-          <span className="label-text" style={{ color: 'var(--color-primary-color)' }}>
-            Approximate Time to Complete <span style={{ color: '#dc2626' }}>*</span>
+          <span className="label-text text-gray-700 font-medium text-base lg:text-lg">
+            Approximate Time to Complete <span className="text-red-600">*</span>
           </span>
         </label>
         <div className="flex flex-wrap gap-2 mb-2">
@@ -303,54 +210,36 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
             <button
               key={time}
               onClick={() => handleTimeSelect(time)}
-              className="badge badge-lg cursor-pointer transition-colors"
-              style={{
-                backgroundColor: selectedTime === time ? 'var(--color-primary-color)' : 'var(--color-secondary-background)',
-                color: selectedTime === time ? '#ffffff' : 'var(--color-primary-color)',
-                border: 'none',
-                padding: '0.75rem 1rem'
-              }}
+              className={`badge badge-lg h-auto py-3 px-4 cursor-pointer transition-all border-none ${
+                selectedTime === time 
+                  ? 'bg-custom-blue text-white shadow-md' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
             >
               {time}
             </button>
           ))}
           <button
             onClick={() => setShowCustomTime(!showCustomTime)}
-            className="badge badge-lg cursor-pointer transition-colors"
-            style={{
-              backgroundColor: 'var(--color-secondary-background)',
-              color: 'var(--color-accent-100)',
-              border: 'none',
-              padding: '0.75rem 1rem'
-            }}
+            className="badge badge-lg h-auto py-3 px-4 cursor-pointer transition-all border-none bg-gray-100 text-custom-blue hover:bg-gray-200 font-medium"
           >
             + More
           </button>
         </div>
         
         {showCustomTime && (
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-2 mt-3">
             <input
               type="text"
               value={customTime}
               onChange={(e) => setCustomTime(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleCustomTimeAdd()}
-              className="input input-sm flex-1"
-              style={{
-                backgroundColor: 'var(--color-background)',
-                borderColor: 'var(--color-shade-primary)',
-                color: 'var(--color-primary-color)'
-              }}
+              className="input input-sm flex-1 bg-gray-50 border-gray-300 focus:border-custom-blue text-gray-900"
               placeholder="Enter custom time (e.g., 20-30 min)"
             />
             <button
               onClick={handleCustomTimeAdd}
-              className="btn btn-sm"
-              style={{
-                backgroundColor: 'var(--color-accent-100)',
-                borderColor: 'var(--color-accent-100)',
-                color: '#ffffff'
-              }}
+              className="btn btn-sm bg-custom-blue hover:bg-blue-700 text-white border-none"
             >
               Add
             </button>
@@ -359,9 +248,9 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
       </div>
 
       {/* Tags */}
-      <div className="mb-8">
+      <div className="mb-10">
         <label className="label">
-          <span className="label-text" style={{ color: 'var(--color-primary-color)' }}>
+          <span className="label-text text-gray-700 font-medium text-base lg:text-lg">
             Survey Tags
           </span>
         </label>
@@ -370,26 +259,18 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
             <button
               key={tag}
               onClick={() => handleTagToggle(tag)}
-              className="badge badge-lg cursor-pointer transition-colors"
-              style={{
-                backgroundColor: tags.includes(tag) ? 'var(--color-primary-color)' : 'var(--color-secondary-background)',
-                color: tags.includes(tag) ? '#ffffff' : 'var(--color-primary-color)',
-                border: 'none',
-                padding: '0.75rem 1rem'
-              }}
+              className={`badge badge-lg h-auto py-2 px-4 cursor-pointer transition-all border-none ${
+                tags.includes(tag) 
+                  ? 'bg-custom-blue text-white shadow-md' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
             >
               {tag}
             </button>
           ))}
           <button
             onClick={() => setShowCustomTag(!showCustomTag)}
-            className="badge badge-lg cursor-pointer transition-colors"
-            style={{
-              backgroundColor: 'var(--color-secondary-background)',
-              color: 'var(--color-accent-100)',
-              border: 'none',
-              padding: '0.75rem 1rem'
-            }}
+            className="badge badge-lg h-auto py-2 px-4 cursor-pointer transition-all border-none bg-gray-100 text-custom-blue hover:bg-gray-200 font-medium"
           >
             + More
           </button>
@@ -403,22 +284,12 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
               onChange={(e) => setCustomTag(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleCustomTagAdd()}
               maxLength={16}
-              className="input input-sm flex-1"
-              style={{
-                backgroundColor: 'var(--color-background)',
-                borderColor: 'var(--color-shade-primary)',
-                color: 'var(--color-primary-color)'
-              }}
+              className="input input-sm flex-1 bg-gray-50 border-gray-300 focus:border-custom-blue text-gray-900"
               placeholder="Enter custom tag (max 16 chars)"
             />
             <button
               onClick={handleCustomTagAdd}
-              className="btn btn-sm"
-              style={{
-                backgroundColor: 'var(--color-accent-100)',
-                borderColor: 'var(--color-accent-100)',
-                color: '#ffffff'
-              }}
+              className="btn btn-sm bg-custom-blue hover:bg-blue-700 text-white border-none"
             >
               Add
             </button>
@@ -427,26 +298,20 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
 
         {/* Selected Tags */}
         {tags.length > 0 && (
-          <div>
-            <p className="text-xs mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
+            <p className="text-xs mb-3 text-gray-500 font-medium uppercase tracking-wider">
               Selected Tags:
             </p>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (
                 <div
                   key={tag}
-                  className="badge badge-lg gap-2"
-                  style={{
-                    backgroundColor: 'var(--color-accent-100)',
-                    color: '#ffffff',
-                    border: 'none',
-                    padding: '0.75rem 1rem'
-                  }}
+                  className="badge badge-lg gap-2 bg-custom-blue text-white border-none py-3 px-4"
                 >
                   {tag}
                   <button
                     onClick={() => handleRemoveTag(tag)}
-                    className="hover:opacity-70"
+                    className="hover:opacity-70 transition-opacity"
                   >
                     <MdClose />
                   </button>
@@ -460,12 +325,7 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
       {/* Continue Button */}
       <button
         onClick={handleContinue}
-        className="btn w-full"
-        style={{
-          backgroundColor: 'var(--color-primary-color)',
-          borderColor: 'var(--color-primary-color)',
-          color: '#ffffff'
-        }}
+        className="btn w-full bg-custom-blue hover:bg-blue-700 text-white border-none text-lg h-12"
       >
         Continue
       </button>

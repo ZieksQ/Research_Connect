@@ -18,13 +18,10 @@ export default function LongTextInput({
     <textarea
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
-      className={`textarea textarea-bordered w-full ${hasError ? 'textarea-error' : ''}`}
+      className={`textarea textarea-bordered w-full bg-gray-50 focus:bg-white focus:border-custom-blue text-gray-900 placeholder-gray-400 ${
+        hasError ? 'textarea-error' : 'border-gray-300'
+      }`}
       rows={rows}
-      style={{
-        backgroundColor: 'var(--color-background)',
-        borderColor: hasError ? '#dc2626' : 'var(--color-shade-primary)',
-        color: 'var(--color-primary-color)'
-      }}
       placeholder={placeholder}
     />
   );

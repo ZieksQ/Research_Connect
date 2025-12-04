@@ -1,6 +1,6 @@
 import PostCard from './PostCard';
 
-export default function PostsList({ posts, isLoading }) {
+export default function PostsList({ posts, isLoading, isLoadingMore, hasMore, loadMoreRef }) {
   if (isLoading) {
     return (
       <div 
@@ -61,6 +61,44 @@ export default function PostsList({ posts, isLoading }) {
       {posts.map((post) => (
         <PostCard key={post.pk_survey_id} post={post} />
       ))}
+      
+      {/* Load More Trigger / Loading Indicator */}
+      <div ref={loadMoreRef} style={{ minHeight: '20px', marginTop: '1rem' }}>
+        {isLoadingMore && (
+          <div 
+            className="text-center rounded-xl"
+            style={{
+              padding: 'clamp(1.5rem, 2.5vw, 2rem)',
+              backgroundColor: '#ffffff',
+              border: '1px solid var(--color-shade-primary)'
+            }}
+          >
+            <span className="loading loading-spinner loading-md"></span>
+            <p 
+              style={{ 
+                color: 'var(--color-text-secondary)',
+                fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)',
+                marginTop: '0.5rem'
+              }}
+            >
+              Loading more surveys...
+            </p>
+          </div>
+        )}
+        
+        {!hasMore && posts.length > 0 && !isLoadingMore && (
+          <div 
+            className="text-center"
+            style={{
+              padding: 'clamp(1rem, 2vw, 1.5rem)',
+              color: 'var(--color-text-secondary)',
+              fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)'
+            }}
+          >
+            You've reached the end of the surveys 🎉
+          </div>
+        )}
+      </div>
     </div>
   );
 }

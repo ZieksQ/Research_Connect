@@ -8,6 +8,7 @@ export default function PostCard({ post }) {
   const [copied, setCopied] = useState(false);
   const [isLiked, setIsLiked] = useState(post.is_liked || false);
   const [isLiking, setIsLiking] = useState(false);
+  const [likeCount, setLikeCount] = useState(post.num_of_likes || 0);
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
@@ -52,6 +53,7 @@ export default function PostCard({ post }) {
     try {
       await likePost(post.pk_survey_id);
       setIsLiked(!isLiked);
+      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
     } catch (err) {
       console.error('Failed to like/unlike post:', err);
     } finally {
@@ -124,7 +126,7 @@ export default function PostCard({ post }) {
                 marginTop: 'clamp(0.125rem, 0.25vw, 0.25rem)'
               }}
             >
-              {post.survey_category?.[0] || 'UNCATEGORIZED'}
+              {post.user_program || 'None'}
             </p>
           </div>
         </div>
@@ -310,11 +312,11 @@ export default function PostCard({ post }) {
 
         {/* Take Survey Button */}
         <div className="flex items-center gap-2">
-          {/* Like Button */}
+          {/* Like Button with Count */}
           <button
             onClick={handleLike}
             disabled={isLiking}
-            className="btn btn-sm btn-ghost"
+            className="btn btn-sm btn-ghost flex items-center gap-1"
             style={{
               color: isLiked ? '#ef4444' : 'var(--color-text-secondary)',
               fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)',
@@ -330,7 +332,25 @@ export default function PostCard({ post }) {
             ) : (
               <MdFavoriteBorder style={{ fontSize: 'clamp(1.25rem, 2vw, 1.5rem)' }} />
             )}
+            {likeCount > 0 && (
+              <span style={{ fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)' }}>
+                {likeCount}
+              </span>
+            )}
           </button>
+
+          {/* Responses Count */}
+          <div 
+            className="flex items-center gap-1"
+            style={{
+              color: 'var(--color-text-secondary)',
+              fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)',
+              padding: 'clamp(0.5rem, 1vw, 0.75rem)',
+            }}
+          >
+            <MdPeople style={{ fontSize: 'clamp(1.125rem, 1.75vw, 1.25rem)' }} />
+            <span>{post.num_of_responses || 0} responses</span>
+          </div>
 
           <button
             onClick={handleTakeSurvey}

@@ -165,25 +165,47 @@ export default function SurveyWizard() {
     try {
       const response = await publishSurvey(formData);
       
-      if (response && response.ok) {
+      // Helper function to format error message from backend
+      const formatErrorMessage = (message) => {
+        if (!message) return 'Failed to publish survey. Please try again.';
+        if (typeof message === 'string') return message;
+        if (typeof message === 'object') {
+          // Handle object messages like {title: 'Missing survey title'}
+          const errorMessages = Object.entries(message)
+            .map(([field, msg]) => `${field}: ${msg}`)
+            .join(', ');
+          return errorMessages || 'Failed to publish survey. Please try again.';
+        }
+        return 'Failed to publish survey. Please try again.';
+      };
+
+      // Check the 'ok' property from backend response (not HTTP response.ok)
+      if (response && response.ok === true) {
         setPublishModal({
           show: true,
           success: true,
-          message: response.message || 'Survey published successfully!'
+          message: typeof response.message === 'string' 
+            ? response.message 
+            : 'Survey published successfully!'
         });
       } else {
+        // Handle error response from backend
         setPublishModal({
           show: true,
           success: false,
-          message: response?.message || 'Failed to publish survey. Please try again.'
+          message: formatErrorMessage(response?.message)
         });
       }
     } catch (error) {
       console.error('Error publishing survey:', error);
+      // Try to extract message from error if it's from the API
+      const errorMessage = error?.message || error?.response?.message || 'An unexpected error occurred. Please try again.';
       setPublishModal({
         show: true,
         success: false,
-        message: 'An unexpected error occurred. Please try again.'
+        message: typeof errorMessage === 'object' 
+          ? Object.values(errorMessage).join(', ') 
+          : errorMessage
       });
     } finally {
       setIsPublishing(false);

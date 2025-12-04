@@ -1,12 +1,35 @@
-import React, { useState } from 'react';
-import { generateApprovalCode } from '../../services/user/admin.service';
-import { FaKey, FaCopy, FaCheck, FaRedo } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { generateApprovalCode, getGeneratedCode } from '../../services/user/admin.service';
+import { FaKey, FaCopy, FaCheck, FaRedo, FaEye, FaEyeSlash, FaClock } from 'react-icons/fa';
 
 const AdminGenerateCode = () => {
   const [generatedCode, setGeneratedCode] = useState(null);
+  const [allCodes, setAllCodes] = useState([]);
+  const [visibleCodes, setVisibleCodes] = useState({});
   const [loading, setLoading] = useState(false);
+  const [loadingCodes, setLoadingCodes] = useState(false);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [copiedCodeId, setCopiedCodeId] = useState(null);
+
+  // Fetch all generated codes on mount
+  useEffect(() => {
+    fetchAllCodes();
+  }, []);
+
+  const fetchAllCodes = async () => {
+    setLoadingCodes(true);
+    try {
+      const response = await getGeneratedCode();
+      if (response.ok) {
+        setAllCodes(response.message || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch codes:', err);
+    } finally {
+      setLoadingCodes(false);
+    }
+  };
 
   const handleGenerateCode = async () => {
     setLoading(true);
@@ -18,6 +41,8 @@ const AdminGenerateCode = () => {
 
       if (response.ok) {
         setGeneratedCode(response.generated_code);
+        // Refresh the codes list after generating a new one
+        fetchAllCodes();
       } else {
         setError(response.message || 'Failed to generate approval code');
       }
@@ -38,6 +63,32 @@ const AdminGenerateCode = () => {
     } catch (err) {
       setError('Failed to copy code to clipboard');
     }
+  };
+
+  const handleCopyListCode = async (code, index) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCodeId(index);
+      setTimeout(() => setCopiedCodeId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy code:', err);
+    }
+  };
+
+  const toggleCodeVisibility = (index) => {
+    setVisibleCodes(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  };
+
+  const isExpired = (dateString) => {
+    return new Date(dateString) < new Date();
   };
 
   return (
@@ -153,6 +204,96 @@ const AdminGenerateCode = () => {
                 <li>Posts with valid codes are automatically approved</li>
               </ul>
             </div>
+          </div>
+        </div>
+
+        {/* All Generated Codes Section */}
+        <div className="card bg-base-100 shadow-xl mt-8">
+          <div className="card-body">
+            <h2 className="card-title text-lg mb-4">
+              <FaKey className="text-primary" />
+              All Generated Codes
+            </h2>
+
+            {loadingCodes ? (
+              <div className="flex justify-center py-8">
+                <span className="loading loading-spinner loading-lg"></span>
+              </div>
+            ) : allCodes.length === 0 ? (
+              <div className="text-center py-8 text-base-content/60">
+                <FaKey className="text-4xl mx-auto mb-3 opacity-30" />
+                <p>No codes generated yet</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="table table-zebra">
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Expires At</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allCodes.map((code, index) => (
+                      <tr key={index}>
+                        <td>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-bold">
+                              {visibleCodes[index] ? code.text : '••••••'}
+                            </span>
+                            <button
+                              onClick={() => toggleCodeVisibility(index)}
+                              className="btn btn-ghost btn-xs"
+                              title={visibleCodes[index] ? 'Hide code' : 'Show code'}
+                            >
+                              {visibleCodes[index] ? <FaEyeSlash /> : <FaEye />}
+                            </button>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-1 text-sm">
+                            <FaClock className="text-base-content/50" />
+                            <span className={isExpired(code.expires_at) ? 'text-error' : ''}>
+                              {formatDate(code.expires_at)}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          {code.is_used ? (
+                            <span className="badge badge-neutral">Used</span>
+                          ) : isExpired(code.expires_at) ? (
+                            <span className="badge badge-error">Expired</span>
+                          ) : (
+                            <span className="badge badge-success">Active</span>
+                          )}
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => handleCopyListCode(code.text, index)}
+                            className={`btn btn-sm ${copiedCodeId === index ? 'btn-success' : 'btn-ghost'}`}
+                            disabled={code.is_used || isExpired(code.expires_at)}
+                          >
+                            {copiedCodeId === index ? (
+                              <>
+                                <FaCheck className="mr-1" />
+                                Copied!
+                              </>
+                            ) : (
+                              <>
+                                <FaCopy className="mr-1" />
+                                Copy
+                              </>
+                            )}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </div>

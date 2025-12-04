@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MdPeople, MdBusiness, MdSchool, MdLocalHospital, MdEdit, MdCheck } from 'react-icons/md';
+import { MdPeople, MdBusiness, MdSchool, MdLocalHospital, MdEdit, MdCheck, MdWork, MdScience, MdComputer, MdFamilyRestroom, MdElderly } from 'react-icons/md';
 
 export default function TargetAudiencePage({ data, onNext, onBack }) {
   const [selectedAudiences, setSelectedAudiences] = useState(
@@ -9,11 +9,16 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
   const [showCustomInput, setShowCustomInput] = useState(false);
 
   const audiences = [
-    { id: 'all-students', label: 'All Students', icon: MdSchool },
-    { id: 'business-students', label: 'Business Students', icon: MdBusiness },
-    { id: 'engineering-students', label: 'Engineering Students', icon: MdSchool },
-    { id: 'medical-students', label: 'Medical Students', icon: MdLocalHospital },
-    { id: 'general-public', label: 'General Public', icon: MdPeople }
+    { id: 'students', label: 'Students', icon: MdSchool },
+    { id: 'businessStudents', label: 'Business Students', icon: MdBusiness },
+    { id: 'generalPublic', label: 'General Public', icon: MdPeople },
+    { id: 'professionals', label: 'Professionals', icon: MdWork },
+    { id: 'educators', label: 'Educators', icon: MdSchool },
+    { id: 'healthcareWorkers', label: 'Healthcare Workers', icon: MdLocalHospital },
+    { id: 'itProfessionals', label: 'IT Professionals', icon: MdComputer },
+    { id: 'researchers', label: 'Researchers', icon: MdScience },
+    { id: 'parents', label: 'Parents', icon: MdFamilyRestroom },
+    { id: 'seniorCitizens', label: 'Senior Citizens', icon: MdElderly }
   ];
 
   const handleAudienceToggle = (audienceId) => {

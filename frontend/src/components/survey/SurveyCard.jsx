@@ -13,9 +13,9 @@ const SurveyCard = ({ data, value, onChange }) => {
   };
 
   return (
-    <div className="bg-base-100 border flex h-auto w-full flex-col space-y-4 rounded-sm px-4 py-6 shadow">
+    <div className="bg-white border border-gray-200 flex h-auto w-full flex-col space-y-4 rounded-xl px-6 py-6 shadow-sm">
       <div>
-        <h3 className="text-xl font-bold">{title}</h3>
+        <h3 className="text-xl font-bold text-gray-900">{title}</h3>
       </div>
 
       <div ref={formRef} className="flex flex-col space-y-2">
@@ -35,7 +35,7 @@ const SurveyCard = ({ data, value, onChange }) => {
       <button
         onClick={clearRadios}
         type="button"
-        className="btn btn-error text-white ml-auto w-[25%]"
+        className="btn btn-sm btn-error text-white ml-auto"
       >
         Clear
       </button>

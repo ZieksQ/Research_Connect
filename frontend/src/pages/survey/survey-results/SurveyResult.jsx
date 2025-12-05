@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getComputedResults } from '../../../services/survey/results.service';
-import { MdClose, MdExpandMore, MdExpandLess, MdTextFields, MdRadioButtonChecked, MdCheckBox, MdArrowDropDown, MdStar, MdCalendarToday, MdEmail } from 'react-icons/md';
+import { MdClose, MdExpandMore, MdExpandLess, MdTextFields, MdRadioButtonChecked, MdCheckBox, MdArrowDropDown, MdStar, MdCalendarToday, MdEmail, MdArrowBack } from 'react-icons/md';
 
 // Modal component for displaying text responses
 const TextResponsesModal = ({ isOpen, onClose, questionText, responses, type }) => {
@@ -19,14 +19,14 @@ const TextResponsesModal = ({ isOpen, onClose, questionText, responses, type }) 
 
   return (
     <dialog className="modal modal-open">
-      <div className="modal-box max-w-2xl max-h-[80vh]">
+      <div className="modal-box max-w-2xl max-h-[80vh] bg-white">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-lg font-bold">{questionText}</h3>
-            <span className="badge badge-outline badge-sm mt-1">{getTypeLabel(type)}</span>
+            <h3 className="text-lg font-bold text-custom-blue">{questionText}</h3>
+            <span className="badge badge-outline badge-sm mt-1 text-gray-500 border-gray-300">{getTypeLabel(type)}</span>
           </div>
           <button 
-            className="btn btn-sm btn-circle btn-ghost"
+            className="btn btn-sm btn-circle btn-ghost text-gray-500 hover:bg-gray-100"
             onClick={onClose}
           >
             <MdClose size={20} />
@@ -36,22 +36,22 @@ const TextResponsesModal = ({ isOpen, onClose, questionText, responses, type }) 
         <div className="divider my-2"></div>
         
         <div className="space-y-2 overflow-y-auto max-h-[50vh]">
-          <p className="text-sm text-text-secondary mb-3">
+          <p className="text-sm text-gray-600 mb-3">
             Total Responses: {responses.length}
           </p>
           {responses.map((response, index) => (
             <div 
               key={index}
-              className="bg-secondary-background p-3 rounded-lg"
+              className="bg-blue-50 p-3 rounded-lg"
             >
-              <span className="text-sm text-text-secondary mr-2">#{index + 1}</span>
-              <span className="text-primary-color">{response}</span>
+              <span className="text-sm text-gray-500 mr-2">#{index + 1}</span>
+              <span className="text-custom-blue">{response}</span>
             </div>
           ))}
         </div>
         
         <div className="modal-action">
-          <button className="btn btn-ghost" onClick={onClose}>Close</button>
+          <button className="btn btn-ghost text-gray-600 hover:bg-gray-100" onClick={onClose}>Close</button>
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
@@ -68,17 +68,17 @@ const ChoiceProgressBar = ({ option, count, total, color }) => {
   return (
     <div className="mb-3">
       <div className="flex justify-between items-center mb-1">
-        <span className="text-sm font-medium text-primary-color">{option}</span>
-        <span className="text-sm text-text-secondary">
+        <span className="text-sm font-medium text-custom-blue">{option}</span>
+        <span className="text-sm text-gray-600">
           {count} {count === 1 ? 'response' : 'responses'} ({percentage}%)
         </span>
       </div>
-      <div className="w-full bg-secondary-background rounded-full h-3">
+      <div className="w-full bg-gray-100 rounded-full h-3">
         <div 
           className="h-3 rounded-full transition-all duration-500 ease-out"
           style={{ 
             width: `${percentage}%`,
-            backgroundColor: color || 'var(--color-accent-100)'
+            backgroundColor: color || '#52B244'
           }}
         ></div>
       </div>
@@ -88,7 +88,7 @@ const ChoiceProgressBar = ({ option, count, total, color }) => {
 
 // Question card component
 const QuestionCard = ({ questionId, questionText, type, answerData, onViewResponses }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const getTypeIcon = (type) => {
     const icons = {
@@ -120,21 +120,24 @@ const QuestionCard = ({ questionId, questionText, type, answerData, onViewRespon
 
   const getTypeColor = (type) => {
     const colors = {
-      radioButton: 'var(--color-custom-blue)',
-      checkBox: 'var(--color-custom-green)',
-      dropdown: 'var(--color-custom-maroon)',
+      radioButton: '#1447E6', // custom-blue
+      checkBox: '#52B244', // custom-green
+      dropdown: '#6A3B29', // custom-maroon
       rating: '#f59e0b',
+      date: '#6A3B29', // custom-maroon
     };
-    return colors[type] || 'var(--color-accent-100)';
+    return colors[type] || '#52B244';
   };
 
-  const isTextType = ['shortText', 'longText', 'email', 'date'].includes(type);
-  const isChoiceType = ['radioButton', 'checkBox', 'dropdown', 'rating'].includes(type);
+  const isTextType = ['shortText', 'longText', 'email'].includes(type);
+  const isChoiceType = ['radioButton', 'checkBox', 'dropdown', 'rating', 'date'].includes(type);
 
   // Calculate total responses for choice types
   const getTotalResponses = () => {
     if (isTextType) {
-      return Array.isArray(answerData) ? answerData.length : 0;
+      if (Array.isArray(answerData)) return answerData.length;
+      if (typeof answerData === 'object' && answerData !== null) return Object.keys(answerData).length;
+      return 0;
     }
     if (isChoiceType) {
       return Object.values(answerData).reduce((sum, count) => sum + count, 0);
@@ -145,7 +148,7 @@ const QuestionCard = ({ questionId, questionText, type, answerData, onViewRespon
   const totalResponses = getTotalResponses();
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-secondary-background overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Header */}
       <div 
         className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
@@ -153,22 +156,21 @@ const QuestionCard = ({ questionId, questionText, type, answerData, onViewRespon
       >
         <div className="flex items-center gap-3">
           <div 
-            className="p-2 rounded-lg"
-            style={{ backgroundColor: 'var(--color-secondary-background)' }}
+            className="p-2 rounded-lg bg-blue-50 text-custom-blue"
           >
             {getTypeIcon(type)}
           </div>
           <div>
-            <h4 className="font-medium text-primary-color">{questionText}</h4>
+            <h4 className="font-medium text-custom-blue">{questionText}</h4>
             <div className="flex items-center gap-2 mt-1">
-              <span className="badge badge-sm badge-outline">{getTypeLabel(type)}</span>
-              <span className="text-xs text-text-secondary">
+              <span className="badge badge-sm badge-outline text-gray-500 border-gray-300">{getTypeLabel(type)}</span>
+              <span className="text-xs text-gray-500">
                 {totalResponses} {totalResponses === 1 ? 'response' : 'responses'}
               </span>
             </div>
           </div>
         </div>
-        <button className="btn btn-ghost btn-sm btn-circle">
+        <button className="btn btn-ghost btn-sm btn-circle text-gray-500">
           {isExpanded ? <MdExpandLess size={20} /> : <MdExpandMore size={20} />}
         </button>
       </div>
@@ -180,11 +182,11 @@ const QuestionCard = ({ questionId, questionText, type, answerData, onViewRespon
           
           {isTextType && (
             <div className="flex flex-col items-center py-4">
-              <p className="text-text-secondary text-sm mb-3">
+              <p className="text-gray-600 text-sm mb-3">
                 {totalResponses} text {totalResponses === 1 ? 'response' : 'responses'} collected
               </p>
               <button 
-                className="btn btn-outline btn-primary"
+                className="btn btn-outline btn-sm border-custom-blue text-custom-blue hover:bg-custom-blue hover:text-white hover:border-custom-blue"
                 onClick={(e) => {
                   e.stopPropagation();
                   onViewResponses(questionId, questionText, answerData, type);
@@ -216,6 +218,7 @@ const QuestionCard = ({ questionId, questionText, type, answerData, onViewRespon
 
 const SurveyResult = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [resultsData, setResultsData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -251,9 +254,17 @@ const SurveyResult = () => {
   };
 
   const handleViewResponses = (questionId, questionText, responses, type) => {
+    let processedResponses = [];
+    if (Array.isArray(responses)) {
+      processedResponses = responses;
+    } else if (typeof responses === 'object' && responses !== null) {
+      // If it's an object, we assume the values are the responses
+      processedResponses = Object.values(responses);
+    }
+
     setModalData({
       questionText,
-      responses: Array.isArray(responses) ? responses : Object.keys(responses),
+      responses: processedResponses,
       type,
     });
     setModalOpen(true);
@@ -302,10 +313,10 @@ const SurveyResult = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <span className="loading loading-spinner loading-lg"></span>
-          <p className="mt-4 text-text-secondary">Loading survey results...</p>
+          <span className="loading loading-spinner loading-lg text-custom-blue"></span>
+          <p className="mt-4 text-gray-600">Loading survey results...</p>
         </div>
       </div>
     );
@@ -313,10 +324,10 @@ const SurveyResult = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="text-error text-lg">{error}</p>
-          <button className="btn btn-primary mt-4" onClick={fetchResults}>
+          <p className="text-red-500 text-lg">{error}</p>
+          <button className="btn bg-custom-blue text-white hover:bg-blue-700 mt-4" onClick={fetchResults}>
             Retry
           </button>
         </div>
@@ -327,26 +338,35 @@ const SurveyResult = () => {
   const questions = getAllQuestions();
 
   return (
-    <section className="min-h-screen py-8 px-4" style={{ backgroundColor: 'var(--color-background)' }}>
+    <section className="min-h-screen py-8 px-4 bg-gray-50">
       <div className="max-w-4xl mx-auto">
+        {/* Back Button */}
+        <button 
+          onClick={() => navigate(-1)} 
+          className="btn btn-ghost btn-sm gap-2 mb-4 text-gray-600 hover:bg-gray-200 pl-0"
+        >
+          <MdArrowBack size={20} />
+          Back
+        </button>
+
         {/* Survey Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <h1 className="text-2xl font-bold text-primary-color mb-2">
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-6 border border-gray-200">
+          <h1 className="text-2xl font-bold text-custom-blue mb-2">
             {resultsData?.survey_title || 'Survey Results'}
           </h1>
-          <p className="text-text-secondary mb-4">
+          <p className="text-gray-600 mb-4">
             {resultsData?.survey_content}
           </p>
           
           <div className="flex flex-wrap gap-2 mb-4">
             {resultsData?.survey_tags?.map((tag, index) => (
-              <span key={index} className="badge badge-primary badge-outline">
+              <span key={index} className="badge bg-custom-green text-white border-none">
                 {tag}
               </span>
             ))}
           </div>
           
-          <div className="flex items-center gap-4 text-sm text-text-secondary">
+          <div className="flex items-center gap-4 text-sm text-gray-500">
             <span>📝 {questions.length} Questions</span>
             <span>⏱️ {resultsData?.survey_approx_time}</span>
           </div>
@@ -354,13 +374,13 @@ const SurveyResult = () => {
 
         {/* Questions List */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-primary-color mb-4">
+          <h2 className="text-lg font-semibold text-custom-blue mb-4">
             Survey Responses
           </h2>
           
           {questions.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-              <p className="text-text-secondary">No responses yet</p>
+            <div className="bg-white rounded-xl shadow-sm p-8 text-center border border-gray-200">
+              <p className="text-gray-500">No responses yet</p>
             </div>
           ) : (
             questions.map((question) => (

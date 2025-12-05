@@ -13,13 +13,13 @@ export default function SurveyLoadingModal({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-      <div className="p-8 rounded-xl shadow-xl text-center" style={{ backgroundColor: '#ffffff', maxWidth: '300px' }}>
-        <span className="loading loading-spinner loading-lg" style={{ color: 'var(--color-accent-100)' }}></span>
-        <p className="mt-4 font-medium" style={{ color: 'var(--color-primary-color)' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="p-8 rounded-xl shadow-xl text-center bg-white max-w-xs w-full mx-4">
+        <span className="loading loading-spinner loading-lg text-custom-blue"></span>
+        <p className="mt-4 font-medium text-gray-900">
           {message}
         </p>
-        <p className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="text-sm mt-2 text-gray-500">
           {subMessage}
         </p>
       </div>

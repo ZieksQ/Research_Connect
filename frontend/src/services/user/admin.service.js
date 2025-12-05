@@ -25,3 +25,8 @@ export const generateApprovalCode = async () =>
     await apiFetch("/api/admin/generate/post_code", {
         method: "GET",
     })
+
+export const getGeneratedCode = async () =>
+    await apiFetch("/api/admin/code/get", {
+        method: "GET",
+    })

@@ -104,8 +104,11 @@ export const postsData = [
 ];
 
 export const categories = [
-  { id: 'all', name: 'All', icon: '📊' },
-  { id: 'technology', name: 'Technology', icon: '💻' },
-  { id: 'business', name: 'Business', icon: '💼' },
-  { id: 'health', name: 'Health', icon: '❤️' }
+  { id: 'all', name: 'All' },
+  { id: 'academic', name: 'Academic' },
+  { id: 'health', name: 'Health' },
+  { id: 'technology', name: 'Technology' },
+  { id: 'entertainment', name: 'Entertainment' },
+  { id: 'lifestyle', name: 'Lifestyle' },
+  { id: 'business', name: 'Business' },
 ];

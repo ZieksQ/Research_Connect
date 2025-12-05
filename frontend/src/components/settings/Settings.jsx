@@ -14,7 +14,7 @@ const Settings = () => {
           <ul className="menu p-0">
             <li>
               <button
-                className={`flex items-center gap-3 ${activeTab === 'account' ? 'active' : ''}`}
+                className={`flex items-center gap-3 ${activeTab === 'account' ? 'bg-custom-blue text-white hover:bg-blue-700' : 'hover:bg-blue-50 hover:text-custom-blue'}`}
                 onClick={() => setActiveTab('account')}
               >
                 <MdAccountCircle className="text-xl" />

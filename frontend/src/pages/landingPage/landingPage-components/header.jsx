@@ -16,26 +16,26 @@ export default function Header() {
         className="fixed top-6 left-1/2 z-50 hidden w-[90%] max-w-[1200px] -translate-x-1/2 items-center justify-center rounded-full bg-transparent lg:flex"
       >
         <nav className="even-shadow flex items-center justify-center gap-4 rounded-full bg-white px-4 py-2">
-          <button className="rounded-full px-4 py-3 text-sm font-semibold text-black transition-all hover:bg-[#F2F0EC]">
+          <button className="rounded-full px-4 py-3 text-sm font-semibold text-gray-900 transition-all hover:bg-blue-50 hover:text-custom-blue">
             Home
           </button>
 
-          <button className="rounded-full px-4 py-3 text-sm font-semibold text-black transition-all hover:bg-[#F2F0EC]">
+          <button className="rounded-full px-4 py-3 text-sm font-semibold text-gray-900 transition-all hover:bg-blue-50 hover:text-custom-blue">
             About
           </button>
 
-          <button className="rounded-full px-4 py-3 text-sm font-semibold text-black transition-all hover:bg-[#F2F0EC]">
+          <button className="rounded-full px-4 py-3 text-sm font-semibold text-gray-900 transition-all hover:bg-blue-50 hover:text-custom-blue">
             Socials
           </button>
 
           <Link to="/login">
-            <button className="rounded-full border-2 border-black px-4 py-3 text-sm font-semibold text-black transition-all hover:bg-black hover:text-white">
+            <button className="rounded-full border-2 border-custom-blue px-4 py-3 text-sm font-semibold text-custom-blue transition-all hover:bg-custom-blue hover:text-white">
               LOGIN
             </button>
           </Link>
 
           <Link to="/signup">
-            <button className="rounded-full border-2 border-black bg-black px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-gray-800">
+            <button className="rounded-full border-2 border-custom-blue bg-custom-blue px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-blue-700 hover:border-blue-700">
               SIGN UP
             </button>
           </Link>
@@ -48,11 +48,11 @@ export default function Header() {
           className="flex h-6 w-8 flex-col justify-between focus:outline-none"
           onClick={() => setIsOpen(true)}
         >
-          <span className="block h-1 w-full rounded bg-black"></span>
-          <span className="block h-1 w-full rounded bg-black"></span>
-          <span className="block h-1 w-full rounded bg-black"></span>
+          <span className="block h-1 w-full rounded bg-gray-900"></span>
+          <span className="block h-1 w-full rounded bg-gray-900"></span>
+          <span className="block h-1 w-full rounded bg-gray-900"></span>
         </button>
-        <h1 className="text-xl">Inquira&trade;</h1>
+        <h1 className="text-xl font-bold text-custom-blue">Inquira&trade;</h1>
       </div>
 
       {/* Sidebar overlay with AnimatePresence for exit animation */}
@@ -63,45 +63,45 @@ export default function Header() {
             animate={{ x: 0 }} // slide to 0
             exit={{ x: "-100%" }} // slide back to left
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed inset-0 z-50 flex bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex bg-gray-900/80 backdrop-blur-sm"
           >
             <div className="mr-auto flex h-full w-64 flex-col items-start gap-4 bg-white p-6">
               <button
-                className="mb-4 self-end text-xl font-bold text-black"
+                className="mb-4 self-end text-xl font-bold text-gray-900"
                 onClick={() => setIsOpen(false)}
               >
                 ✕
               </button>
 
               <button
-                className="text-lg font-semibold text-black hover:text-gray-500"
+                className="text-lg font-semibold text-gray-900 hover:text-custom-blue"
                 onClick={() => setIsOpen(false)}
               >
                 Home
               </button>
 
               <button
-                className="text-lg font-semibold text-black hover:text-gray-500"
+                className="text-lg font-semibold text-gray-900 hover:text-custom-blue"
                 onClick={() => setIsOpen(false)}
               >
                 About
               </button>
 
               <button
-                className="text-lg font-semibold text-black hover:text-gray-500"
+                className="text-lg font-semibold text-gray-900 hover:text-custom-blue"
                 onClick={() => setIsOpen(false)}
               >
                 Socials
               </button>
 
               <Link to="/login">
-                <span className="cursor-pointer text-lg font-semibold text-black hover:text-gray-500">
+                <span className="cursor-pointer text-lg font-semibold text-custom-blue hover:text-blue-700">
                   LOGIN
                 </span>
               </Link>
 
               <Link to="/signup">
-                <span className="cursor-pointer text-lg font-semibold text-black hover:text-gray-500">
+                <span className="cursor-pointer text-lg font-semibold text-custom-blue hover:text-blue-700">
                   SIGN UP
                 </span>
               </Link>

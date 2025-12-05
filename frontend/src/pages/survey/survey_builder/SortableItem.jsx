@@ -21,11 +21,7 @@ export function SortableItem({ id, children, className = '' }) {
   return (
     <div ref={setNodeRef} style={style} className={`relative ${className}`}>
       <div 
-        className="absolute top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing z-10" 
-        style={{ 
-          color: 'var(--color-shade-primary)',
-          left: '0.375rem'
-        }}
+        className="absolute top-1/2 -translate-y-1/2 left-1.5 cursor-grab active:cursor-grabbing z-10 text-gray-400 hover:text-custom-blue transition-colors" 
         {...attributes} 
         {...listeners}
       >

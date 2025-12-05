@@ -8,6 +8,7 @@ export default function PostCard({ post }) {
   const [copied, setCopied] = useState(false);
   const [isLiked, setIsLiked] = useState(post.is_liked || false);
   const [isLiking, setIsLiking] = useState(false);
+  const [likeCount, setLikeCount] = useState(post.num_of_likes || 0);
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
@@ -52,6 +53,7 @@ export default function PostCard({ post }) {
     try {
       await likePost(post.pk_survey_id);
       setIsLiked(!isLiked);
+      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
     } catch (err) {
       console.error('Failed to like/unlike post:', err);
     } finally {
@@ -60,27 +62,13 @@ export default function PostCard({ post }) {
   };
 
   return (
-    <div 
-      className="rounded-xl shadow-sm hover:shadow-md transition-shadow"
-      style={{
-        backgroundColor: '#ffffff',
-        border: '1px solid var(--color-shade-primary)',
-        padding: 'clamp(1.25rem, 2vw, 1.75rem)',
-        marginBottom: 'clamp(1rem, 1.5vw, 1.25rem)'
-      }}
-    >
+    <div className="rounded-xl shadow-sm hover:shadow-md transition-shadow bg-white border border-gray-200 p-5 lg:p-7 mb-4 lg:mb-5">
       {/* Header with Avatar, User Info, and Menu */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-start gap-3 flex-1">
           {/* Avatar */}
           <div className="avatar">
-            <div 
-              className="rounded-full"
-              style={{
-                width: 'clamp(2.5rem, 4vw, 3rem)',
-                height: 'clamp(2.5rem, 4vw, 3rem)'
-              }}
-            >
+            <div className="rounded-full w-10 h-10 lg:w-12 lg:h-12">
               <img src={post.user_profile} alt={post.user_username} />
             </div>
           </div>
@@ -88,43 +76,24 @@ export default function PostCard({ post }) {
           {/* User Info */}
           <div className="flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 
-                style={{ 
-                  color: 'var(--color-primary-color)',
-                  fontSize: 'clamp(0.9375rem, 1.5vw, 1.125rem)',
-                  fontWeight: '600'
-                }}
-              >
+              <h3 className="text-gray-900 text-sm lg:text-lg font-semibold">
                 {post.user_username}
               </h3>
               {/* Status Badge */}
               {post.status && (
                 <span 
-                  className="badge badge-sm"
-                  style={{
-                    backgroundColor: post.status === 'approved' ? '#22c55e' : 
-                                    post.status === 'pending' ? '#f59e0b' : 
-                                    post.status === 'rejected' ? '#dc2626' : '#6b7280',
-                    color: '#ffffff',
-                    border: 'none',
-                    fontSize: 'clamp(0.6rem, 1vw, 0.7rem)',
-                    textTransform: 'capitalize'
-                  }}
+                  className={`badge badge-sm text-white border-none text-[10px] lg:text-xs capitalize ${
+                    post.status === 'approved' ? 'bg-custom-green' : 
+                    post.status === 'pending' ? 'bg-yellow-500' : 
+                    post.status === 'rejected' ? 'bg-red-600' : 'bg-gray-500'
+                  }`}
                 >
                   {post.status}
                 </span>
               )}
             </div>
-            <p 
-              style={{ 
-                color: 'var(--color-text-secondary)',
-                fontSize: 'clamp(0.6875rem, 1.25vw, 0.8125rem)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.025em',
-                marginTop: 'clamp(0.125rem, 0.25vw, 0.25rem)'
-              }}
-            >
-              {post.survey_category?.[0] || 'UNCATEGORIZED'}
+            <p className="text-gray-500 text-[11px] lg:text-[13px] uppercase tracking-wide mt-1">
+              {post.user_program || 'None'}
             </p>
           </div>
         </div>
@@ -133,79 +102,30 @@ export default function PostCard({ post }) {
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setShowMenu(!showMenu)}
-            className="btn btn-ghost btn-sm btn-circle"
-            style={{
-              color: 'var(--color-text-secondary)',
-              minHeight: 'clamp(2rem, 3vw, 2.5rem)',
-              width: 'clamp(2rem, 3vw, 2.5rem)',
-              height: 'clamp(2rem, 3vw, 2.5rem)'
-            }}
+            className="btn btn-ghost btn-sm btn-circle text-gray-500 w-8 h-8 lg:w-10 lg:h-10 min-h-0"
           >
-            <MdMoreVert 
-              style={{ 
-                fontSize: 'clamp(1.25rem, 2vw, 1.5rem)'
-              }} 
-            />
+            <MdMoreVert className="text-xl lg:text-2xl" />
           </button>
 
           {/* Dropdown Menu */}
           {showMenu && (
-            <div 
-              className="absolute right-0 z-10 rounded-xl shadow-xl overflow-hidden"
-              style={{
-                backgroundColor: '#ffffff',
-                border: '1px solid var(--color-shade-primary)',
-                minWidth: '180px',
-                marginTop: '0.5rem',
-                animation: 'fadeIn 0.15s ease-out'
-              }}
-            >
+            <div className="absolute right-0 z-10 rounded-xl shadow-xl overflow-hidden bg-white border border-gray-200 min-w-[180px] mt-2 animate-[fadeIn_0.15s_ease-out]">
               <div className="py-1">
                 <button 
-                  onClick={() => handleMenuClick('Save')}
-                  className="w-full flex items-center gap-3 hover:bg-gray-50 transition-colors"
-                  style={{
-                    fontSize: '0.875rem',
-                    padding: '0.75rem 1rem',
-                    color: 'var(--color-primary-color)'
-                  }}
-                >
-                  <MdBookmarkBorder style={{ fontSize: '1.25rem', color: 'var(--color-text-secondary)' }} />
-                  Save Post
-                </button>
-                <button 
                   onClick={handleShare}
-                  className="w-full flex items-center gap-3 hover:bg-gray-50 transition-colors"
-                  style={{
-                    fontSize: '0.875rem',
-                    padding: '0.75rem 1rem',
-                    color: copied ? '#22c55e' : 'var(--color-primary-color)'
-                  }}
+                  className={`w-full flex items-center gap-3 hover:bg-gray-50 transition-colors text-sm p-3 ${copied ? 'text-custom-green' : 'text-gray-900'}`}
                 >
                   {copied ? (
                     <>
-                      <MdCheck style={{ fontSize: '1.25rem', color: '#22c55e' }} />
+                      <MdCheck className="text-xl text-custom-green" />
                       Link Copied!
                     </>
                   ) : (
                     <>
-                      <MdShare style={{ fontSize: '1.25rem', color: 'var(--color-text-secondary)' }} />
+                      <MdShare className="text-xl text-gray-500" />
                       Share
                     </>
                   )}
-                </button>
-                <div style={{ height: '1px', backgroundColor: 'var(--color-shade-primary)', margin: '0.25rem 0' }} />
-                <button 
-                  onClick={() => handleMenuClick('Report')}
-                  className="w-full flex items-center gap-3 hover:bg-red-50 transition-colors"
-                  style={{
-                    fontSize: '0.875rem',
-                    padding: '0.75rem 1rem',
-                    color: '#dc2626'
-                  }}
-                >
-                  <MdFlag style={{ fontSize: '1.25rem' }} />
-                  Report
                 </button>
               </div>
             </div>
@@ -214,32 +134,14 @@ export default function PostCard({ post }) {
       </div>
 
       {/* Post Content */}
-      <div 
-        style={{
-          marginBottom: 'clamp(1rem, 1.5vw, 1.25rem)'
-        }}
-      >
-        <p 
-          style={{ 
-            color: 'var(--color-primary-color)',
-            fontSize: 'clamp(0.875rem, 1.5vw, 1rem)',
-            lineHeight: '1.6',
-            marginBottom: 'clamp(0.5rem, 1vw, 0.75rem)'
-          }}
-        >
+      <div className="mb-4 lg:mb-5">
+        <p className="text-gray-900 text-sm lg:text-base leading-relaxed mb-2 lg:mb-3 font-medium">
           {post.survey_title}
         </p>
 
         {/* Survey Content */}
         {post.survey_content && (
-          <p 
-            style={{ 
-              color: 'var(--color-text-secondary)',
-              fontSize: 'clamp(0.8rem, 1.35vw, 0.9rem)',
-              lineHeight: '1.6',
-              marginBottom: 'clamp(0.75rem, 1.25vw, 1rem)'
-            }}
-          >
+          <p className="text-gray-600 text-xs lg:text-sm leading-relaxed mb-3 lg:mb-4">
             {post.survey_content}
           </p>
         )}
@@ -249,15 +151,7 @@ export default function PostCard({ post }) {
           {post.survey_category?.map((tag, index) => (
             <div
               key={index}
-              className="badge badge-sm"
-              style={{
-                backgroundColor: 'var(--color-secondary-background)',
-                color: 'var(--color-accent-100)',
-                border: 'none',
-                fontSize: 'clamp(0.6875rem, 1.15vw, 0.8125rem)',
-                padding: 'clamp(0.375rem, 0.75vw, 0.5rem) clamp(0.625rem, 1.25vw, 0.875rem)',
-                fontWeight: '500'
-              }}
+              className="badge badge-sm bg-gray-100 text-custom-blue border-none text-[11px] lg:text-[13px] px-2.5 py-2 font-medium"
             >
               #{tag}
             </div>
@@ -270,37 +164,18 @@ export default function PostCard({ post }) {
         <div className="flex items-center gap-4 flex-wrap">
           {/* Time Approx */}
           <div className="flex items-center gap-1">
-            <MdAccessTime 
-              style={{ 
-                fontSize: 'clamp(1rem, 1.5vw, 1.125rem)',
-                color: '#22c55e'
-              }} 
-            />
-            <span 
-              style={{ 
-                color: 'var(--color-text-secondary)',
-                fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)'
-              }}
-            >
+            <MdAccessTime className="text-base lg:text-lg text-custom-green" />
+            <span className="text-gray-500 text-xs lg:text-sm">
               {new Date(post.survey_date_created).toLocaleDateString()}
             </span>
           </div>
 
           {/* Target Audience */}
           <div className="flex items-center gap-1">
-            <MdPeople 
-              style={{ 
-                fontSize: 'clamp(1rem, 1.5vw, 1.125rem)',
-                color: 'var(--color-accent-100)'
-              }} 
-            />
-            <div>
+            <MdPeople className="text-base lg:text-lg text-custom-blue shrink-0" />
+            <div className="tooltip" data-tip={post.survey_target_audience?.join(', ')}>
               <span 
-                style={{ 
-                  color: 'var(--color-text-secondary)',
-                  fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)'
-                }}
-                title={post.survey_target_audience?.join(', ')}
+                className="text-gray-500 text-xs lg:text-sm block max-w-[150px] truncate text-left"
               >
                 {post.survey_target_audience?.join(', ')}
               </span>
@@ -309,43 +184,34 @@ export default function PostCard({ post }) {
         </div>
 
         {/* Take Survey Button */}
-        <div className="flex items-center gap-2">
-          {/* Like Button */}
+        <div className="flex items-center gap-2 ml-auto">
+          {/* Like Button with Count */}
           <button
             onClick={handleLike}
             disabled={isLiking}
-            className="btn btn-sm btn-ghost"
-            style={{
-              color: isLiked ? '#ef4444' : 'var(--color-text-secondary)',
-              fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)',
-              padding: 'clamp(0.5rem, 1vw, 0.75rem)',
-              height: 'auto',
-              minHeight: 'clamp(2rem, 3vw, 2.5rem)',
-              borderRadius: 'clamp(0.375rem, 0.75vw, 0.5rem)',
-              transition: 'all 0.2s ease'
-            }}
+            className={`btn btn-sm btn-ghost flex items-center gap-1 text-xs lg:text-sm px-2 lg:px-3 h-auto min-h-[2rem] lg:min-h-[2.5rem] rounded-lg transition-all ${isLiked ? 'text-red-500' : 'text-gray-500'}`}
           >
             {isLiked ? (
-              <MdFavorite style={{ fontSize: 'clamp(1.25rem, 2vw, 1.5rem)' }} />
+              <MdFavorite className="text-xl lg:text-2xl" />
             ) : (
-              <MdFavoriteBorder style={{ fontSize: 'clamp(1.25rem, 2vw, 1.5rem)' }} />
+              <MdFavoriteBorder className="text-xl lg:text-2xl" />
+            )}
+            {likeCount > 0 && (
+              <span className="text-xs lg:text-sm">
+                {likeCount}
+              </span>
             )}
           </button>
 
+          {/* Responses Count */}
+          <div className="flex items-center gap-1 text-gray-500 text-xs lg:text-sm px-2 lg:px-3">
+            <MdPeople className="text-lg lg:text-xl" />
+            <span>{post.num_of_responses || 0} responses</span>
+          </div>
+
           <button
             onClick={handleTakeSurvey}
-            className="btn btn-sm"
-            style={{
-              backgroundColor: 'var(--color-accent-100)',
-              borderColor: 'var(--color-accent-100)',
-              color: '#ffffff',
-              fontSize: 'clamp(0.75rem, 1.25vw, 0.875rem)',
-              padding: 'clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 1.75vw, 1.5rem)',
-              fontWeight: '600',
-              height: 'auto',
-              minHeight: 'clamp(2rem, 3vw, 2.5rem)',
-              borderRadius: 'clamp(0.375rem, 0.75vw, 0.5rem)'
-            }}
+            className="btn btn-sm bg-custom-blue border-custom-blue text-white text-xs lg:text-sm px-4 lg:px-6 font-semibold h-auto min-h-[2rem] lg:min-h-[2.5rem] rounded-lg hover:bg-blue-800 hover:border-blue-800"
           >
             Take Survey
           </button>

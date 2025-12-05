@@ -56,10 +56,10 @@ const AdminReviewPosts = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
-          <p className="mt-4 text-base-content/60">Loading survey...</p>
+          <span className="loading loading-spinner loading-lg text-custom-blue"></span>
+          <p className="mt-4 text-gray-500">Loading survey...</p>
         </div>
       </div>
     );
@@ -67,12 +67,12 @@ const AdminReviewPosts = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <FaTimesCircle className="text-error text-6xl mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Error Loading Survey</h2>
-          <p className="text-base-content/60 mb-6">{error}</p>
-          <button onClick={handleBack} className="btn btn-primary">
+          <FaTimesCircle className="text-red-500 text-6xl mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-2 text-gray-800">Error Loading Survey</h2>
+          <p className="text-gray-500 mb-6">{error}</p>
+          <button onClick={handleBack} className="btn bg-custom-blue border-custom-blue text-white hover:bg-blue-700">
             <FaArrowLeft />
             Back to Requests
           </button>
@@ -90,7 +90,7 @@ const AdminReviewPosts = () => {
   const isLastSection = currentSectionIndex === surveyData.survey_section.length - 1;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen bg-gray-50">
       <div
         className="mx-auto"
         style={{
@@ -101,14 +101,14 @@ const AdminReviewPosts = () => {
         {/* Back Button */}
         <button
           onClick={handleBack}
-          className="btn btn-ghost gap-2 mb-4"
+          className="btn btn-ghost gap-2 mb-4 text-gray-600 hover:bg-gray-100"
         >
           <FaArrowLeft />
           Back to Requests
         </button>
 
         {/* Review Mode Banner */}
-        <div className="alert alert-info mb-6">
+        <div className="alert bg-blue-50 text-custom-blue border-custom-blue/20 mb-6">
           <FaCheckCircle />
           <span>
             <strong>Review Mode:</strong> You are viewing this survey in read-only mode.
@@ -153,19 +153,19 @@ const AdminReviewPosts = () => {
           <button
             onClick={handlePrevious}
             disabled={isFirstSection}
-            className="btn btn-outline"
+            className="btn bg-transparent border-custom-blue text-custom-blue hover:bg-blue-50 disabled:opacity-50 disabled:bg-transparent"
           >
             Previous
           </button>
           
-          <div className="text-sm text-base-content/60">
+          <div className="text-sm text-gray-500">
             Section {currentSectionIndex + 1} of {surveyData.survey_section.length}
           </div>
 
           <button
             onClick={handleNext}
             disabled={isLastSection}
-            className="btn btn-primary"
+            className="btn bg-custom-blue border-custom-blue text-white hover:bg-blue-700 disabled:opacity-50 disabled:bg-custom-blue"
           >
             Next
           </button>
@@ -173,16 +173,16 @@ const AdminReviewPosts = () => {
 
         {/* Survey Tags */}
         {isFirstSection && (
-          <div className="card bg-base-200 mb-6">
+          <div className="card bg-white border border-gray-200 mb-6">
             <div className="card-body">
-              <h3 className="font-semibold mb-2">Survey Details</h3>
+              <h3 className="font-semibold mb-2 text-custom-blue">Survey Details</h3>
               <div className="space-y-2">
                 {surveyData.survey_tags && surveyData.survey_tags.length > 0 && (
                   <div>
-                    <p className="text-sm font-medium mb-1">Tags:</p>
+                    <p className="text-sm font-medium mb-1 text-gray-600">Tags:</p>
                     <div className="flex flex-wrap gap-2">
                       {surveyData.survey_tags.map((tag, index) => (
-                        <span key={index} className="badge badge-primary">
+                        <span key={index} className="badge bg-custom-blue text-white border-none">
                           {tag}
                         </span>
                       ))}
@@ -191,10 +191,10 @@ const AdminReviewPosts = () => {
                 )}
                 {surveyData.survey_target_audience && surveyData.survey_target_audience.length > 0 && (
                   <div>
-                    <p className="text-sm font-medium mb-1">Target Audience:</p>
+                    <p className="text-sm font-medium mb-1 text-gray-600">Target Audience:</p>
                     <div className="flex flex-wrap gap-2">
                       {surveyData.survey_target_audience.map((audience, index) => (
-                        <span key={index} className="badge badge-secondary">
+                        <span key={index} className="badge bg-custom-maroon text-white border-none">
                           {audience}
                         </span>
                       ))}
@@ -207,17 +207,17 @@ const AdminReviewPosts = () => {
         )}
 
         {/* Progress Indicator */}
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-base-100 shadow-lg rounded-full px-6 py-2">
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-full px-6 py-2 border border-gray-200">
           <div className="flex gap-2">
             {surveyData.survey_section.map((_, index) => (
               <div
                 key={index}
                 className={`h-2 w-2 rounded-full transition-colors ${
                   index === currentSectionIndex
-                    ? 'bg-primary'
+                    ? 'bg-custom-blue'
                     : index < currentSectionIndex
-                    ? 'bg-success'
-                    : 'bg-base-300'
+                    ? 'bg-custom-green'
+                    : 'bg-gray-300'
                 }`}
               />
             ))}

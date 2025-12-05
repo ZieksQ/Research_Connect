@@ -1,14 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { getPendingPosts, approvePost, rejectPost } from '../../services/user/admin.service';
 import {
-  PendingPostCard,
   ConfirmationModal,
   RejectModal,
   ErrorModal,
-  LoadingSpinner,
   EmptyState,
 } from '../../components/admin/request';
 import { FaClipboardList } from 'react-icons/fa';
+
+const PendingPostCard = lazy(() => import('../../components/admin/request/PendingPostCard'));
+
+const PendingPostSkeleton = () => (
+  <div className="card bg-white shadow-lg border border-gray-200">
+    <div className="card-body">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="skeleton w-10 h-10 rounded-full shrink-0"></div>
+        <div>
+          <div className="skeleton h-4 w-24 mb-1"></div>
+          <div className="skeleton h-3 w-16"></div>
+        </div>
+      </div>
+      <div className="skeleton h-6 w-3/4 mb-2"></div>
+      <div className="skeleton h-4 w-full mb-1"></div>
+      <div className="skeleton h-4 w-full mb-1"></div>
+      <div className="skeleton h-4 w-2/3 mb-4"></div>
+      <div className="flex gap-2 mb-4">
+        <div className="skeleton h-5 w-16 rounded-full"></div>
+        <div className="skeleton h-5 w-16 rounded-full"></div>
+      </div>
+      <div className="flex justify-end gap-2">
+        <div className="skeleton h-8 w-20 rounded-lg"></div>
+        <div className="skeleton h-8 w-20 rounded-lg"></div>
+        <div className="skeleton h-8 w-20 rounded-lg"></div>
+      </div>
+    </div>
+  </div>
+);
 
 const AdminRequest = () => {
   const [pendingPosts, setPendingPosts] = useState([]);
@@ -136,7 +163,25 @@ const AdminRequest = () => {
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <FaClipboardList className="text-3xl text-custom-blue" />
+            <h1 className="text-3xl font-bold text-custom-blue">Pending Requests</h1>
+          </div>
+          <p className="text-gray-500">
+            Review and approve pending survey submissions
+          </p>
+          <div className="divider"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <PendingPostSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -144,10 +189,10 @@ const AdminRequest = () => {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <FaClipboardList className="text-3xl text-primary" />
-          <h1 className="text-3xl font-bold">Pending Requests</h1>
+          <FaClipboardList className="text-3xl text-custom-blue" />
+          <h1 className="text-3xl font-bold text-custom-blue">Pending Requests</h1>
         </div>
-        <p className="text-base-content/60">
+        <p className="text-gray-500">
           Review and approve pending survey submissions
         </p>
         <div className="divider"></div>
@@ -159,23 +204,24 @@ const AdminRequest = () => {
       ) : (
         <>
           {/* Stats */}
-          <div className="stats shadow mb-6">
+          <div className="stats shadow mb-6 bg-white border border-gray-200">
             <div className="stat">
-              <div className="stat-title">Pending Posts</div>
-              <div className="stat-value text-primary">{pendingPosts.length}</div>
-              <div className="stat-desc">Awaiting review</div>
+              <div className="stat-title text-gray-500">Pending Posts</div>
+              <div className="stat-value text-custom-blue">{pendingPosts.length}</div>
+              <div className="stat-desc text-gray-400">Awaiting review</div>
             </div>
           </div>
 
           {/* Posts Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {pendingPosts.map((post) => (
-              <PendingPostCard
-                key={post.pk_survey_id}
-                post={post}
-                onApprove={handleApproveClick}
-                onReject={handleRejectClick}
-              />
+              <Suspense key={post.pk_survey_id} fallback={<PendingPostSkeleton />}>
+                <PendingPostCard
+                  post={post}
+                  onApprove={handleApproveClick}
+                  onReject={handleRejectClick}
+                />
+              </Suspense>
             ))}
           </div>
         </>
@@ -209,9 +255,9 @@ const AdminRequest = () => {
       {/* Processing Overlay */}
       {processing && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-base-100 p-6 rounded-lg shadow-xl">
-            <span className="loading loading-spinner loading-lg text-primary"></span>
-            <p className="mt-4 text-base-content">Processing...</p>
+          <div className="bg-white p-6 rounded-lg shadow-xl">
+            <span className="loading loading-spinner loading-lg text-custom-blue"></span>
+            <p className="mt-4 text-gray-700">Processing...</p>
           </div>
         </div>
       )}

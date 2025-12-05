@@ -44,6 +44,12 @@ export const getAllSurvey = async () => {
   });
 };
 
+// fetch survey pagination like
+export const getPaginationSurvey = async (page, perPage) =>
+  await apiFetch(`/api/survey/post/get?page=${page}&per_page=${perPage}`, {
+    method: "GET",
+  })
+
 // get specific post for survey response
 export const getSurvey = async (id) => {
   return await apiFetch(`/api/survey/post/get/questionnaire/${id}`, {
@@ -54,6 +60,12 @@ export const getSurvey = async (id) => {
 // search survey
 export const searchSurvey = async (query, order) =>
   await apiFetch(`/api/survey/post/search?query=${query}&order=${order}`, {
+    method: "GET",
+  })
+
+// filter survey
+export const filteredSurvey = async (query, order) => 
+  await apiFetch(`/api/survey/post/search/tags_audience?query=${query}&order=${order}`, {
     method: "GET",
   })
 

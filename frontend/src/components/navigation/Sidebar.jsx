@@ -25,7 +25,7 @@ const Sidebar = ({ onClose, navLinks = [] }) => {
   };
 
   return (
-    <div className="bg-base-200 flex h-full flex-col">
+    <div className="bg-white flex h-full flex-col border-r border-gray-200">
       {/* Mobile Close Button */}
       <div className="lg:hidden flex justify-end p-[clamp(12px,3vw,16px)]">
         <button
@@ -37,7 +37,7 @@ const Sidebar = ({ onClose, navLinks = [] }) => {
         </button>
       </div>
       {/* Navigation Menu */}
-      <ul className="menu w-full text-base-content flex-1 space-y-[clamp(8px,1vw,12px)] p-[clamp(12px,2vw,20px)] text-[clamp(14px,1vw,16px)]">
+      <ul className="menu w-full text-gray-700 flex-1 space-y-[clamp(8px,1vw,12px)] p-[clamp(12px,2vw,20px)] text-[clamp(14px,1vw,16px)]">
         {navLinks.map((link) => {
           const IconComponent = link.icon;
           return (
@@ -45,12 +45,12 @@ const Sidebar = ({ onClose, navLinks = [] }) => {
               <NavLink
                 to={link.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] ${
+                  `flex items-center gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] rounded-lg transition-colors ${
                     link.isBackLink 
-                      ? 'hover:bg-warning/20 hover:text-warning' 
+                      ? 'hover:bg-gray-100 hover:text-gray-900' 
                       : isActive 
-                        ? 'active-navbar' 
-                        : ''
+                        ? 'bg-custom-blue text-white shadow-md hover:bg-blue-700' 
+                        : 'hover:bg-blue-50 hover:text-custom-blue'
                   }`
                 }
               >
@@ -63,16 +63,16 @@ const Sidebar = ({ onClose, navLinks = [] }) => {
       </ul>
 
       {/* Profile Section at Bottom */}
-      <div className="border-base-300 border-t p-[clamp(12px,2vw,20px)]">
+      <div className="border-gray-200 border-t p-[clamp(12px,2vw,20px)]">
         <div className="dropdown dropdown-top w-full">
           <div
             tabIndex={0}
             role="button"
-            className="btn btn-ghost hover:bg-base-300 h-auto w-full justify-start p-[clamp(8px,1vw,12px)]"
+            className="btn btn-ghost hover:bg-gray-100 h-auto w-full justify-start p-[clamp(8px,1vw,12px)]"
           >
             <div className="flex w-full items-center gap-[clamp(10px,1.5vw,14px)]">
               <div className="avatar">
-                <div className="w-[clamp(36px,3vw,48px)] rounded-full">
+                <div className="w-[clamp(36px,3vw,48px)] rounded-full ring ring-custom-blue ring-offset-base-100 ring-offset-2">
                   <img
                     src={profile_pic_url || "https://via.placeholder.com/150"}
                     alt="Profile"
@@ -80,10 +80,10 @@ const Sidebar = ({ onClose, navLinks = [] }) => {
                 </div>
               </div>
               <div className="flex min-w-0 flex-1 flex-col items-start">
-                <span className="w-full truncate text-[clamp(13px,0.9vw,15px)] font-semibold">
+                <span className="w-full truncate text-[clamp(13px,0.9vw,15px)] font-semibold text-gray-800">
                   {username || "User"}
                 </span>
-                <span className="text-base-content/60 w-full truncate text-[clamp(11px,0.7vw,13px)]">
+                <span className="text-gray-500 w-full truncate text-[clamp(11px,0.7vw,13px)]">
                   {school || "Unknown School"}
                 </span>
               </div>
@@ -92,12 +92,12 @@ const Sidebar = ({ onClose, navLinks = [] }) => {
 
           <ul
             tabIndex={0}
-            className="dropdown-content menu bg-base-100 rounded-box z-[1] mb-2 w-full p-[clamp(8px,1vw,12px)] shadow-lg text-[clamp(13px,0.9vw,15px)]"
+            className="dropdown-content menu bg-white rounded-box z-[1] mb-2 w-full p-[clamp(8px,1vw,12px)] shadow-lg border border-gray-200 text-[clamp(13px,0.9vw,15px)]"
           >
             <li>
               <button
                 onClick={() => navigate("/profile")}
-                className="flex items-center gap-[clamp(8px,1vw,12px)]"
+                className="flex items-center gap-[clamp(8px,1vw,12px)] hover:bg-gray-50 text-gray-700"
               >
                 <FiUser className="w-[clamp(14px,1vw,18px)] h-[clamp(14px,1vw,18px)]" />
                 <span>View Profile</span>
@@ -106,7 +106,7 @@ const Sidebar = ({ onClose, navLinks = [] }) => {
             <li>
               <button
                 onClick={() => navigate("/settings")}
-                className="flex items-center gap-[clamp(8px,1vw,12px)]"
+                className="flex items-center gap-[clamp(8px,1vw,12px)] hover:bg-gray-50 text-gray-700"
               >
                 <FiSettings className="w-[clamp(14px,1vw,18px)] h-[clamp(14px,1vw,18px)]" />
                 <span>Settings</span>
@@ -116,7 +116,7 @@ const Sidebar = ({ onClose, navLinks = [] }) => {
             <li>
               <button
                 onClick={handleLogout}
-                className="text-error hover:bg-error/10 flex items-center gap-[clamp(8px,1vw,12px)]"
+                className="text-red-500 hover:bg-red-50 flex items-center gap-[clamp(8px,1vw,12px)]"
               >
                 <FiLogOut className="w-[clamp(14px,1vw,18px)] h-[clamp(14px,1vw,18px)]" />
                 <span>Logout</span>

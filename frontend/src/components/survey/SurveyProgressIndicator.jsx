@@ -11,13 +11,13 @@ export default function SurveyProgressIndicator({ totalSections, currentIndex })
         {Array.from({ length: totalSections }, (_, index) => (
           <div
             key={index}
-            className="h-2 rounded-full transition-all"
-            style={{
-              width: index === currentIndex ? '32px' : '8px',
-              backgroundColor: index <= currentIndex
-                ? 'var(--color-accent-100)'
-                : 'var(--color-secondary-background)'
-            }}
+            className={`h-2 rounded-full transition-all duration-300 ${
+              index === currentIndex 
+                ? 'w-8 bg-custom-blue' 
+                : index < currentIndex 
+                  ? 'w-2 bg-custom-blue/50' 
+                  : 'w-2 bg-gray-200'
+            }`}
           />
         ))}
       </div>

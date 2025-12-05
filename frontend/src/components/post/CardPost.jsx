@@ -18,10 +18,10 @@ const CardPost = ({Title, Description}) => {
           </div>
         </div>
 
-        <span className="badge badge-neutral text-[10px] rounded-lg font-semibold mx-4">Research</span>
+        <span className="badge bg-custom-blue text-white border-none text-[10px] rounded-lg font-semibold mx-4">Research</span>
         <div className="pl-4 pr-3 flex items-end justify-between">
-          <span>Avg. ~10min</span>
-          <button className="btn btn-primary btn-sm" onClick={() => navigate('/form/response')}>
+          <span className="text-gray-500 text-sm">Avg. ~10min</span>
+          <button className="btn bg-custom-green border-custom-green text-white btn-sm hover:bg-green-600 hover:border-green-600" onClick={() => navigate('/form/response')}>
             Take Test
           </button>
         </div>

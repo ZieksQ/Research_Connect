@@ -17,7 +17,7 @@ export default function GallerySection() {
       </div>
 
       {/* Card 2 */}
-      <div className="text-md flex aspect-[2/3] items-center justify-center rounded-4xl border border-gray-300 bg-white p-6 text-center leading-relaxed font-medium text-black">
+      <div className="text-md flex aspect-[2/3] items-center justify-center rounded-4xl border border-gray-200 bg-white p-6 text-center leading-relaxed font-medium text-gray-900">
         INQUIRA IS A PLATFORM BUILT FOR CURIOUS MINDS. WE MAKE IT EASIER FOR
         STUDENTS, RESEARCHERS, AND INNOVATORS TO CONNECT, SHARE IDEAS, AND TURN
         QUESTIONS INTO DISCOVERIES.
@@ -37,7 +37,7 @@ export default function GallerySection() {
       </div>
 
       {/* Card 4 */}
-      <div className="text-md flex aspect-[2/3] items-center justify-center rounded-4xl border border-gray-300 bg-white p-6 text-center leading-relaxed font-medium text-black">
+      <div className="text-md flex aspect-[2/3] items-center justify-center rounded-4xl border border-gray-200 bg-white p-6 text-center leading-relaxed font-medium text-gray-900">
         NOT JUST A TOOL, BUT AN ECOSYSTEM FOR GROWTH. HERE, CURIOSITY DRIVES
         COLLABORATION, AND COLLABORATION SPARKS INNOVATION. BUILT TO HELP PEOPLE
         EXPLORE TOGETHER, LEARN FASTER, AND SHAPE A FUTURE DEFINED BY

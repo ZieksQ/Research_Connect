@@ -59,7 +59,7 @@ const ProfileAboutPage = () => {
       {infoItems.map((item, index) => (
         <div
           key={index}
-          className="group flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-base-200"
+          className="group flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200"
         >
           {/* Icon Container */}
           <div
@@ -70,10 +70,10 @@ const ProfileAboutPage = () => {
 
           {/* Text Content */}
           <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-xs font-medium text-text-secondary uppercase tracking-wide">
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
               {item.title}
             </span>
-            <span className="text-base font-semibold text-primary-color truncate" title={item.value}>
+            <span className="text-base font-semibold text-gray-900 truncate" title={item.value}>
               {item.value}
             </span>
           </div>

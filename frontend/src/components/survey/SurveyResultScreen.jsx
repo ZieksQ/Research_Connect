@@ -12,37 +12,28 @@ export default function SurveyResultScreen({ submitResult, surveyTitle, onTryAga
   if (!submitResult) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
-      <div className="text-center p-8 rounded-xl shadow-lg" style={{ backgroundColor: '#ffffff', maxWidth: '500px', width: '90%' }}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center p-8 rounded-xl shadow-lg bg-white max-w-lg w-[90%] mx-4">
         {submitResult.success ? (
           <>
             <MdCheckCircle 
-              className="mx-auto mb-4" 
-              style={{ fontSize: '5rem', color: '#22c55e' }} 
+              className="mx-auto mb-4 text-6xl text-custom-green" 
             />
-            <h2 
-              className="text-2xl font-semibold mb-4" 
-              style={{ color: 'var(--color-primary-color)' }}
-            >
+            <h2 className="text-2xl font-semibold mb-4 text-gray-900">
               Response Submitted!
             </h2>
-            <p className="mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+            <p className="mb-6 text-gray-600">
               {submitResult.message || 'Thank you for completing this survey. Your response has been recorded.'}
             </p>
-            <div className="border-t pt-6" style={{ borderColor: 'var(--color-secondary-background)' }}>
-              <p className="text-sm mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+            <div className="border-t border-gray-100 pt-6">
+              <p className="text-sm mb-4 text-gray-500">
                 {surveyTitle}
               </p>
               <button
                 onClick={onGoHome}
-                className="btn gap-2"
-                style={{
-                  backgroundColor: 'var(--color-accent-100)',
-                  borderColor: 'var(--color-accent-100)',
-                  color: '#ffffff'
-                }}
+                className="btn gap-2 bg-custom-blue border-custom-blue text-white hover:bg-blue-800 hover:border-blue-800"
               >
-                <MdHome style={{ fontSize: '1.25rem' }} />
+                <MdHome className="text-xl" />
                 Back to Home
               </button>
             </div>
@@ -50,44 +41,31 @@ export default function SurveyResultScreen({ submitResult, surveyTitle, onTryAga
         ) : (
           <>
             <MdError 
-              className="mx-auto mb-4" 
-              style={{ fontSize: '5rem', color: '#dc2626' }} 
+              className="mx-auto mb-4 text-6xl text-red-600" 
             />
-            <h2 
-              className="text-2xl font-semibold mb-4" 
-              style={{ color: 'var(--color-primary-color)' }}
-            >
+            <h2 className="text-2xl font-semibold mb-4 text-gray-900">
               Submission Failed
             </h2>
-            <p className="mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+            <p className="mb-2 text-gray-600">
               {Array.isArray(submitResult.message) 
                 ? submitResult.message.join(', ') 
                 : submitResult.message || 'Something went wrong. Please try again.'}
             </p>
             {submitResult.extraMsg && (
-              <p className="text-sm mb-4" style={{ color: '#dc2626' }}>
+              <p className="text-sm mb-4 text-red-600">
                 {submitResult.extraMsg}
               </p>
             )}
             <div className="flex gap-3 justify-center mt-6">
               <button
                 onClick={onTryAgain}
-                className="btn"
-                style={{
-                  backgroundColor: 'var(--color-primary-color)',
-                  borderColor: 'var(--color-primary-color)',
-                  color: '#ffffff'
-                }}
+                className="btn bg-custom-blue border-custom-blue text-white hover:bg-blue-800 hover:border-blue-800"
               >
                 Try Again
               </button>
               <button
                 onClick={onGoHome}
-                className="btn btn-outline"
-                style={{
-                  borderColor: 'var(--color-primary-color)',
-                  color: 'var(--color-primary-color)'
-                }}
+                className="btn btn-outline border-custom-blue text-custom-blue hover:bg-blue-50 hover:border-custom-blue"
               >
                 Go Home
               </button>

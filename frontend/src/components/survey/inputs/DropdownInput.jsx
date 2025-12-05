@@ -15,21 +15,18 @@ export default function DropdownInput({
   placeholder = 'Choose an option' 
 }) {
   if (!options || options.length === 0) {
-    return <p style={{ color: 'var(--color-text-secondary)' }}>No options available</p>;
+    return <p className="text-gray-500 italic">No options available</p>;
   }
 
   return (
     <select
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
-      className={`select select-bordered w-full ${hasError ? 'select-error' : ''}`}
-      style={{
-        backgroundColor: 'var(--color-background)',
-        borderColor: hasError ? '#dc2626' : 'var(--color-shade-primary)',
-        color: 'var(--color-primary-color)'
-      }}
+      className={`select select-bordered w-full bg-gray-50 focus:bg-white focus:border-custom-blue text-gray-900 ${
+        hasError ? 'select-error' : 'border-gray-300'
+      }`}
     >
-      <option value="">{placeholder}</option>
+      <option value="" disabled>{placeholder}</option>
       {options.map((option, idx) => {
         const optionId = typeof option === 'string' ? option : option.pk_option_id;
         const optionText = typeof option === 'string' ? option : option.option_text;

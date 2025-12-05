@@ -25,7 +25,7 @@ const AdminLayout = () => {
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-gray-50">
       {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div
@@ -37,7 +37,7 @@ const AdminLayout = () => {
       {/* Sidebar - Fixed on mobile, static on desktop */}
       <aside
         className={`
-          bg-base-200 transition-all duration-300 ease-in-out overflow-hidden
+          bg-white border-r border-gray-200 transition-all duration-300 ease-in-out overflow-hidden
           fixed lg:static inset-y-0 left-0 z-50
           ${isSidebarOpen ? "w-[clamp(280px,80vw,320px)] lg:w-[clamp(280px,20vw,360px)]" : "w-0"}
         `}

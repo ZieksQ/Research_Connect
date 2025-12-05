@@ -57,13 +57,13 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
   };
 
   return (
-    <header className="navbar bg-base-100 shadow-md border-b border-base-300 px-2 sm:px-4 min-h-16">
+    <header className="navbar bg-white shadow-md border-b border-gray-200 px-2 sm:px-4 min-h-16">
       {/* Mobile Search Overlay */}
       {isSearchOpen && (
         <div className="absolute inset-0 bg-white z-50 flex items-center px-3 gap-2 md:hidden">
           <button
             onClick={handleCloseSearch}
-            className="btn btn-ghost btn-circle flex-shrink-0"
+            className="btn btn-ghost btn-circle flex-shrink-0 text-gray-600 hover:bg-gray-100"
           >
             <MdClose size={24} />
           </button>
@@ -77,7 +77,7 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
               value={localQuery}
               onChange={(e) => setLocalQuery(e.target.value)}
               placeholder="Search surveys..."
-              className="w-full h-11 pl-12 pr-10 text-base rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full h-11 pl-12 pr-10 text-base rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-custom-blue focus:border-transparent"
             />
             {localQuery && (
               <button
@@ -95,7 +95,7 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
       <div className="navbar-start">
         <button
           onClick={toggleSidebar}
-          className="btn btn-square btn-ghost"
+          className="btn btn-square btn-ghost text-gray-600 hover:bg-gray-100"
         >
           {sidebarOpen ? (
             <IoCloseSharp size={24} />
@@ -104,7 +104,7 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
           )}
         </button>
 
-        <Link to="/home" className="btn btn-ghost normal-case text-xl ml-2">
+        <Link to="/home" className="btn btn-ghost normal-case text-xl ml-2 hover:bg-gray-100">
           <img src={InquiraIcon} alt="Inquira"/>
         </Link>
       </div>
@@ -124,7 +124,7 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
             value={localQuery}
             onChange={(e) => setLocalQuery(e.target.value)}
             placeholder="Search surveys..."
-            className="w-full h-11 pl-12 pr-10 text-sm rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full h-11 pl-12 pr-10 text-sm rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-custom-blue focus:border-transparent"
           />
           {localQuery && (
             <button
@@ -139,7 +139,7 @@ const Navbar = ({ toggleSidebar, sidebarOpen }) => {
         {/* Mobile Search Button */}
         <button
           onClick={() => setIsSearchOpen(true)}
-          className="btn btn-ghost btn-circle md:hidden"
+          className="btn btn-ghost btn-circle md:hidden text-gray-600 hover:bg-gray-100"
         >
           <IoSearchOutline size={24} />
         </button>

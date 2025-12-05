@@ -25,8 +25,8 @@ const Footer = () => {
   };
 
   const linkHover = {
-    rest: { scale: 1, color: "#000" },
-    hover: { scale: 1.05, color: "#555" },
+    rest: { scale: 1, color: "#111827" }, // text-gray-900
+    hover: { scale: 1.05, color: "#1447E6" }, // text-custom-blue
   };
 
   return (
@@ -35,7 +35,7 @@ const Footer = () => {
       whileInView="visible"
       viewport={{ once: true, amount: 0.2 }}
       variants={fadeVariant}
-      className="bg-white text-black px-8 py-16 md:px-20 mt-24 border-t border-gray-300"
+      className="bg-white text-gray-900 px-8 py-16 md:px-20 mt-24 border-t border-gray-200"
     >
       <motion.div
         variants={fadeVariant}
@@ -47,11 +47,11 @@ const Footer = () => {
           className="flex-1 space-y-6 lg:max-w-md text-center lg:text-left"
         >
           <div>
-            <h1 className="font-extrabold text-4xl tracking-tight">
+            <h1 className="font-extrabold text-4xl tracking-tight text-custom-blue">
               Inquira<sup className="text-base">™</sup>
             </h1>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold leading-tight text-black">
+          <h2 className="text-2xl md:text-3xl font-bold leading-tight text-gray-900">
             Empowering academic research with modern survey tools.
           </h2>
 
@@ -60,11 +60,12 @@ const Footer = () => {
               <motion.button
                 whileHover={{
                   scale: 1.05,
-                  backgroundColor: "#000",
+                  backgroundColor: "#1447E6",
                   color: "#fff",
+                  borderColor: "#1447E6"
                 }}
                 transition={{ duration: 0.3 }}
-                className="bg-transparent border border-black text-black px-6 py-3 rounded-lg font-semibold transition-all duration-300"
+                className="bg-transparent border border-custom-blue text-custom-blue px-6 py-3 rounded-lg font-semibold transition-all duration-300"
               >
                 Login
               </motion.button>
@@ -74,11 +75,11 @@ const Footer = () => {
               <motion.button
                 whileHover={{
                   scale: 1.05,
-                  backgroundColor: "#000",
+                  backgroundColor: "#1d4ed8", // blue-700
                   color: "#fff",
                 }}
                 transition={{ duration: 0.3 }}
-                className="bg-black text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300"
+                className="bg-custom-blue text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300"
               >
                 Sign Up
               </motion.button>
@@ -108,10 +109,10 @@ const Footer = () => {
                 whileHover="hover"
                 className="block mb-3 text-lg relative group transition"
               >
-                <span className="group-hover:text-gray-700 transition-colors duration-300">
+                <span className="group-hover:text-custom-blue transition-colors duration-300">
                   {link.title}
                 </span>
-                <span className="absolute left-0 bottom-0 h-[1px] w-full bg-black scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
+                <span className="absolute left-0 bottom-0 h-[1px] w-full bg-custom-blue scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
               </motion.a>
             ))}
           </div>
@@ -128,10 +129,10 @@ const Footer = () => {
                 whileHover="hover"
                 className="block mb-3 text-lg relative group transition"
               >
-                <span className="group-hover:text-gray-700 transition-colors duration-300">
+                <span className="group-hover:text-custom-blue transition-colors duration-300">
                   {link.title}
                 </span>
-                <span className="absolute left-0 bottom-0 h-[1px] w-full bg-black scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
+                <span className="absolute left-0 bottom-0 h-[1px] w-full bg-custom-blue scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
               </motion.a>
             ))}
           </div>

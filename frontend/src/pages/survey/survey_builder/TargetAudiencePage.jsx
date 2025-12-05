@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MdPeople, MdBusiness, MdSchool, MdLocalHospital, MdEdit, MdCheck } from 'react-icons/md';
+import { MdPeople, MdBusiness, MdSchool, MdLocalHospital, MdEdit, MdCheck, MdWork, MdScience, MdComputer, MdFamilyRestroom, MdElderly } from 'react-icons/md';
 
 export default function TargetAudiencePage({ data, onNext, onBack }) {
   const [selectedAudiences, setSelectedAudiences] = useState(
@@ -9,11 +9,16 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
   const [showCustomInput, setShowCustomInput] = useState(false);
 
   const audiences = [
-    { id: 'all-students', label: 'All Students', icon: MdSchool },
-    { id: 'business-students', label: 'Business Students', icon: MdBusiness },
-    { id: 'engineering-students', label: 'Engineering Students', icon: MdSchool },
-    { id: 'medical-students', label: 'Medical Students', icon: MdLocalHospital },
-    { id: 'general-public', label: 'General Public', icon: MdPeople }
+    { id: 'students', label: 'Students', icon: MdSchool },
+    { id: 'businessStudents', label: 'Business Students', icon: MdBusiness },
+    { id: 'generalPublic', label: 'General Public', icon: MdPeople },
+    { id: 'professionals', label: 'Professionals', icon: MdWork },
+    { id: 'educators', label: 'Educators', icon: MdSchool },
+    { id: 'healthcareWorkers', label: 'Healthcare Workers', icon: MdLocalHospital },
+    { id: 'itProfessionals', label: 'IT Professionals', icon: MdComputer },
+    { id: 'researchers', label: 'Researchers', icon: MdScience },
+    { id: 'parents', label: 'Parents', icon: MdFamilyRestroom },
+    { id: 'seniorCitizens', label: 'Senior Citizens', icon: MdElderly }
   ];
 
   const handleAudienceToggle = (audienceId) => {
@@ -66,20 +71,20 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
   );
 
   return (
-    <div className="rounded-xl shadow-lg p-6" style={{ backgroundColor: '#ffffff' }}>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-8">
       <div className="mb-6">
-        <h2 className="mb-2" style={{ color: 'var(--color-primary-color)' }}>Target Audience</h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+        <h2 className="text-2xl font-giaza text-custom-blue mb-2">Target Audience</h2>
+        <p className="text-sm text-gray-500">
           Select the audiences you want to target with this survey (max 5)
         </p>
         {selectedAudiences.length > 0 && (
-          <p className="text-sm mt-2" style={{ color: 'var(--color-accent-100)' }}>
+          <p className="text-sm mt-2 text-custom-green font-medium">
             {selectedAudiences.length} of 5 selected
           </p>
         )}
       </div>
 
-      <div className="space-y-3 mb-6">
+      <div className="space-y-3 mb-8">
         {audiences.map((audience) => {
           const Icon = audience.icon;
           const isSelected = selectedAudiences.includes(audience.id);
@@ -88,32 +93,27 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
             <div
               key={audience.id}
               onClick={() => handleAudienceToggle(audience.id)}
-              className="flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all"
-              style={{
-                backgroundColor: isSelected ? 'var(--color-secondary-background)' : 'var(--color-background)',
-                border: `2px solid ${isSelected ? 'var(--color-primary-color)' : 'transparent'}`,
-              }}
+              className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all border ${
+                isSelected 
+                  ? 'bg-blue-50 border-custom-blue' 
+                  : 'bg-gray-50 border-transparent hover:bg-gray-100'
+              }`}
             >
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{
-                  backgroundColor: isSelected ? 'var(--color-primary-color)' : 'var(--color-secondary-background)',
-                  color: isSelected ? '#ffffff' : 'var(--color-primary-color)'
-                }}
+                className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  isSelected ? 'bg-custom-blue text-white' : 'bg-white text-custom-blue shadow-sm'
+                }`}
               >
                 <Icon className="text-2xl" />
               </div>
               <div className="flex-1">
-                <p style={{ color: 'var(--color-primary-color)', fontWeight: isSelected ? '600' : '400' }}>
+                <p className={`text-base lg:text-lg ${isSelected ? 'text-custom-blue font-semibold' : 'text-gray-700'}`}>
                   {audience.label}
                 </p>
               </div>
               {isSelected && (
-                <div
-                  className="w-6 h-6 rounded flex items-center justify-center"
-                  style={{ backgroundColor: 'var(--color-primary-color)' }}
-                >
-                  <MdCheck className="text-white" />
+                <div className="w-6 h-6 rounded-full bg-custom-blue flex items-center justify-center">
+                  <MdCheck className="text-white text-sm" />
                 </div>
               )}
             </div>
@@ -124,32 +124,21 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
         {customAudiences.map((customAud) => (
           <div
             key={customAud}
-            className="flex items-center gap-4 p-4 rounded-lg transition-all"
-            style={{
-              backgroundColor: 'var(--color-secondary-background)',
-              border: `2px solid var(--color-primary-color)`,
-            }}
+            className="flex items-center gap-4 p-4 rounded-lg transition-all bg-blue-50 border border-custom-blue"
           >
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{
-                backgroundColor: 'var(--color-primary-color)',
-                color: '#ffffff'
-              }}
-            >
+            <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-custom-blue text-white">
               <MdEdit className="text-2xl" />
             </div>
             <div className="flex-1">
-              <p style={{ color: 'var(--color-primary-color)', fontWeight: '600' }}>
+              <p className="text-base lg:text-lg text-custom-blue font-semibold">
                 {customAud}
               </p>
             </div>
             <button
               onClick={() => removeCustomAudience(customAud)}
-              className="w-6 h-6 rounded flex items-center justify-center"
-              style={{ backgroundColor: 'var(--color-primary-color)' }}
+              className="w-6 h-6 rounded-full bg-custom-blue flex items-center justify-center hover:bg-blue-700 transition-colors"
             >
-              <MdCheck className="text-white" />
+              <MdCheck className="text-white text-sm" />
             </button>
           </div>
         ))}
@@ -158,26 +147,21 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
         {selectedAudiences.length < 5 && (
           <div
             onClick={() => setShowCustomInput(true)}
-            className="flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all"
-            style={{
-              backgroundColor: showCustomInput ? 'var(--color-secondary-background)' : 'var(--color-background)',
-              border: `2px solid ${showCustomInput ? 'var(--color-primary-color)' : 'transparent'}`,
-            }}
+            className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all border ${
+              showCustomInput 
+                ? 'bg-blue-50 border-custom-blue' 
+                : 'bg-gray-50 border-transparent hover:bg-gray-100'
+            }`}
           >
             <div
-              className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{
-                backgroundColor: showCustomInput ? 'var(--color-primary-color)' : 'var(--color-secondary-background)',
-                color: showCustomInput ? '#ffffff' : 'var(--color-primary-color)'
-              }}
+              className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                showCustomInput ? 'bg-custom-blue text-white' : 'bg-white text-custom-blue shadow-sm'
+              }`}
             >
               <MdEdit className="text-2xl" />
             </div>
             <div className="flex-1">
-              <p style={{ 
-                color: 'var(--color-primary-color)', 
-                fontWeight: showCustomInput ? '600' : '400' 
-              }}>
+              <p className={`text-base lg:text-lg ${showCustomInput ? 'text-custom-blue font-semibold' : 'text-gray-700'}`}>
                 Other (Specify)
               </p>
             </div>
@@ -185,29 +169,19 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
         )}
 
         {showCustomInput && (
-          <div className="flex gap-2 px-4">
+          <div className="flex gap-2 px-4 pt-2">
             <input
               type="text"
               value={customAudience}
               onChange={(e) => setCustomAudience(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleCustomAudience()}
-              className="input input-bordered flex-1"
-              style={{
-                backgroundColor: 'var(--color-background)',
-                borderColor: 'var(--color-shade-primary)',
-                color: 'var(--color-primary-color)'
-              }}
+              className="input input-bordered flex-1 bg-white border-gray-300 focus:border-custom-blue text-gray-900"
               placeholder="Enter custom audience"
               autoFocus
             />
             <button
               onClick={handleCustomAudience}
-              className="btn"
-              style={{
-                backgroundColor: 'var(--color-accent-100)',
-                borderColor: 'var(--color-accent-100)',
-                color: '#ffffff'
-              }}
+              className="btn bg-custom-blue hover:bg-blue-700 text-white border-none"
             >
               Add
             </button>
@@ -216,26 +190,16 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         <button
           onClick={onBack}
-          className="btn flex-1"
-          style={{
-            backgroundColor: 'transparent',
-            borderColor: 'var(--color-primary-color)',
-            color: 'var(--color-primary-color)'
-          }}
+          className="btn flex-1 btn-ghost text-gray-600 hover:bg-gray-100 border-gray-300"
         >
           Back
         </button>
         <button
           onClick={handleContinue}
-          className="btn flex-1"
-          style={{
-            backgroundColor: 'var(--color-primary-color)',
-            borderColor: 'var(--color-primary-color)',
-            color: '#ffffff'
-          }}
+          className="btn flex-1 bg-custom-blue hover:bg-blue-700 text-white border-none"
         >
           Next
         </button>

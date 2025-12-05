@@ -1,10 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import GoogleLogo from "../../assets/icons/google_icon.svg";
 import InquiraIcon from "../../assets/icons/Inquira.svg"
+import TermsModal from "../ui/TermsModal";
 
 const Login = ({ value, onChangeEmail, onChangePassword, submit, error, loading, handleGoogleLogin }) => {
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [showTerms, setShowTerms] = useState(false);
+
+  const validateUsername = () => {
+    if (!value.email) {
+      setUsernameError("Username is required");
+    } else {
+      setUsernameError("");
+    }
+  };
+
+  const validatePassword = () => {
+    if (!value.password) {
+      setPasswordError("Password is required");
+    } else if (value.password.length < 8) {
+      setPasswordError("Password must be at least 8 characters");
+    } else {
+      setPasswordError("");
+    }
+  };
+
   return (
+    <>
     <form onSubmit={submit} className="space-y-4">
       {/* Error Handling */}
       {error && (
@@ -33,12 +57,17 @@ const Login = ({ value, onChangeEmail, onChangePassword, submit, error, loading,
         </label>
         <input
           type="text"
-          className="input input-bordered w-full bg-white border-gray-300 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900"
+          className={`input input-bordered w-full bg-white border-gray-300 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900 ${usernameError ? "input-error" : ""}`}
           placeholder="Enter your username"
           required
           value={value.email}
-          onChange={onChangeEmail}
+          onChange={(e) => {
+            onChangeEmail(e);
+            if (usernameError) setUsernameError("");
+          }}
+          onBlur={validateUsername}
         />
+        {usernameError && <span className="label-text-alt text-error mt-1">{usernameError}</span>}
       </div>
 
       {/* Password Input */}
@@ -48,18 +77,18 @@ const Login = ({ value, onChangeEmail, onChangePassword, submit, error, loading,
         </label>
         <input
           type="password"
-          className="input input-bordered w-full bg-white border-gray-300 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900"
+          className={`input input-bordered w-full bg-white border-gray-300 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900 ${passwordError ? "input-error" : ""}`}
           placeholder="Enter your password"
           min={8}
           required
           value={value.password}
-          onChange={onChangePassword}
+          onChange={(e) => {
+            onChangePassword(e);
+            if (passwordError) setPasswordError("");
+          }}
+          onBlur={validatePassword}
         />
-        <label className="label">
-          <a href="#" className="label-text-alt link link-hover text-custom-blue">
-            Forgot password?
-          </a>
-        </label>
+        {passwordError && <span className="label-text-alt text-error mt-1">{passwordError}</span>}
       </div>
 
       {/* Sign In Button */}
@@ -91,7 +120,25 @@ const Login = ({ value, onChangeEmail, onChangePassword, submit, error, loading,
           Register
         </Link>
       </p>
+
+      {/* Terms Link */}
+      <div className="text-center mt-4">
+        <button 
+          type="button"
+          onClick={() => setShowTerms(true)}
+          className="text-xs text-gray-500 hover:text-custom-blue hover:underline"
+        >
+          Terms and Conditions & Privacy Policy
+        </button>
+      </div>
     </form>
+
+    <TermsModal 
+      isOpen={showTerms} 
+      onClose={() => setShowTerms(false)} 
+      showConfirm={false}
+    />
+    </>
   );
 };
 

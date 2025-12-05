@@ -54,11 +54,13 @@ const PendingPostCard = ({ post, onApprove, onReject }) => {
               {category}
             </span>
           ))}
-          {post.survey_target_audience?.map((audience, index) => (
-            <span key={index} className="badge bg-custom-maroon text-white border-none badge-sm">
-              {audience}
-            </span>
-          ))}
+          {post.survey_target_audience && post.survey_target_audience.length > 0 && (
+            <div className="tooltip" data-tip={post.survey_target_audience.join(', ')}>
+              <span className="badge bg-custom-maroon text-white border-none badge-sm max-w-[150px] truncate block">
+                {post.survey_target_audience.join(', ')}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Action Buttons */}

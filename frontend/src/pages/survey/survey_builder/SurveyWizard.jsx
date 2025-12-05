@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useBlocker } from 'react-router-dom';
 import SurveyDetailsPage from './SurveyDetailsPage';
 import TargetAudiencePage from './TargetAudiencePage';
 import SortableForm from './SortableForm';
 import SurveyPreviewPage from './SurveyPreviewPage';
 import { publishSurvey } from '../../../services/survey/survey.service';
-import { MdCheckCircle, MdError, MdClose, MdVpnKey } from 'react-icons/md';
+import { MdCheckCircle, MdError, MdClose, MdVpnKey, MdArrowBack } from 'react-icons/md';
 // import { MdCheck } from 'react-icons/md';
 // import { log } from 'three';
 
@@ -48,6 +48,24 @@ export default function SurveyWizard() {
   const handleBack = () => {
     setCurrentStep(prev => Math.max(prev - 1, 0));
   };
+
+  // Block navigation if survey has data and not publishing
+  const shouldBlock = !isPublishing && !publishModal.success && (
+    surveyData.surveyTitle !== '' || 
+    surveyData.surveyContent !== '' || 
+    surveyData.data.length > 0
+  );
+
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      shouldBlock && currentLocation.pathname !== nextLocation.pathname
+  );
+
+  useEffect(() => {
+      if (blocker.state === "blocked" && !shouldBlock) {
+          blocker.reset();
+      }
+  }, [blocker, shouldBlock]);
 
   // Auto-close modal and navigate on success
   useEffect(() => {
@@ -217,6 +235,15 @@ export default function SurveyWizard() {
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back Button */}
+        <button 
+          onClick={() => navigate(-1)} 
+          className="btn btn-ghost btn-sm gap-2 mb-4 text-gray-600 hover:bg-gray-200 pl-0"
+        >
+          <MdArrowBack size={20} />
+          Back
+        </button>
+
         {/* Header */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-8 mb-8">
           <h1 className="text-center text-3xl lg:text-4xl font-giaza text-custom-blue mb-2">
@@ -396,6 +423,35 @@ export default function SurveyWizard() {
               >
                 Cancel and return to homepage
               </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Unsaved Changes Modal */}
+      {blocker.state === "blocked" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="p-8 rounded-xl shadow-xl bg-white max-w-md w-[90%]">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-50 flex items-center justify-center">
+              <MdError className="text-4xl text-red-500" />
+            </div>
+            <h2 className="text-xl font-bold mb-3 text-gray-900 text-center">Unsaved Changes</h2>
+            <p className="mb-6 text-gray-600 text-center">
+              You have unsaved changes. Are you sure you want to leave? Your progress will be lost.
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => blocker.reset()}
+                className="btn btn-ghost text-gray-500 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => blocker.proceed()}
+                className="btn bg-red-500 hover:bg-red-600 text-white border-none"
+              >
+                Leave
+              </button>
             </div>
           </div>
         </div>

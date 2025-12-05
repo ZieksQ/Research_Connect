@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import GoogleLogo from "../../assets/icons/google_icon.svg";
+import TermsModal from "../ui/TermsModal";
 
 const Signup = ({
   onSubmit,
@@ -12,9 +13,73 @@ const Signup = ({
   loading,
 }) => {
   const { username, password, confirmPassword } = Data;
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [showTerms, setShowTerms] = useState(false);
+
+  const validateUsername = () => {
+    if (!username) setUsernameError("Username is required");
+    else setUsernameError("");
+  };
+
+  const validatePassword = () => {
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!password) {
+      setPasswordError("Password is required");
+    } else if (password.length < 8) {
+      setPasswordError("Password must be at least 8 characters");
+    } else if (!hasNumber) {
+      setPasswordError("Password must contain at least one number");
+    } else if (!hasSpecial) {
+      setPasswordError("Password must contain at least one special character");
+    } else {
+      setPasswordError("");
+    }
+  };
+
+  const validateConfirmPassword = () => {
+    if (!confirmPassword) setConfirmPasswordError("Confirm Password is required");
+    else if (confirmPassword !== password) setConfirmPasswordError("Passwords do not match");
+    else setConfirmPasswordError("");
+  };
+
+  const handleSignupClick = (e) => {
+    e.preventDefault();
+    
+    // Run all validations
+    validateUsername();
+    validatePassword();
+    validateConfirmPassword();
+
+    // Check if there are any errors (including the ones just set)
+    // Since setState is async, we re-check the values directly
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    if (!username || !password || !confirmPassword) return;
+    if (password.length < 8 || !hasNumber || !hasSpecial) return;
+    if (password !== confirmPassword) return;
+
+    setShowTerms(true);
+  };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <>
+    <form onSubmit={handleSignupClick} className="space-y-4">
+      {/* Requirements Message */}
+      <div className="text-xs text-gray-500 mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <p className="font-semibold mb-1">Requirements:</p>
+        <ul className="list-disc list-inside space-y-1">
+          <li>Username must be unique</li>
+          <li>Password must be at least 8 characters</li>
+          <li>Password must contain at least one number</li>
+          <li>Password must contain at least one special character</li>
+        </ul>
+      </div>
+
       {/* Error Message */}
       {error && (
         <div
@@ -46,11 +111,16 @@ const Signup = ({
         <input
           type="text"
           placeholder="Choose a username"
-          className="input input-bordered w-full bg-white border-gray-300 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900"
+          className={`input input-bordered w-full bg-white border-gray-300 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900 ${usernameError ? "input-error" : ""}`}
           required
           value={username}
-          onChange={onChangeUsername}
+          onChange={(e) => {
+            onChangeUsername(e);
+            if (usernameError) setUsernameError("");
+          }}
+          onBlur={validateUsername}
         />
+        {usernameError && <span className="label-text-alt text-error mt-1">{usernameError}</span>}
       </div>
 
       {/* Password */}
@@ -61,12 +131,17 @@ const Signup = ({
         <input
           type="password"
           placeholder="Create a password (min 8 chars)"
-          className="input input-bordered w-full bg-white border-gray-300 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900"
+          className={`input input-bordered w-full bg-white border-gray-300 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900 ${passwordError ? "input-error" : ""}`}
           required
           minLength={8}
           value={password}
-          onChange={onChangePassword}
+          onChange={(e) => {
+            onChangePassword(e);
+            if (passwordError) setPasswordError("");
+          }}
+          onBlur={validatePassword}
         />
+        {passwordError && <span className="label-text-alt text-error mt-1">{passwordError}</span>}
       </div>
 
       {/* Confirm Password */}
@@ -77,12 +152,21 @@ const Signup = ({
         <input
           type="password"
           placeholder="Re-enter your password"
-          className="input input-bordered w-full bg-white border-gray-300 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900"
+          className={`input input-bordered w-full bg-white border-gray-300 focus:border-custom-blue focus:ring-1 focus:ring-custom-blue text-gray-900 ${confirmPasswordError ? "input-error" : ""}`}
           required
           minLength={8}
           value={confirmPassword}
-          onChange={onChangeConfirmPassword}
+          onChange={(e) => {
+            onChangeConfirmPassword(e);
+            if (confirmPasswordError) setConfirmPasswordError("");
+            // Immediate check for match
+            if (password && e.target.value !== password) {
+               setConfirmPasswordError("Passwords do not match");
+            }
+          }}
+          onBlur={validateConfirmPassword}
         />
+        {confirmPasswordError && <span className="label-text-alt text-error mt-1">{confirmPasswordError}</span>}
       </div>
 
       {/* Sign Up Button */}
@@ -97,14 +181,22 @@ const Signup = ({
       {/* Login Redirect */}
       <p className="mt-6 text-center text-sm text-gray-600">
         Already have an account?{" "}
-        <Link
-          to={"/login"}
-          className="font-semibold text-custom-blue hover:text-blue-800 hover:underline"
-        >
+        <Link to="/login" className="font-semibold text-custom-blue hover:text-blue-800 hover:underline">
           Login
         </Link>
       </p>
     </form>
+
+    <TermsModal 
+      isOpen={showTerms} 
+      onClose={() => setShowTerms(false)} 
+      onConfirm={(e) => {
+        setShowTerms(false);
+        onSubmit(e);
+      }}
+      showConfirm={true}
+    />
+    </>
   );
 };
 

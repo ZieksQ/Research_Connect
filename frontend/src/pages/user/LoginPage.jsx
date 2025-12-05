@@ -33,7 +33,14 @@ const LoginPage = () => {
     // Checks returned data 
     if (!data || !data.ok) {
       setLoading(false);
-      setError(data?.message || "Something went wrong")
+      const msg = data?.message;
+      if (typeof msg === 'object' && msg !== null) {
+        // If message is an object (e.g. validation errors), join them or pick the first one
+        const errorText = Object.values(msg).join(", ");
+        setError(errorText);
+      } else {
+        setError(msg || "Something went wrong");
+      }
       return;
     }
 

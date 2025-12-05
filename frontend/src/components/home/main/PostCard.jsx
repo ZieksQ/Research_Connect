@@ -112,13 +112,6 @@ export default function PostCard({ post }) {
             <div className="absolute right-0 z-10 rounded-xl shadow-xl overflow-hidden bg-white border border-gray-200 min-w-[180px] mt-2 animate-[fadeIn_0.15s_ease-out]">
               <div className="py-1">
                 <button 
-                  onClick={() => handleMenuClick('Save')}
-                  className="w-full flex items-center gap-3 hover:bg-gray-50 transition-colors text-sm p-3 text-gray-900"
-                >
-                  <MdBookmarkBorder className="text-xl text-gray-500" />
-                  Save Post
-                </button>
-                <button 
                   onClick={handleShare}
                   className={`w-full flex items-center gap-3 hover:bg-gray-50 transition-colors text-sm p-3 ${copied ? 'text-custom-green' : 'text-gray-900'}`}
                 >
@@ -133,14 +126,6 @@ export default function PostCard({ post }) {
                       Share
                     </>
                   )}
-                </button>
-                <div className="h-px bg-gray-200 my-1" />
-                <button 
-                  onClick={() => handleMenuClick('Report')}
-                  className="w-full flex items-center gap-3 hover:bg-red-50 transition-colors text-sm p-3 text-red-600"
-                >
-                  <MdFlag className="text-xl" />
-                  Report
                 </button>
               </div>
             </div>
@@ -187,11 +172,10 @@ export default function PostCard({ post }) {
 
           {/* Target Audience */}
           <div className="flex items-center gap-1">
-            <MdPeople className="text-base lg:text-lg text-custom-blue" />
-            <div>
+            <MdPeople className="text-base lg:text-lg text-custom-blue shrink-0" />
+            <div className="tooltip" data-tip={post.survey_target_audience?.join(', ')}>
               <span 
-                className="text-gray-500 text-xs lg:text-sm"
-                title={post.survey_target_audience?.join(', ')}
+                className="text-gray-500 text-xs lg:text-sm block max-w-[150px] truncate text-left"
               >
                 {post.survey_target_audience?.join(', ')}
               </span>
@@ -200,7 +184,7 @@ export default function PostCard({ post }) {
         </div>
 
         {/* Take Survey Button */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-auto">
           {/* Like Button with Count */}
           <button
             onClick={handleLike}

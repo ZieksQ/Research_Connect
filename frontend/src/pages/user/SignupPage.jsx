@@ -11,6 +11,7 @@ const SignupPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(""); // shows message error
   const [loading, setLoading] = useState(false); // loading state
+  const username_ = "hatdog"
 
   const navigate = useNavigate();
 
@@ -26,7 +27,7 @@ const SignupPage = () => {
     e.preventDefault(); // prevents page to reload everytime you submit
     setLoading(true); // loading...
 
-    const payload = { username, password }; // stores username, password value to send
+    const payload = { username_, password }; // stores username, password value to send
 
     // confirm password validation
     if (password != confirmPassword) {
@@ -40,7 +41,13 @@ const SignupPage = () => {
     // checks returned data
     if (!data || !data.ok) {
       setLoading(false);
-      setError(data?.message || "Registration failed. Please try again.");
+      const msg = data?.message;
+      if (typeof msg === 'object' && msg !== null) {
+        const errorText = Object.values(msg).join(", ");
+        setError(errorText);
+      } else {
+        setError(msg || "Registration failed. Please try again.");
+      }
       return;
     }
 

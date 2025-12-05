@@ -1,14 +1,47 @@
-import PostCard from './PostCard';
+import { lazy, Suspense } from 'react';
 import { FiInbox, FiCheckCircle } from 'react-icons/fi';
+
+const PostCard = lazy(() => import('./PostCard'));
+
+const PostSkeleton = () => (
+  <div className="rounded-xl shadow-sm bg-white border border-gray-200 p-5 lg:p-7 mb-4 lg:mb-5">
+    <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start gap-3 flex-1">
+        <div className="skeleton w-10 h-10 lg:w-12 lg:h-12 rounded-full shrink-0"></div>
+        <div className="flex-1">
+          <div className="skeleton h-4 w-32 mb-2"></div>
+          <div className="skeleton h-3 w-24"></div>
+        </div>
+      </div>
+    </div>
+    <div className="mb-4 lg:mb-5">
+      <div className="skeleton h-4 w-3/4 mb-2"></div>
+      <div className="skeleton h-4 w-1/2 mb-4"></div>
+      <div className="flex gap-2">
+        <div className="skeleton h-6 w-16 rounded-full"></div>
+        <div className="skeleton h-6 w-16 rounded-full"></div>
+      </div>
+    </div>
+    <div className="flex items-center justify-between">
+      <div className="flex gap-4">
+         <div className="skeleton h-4 w-20"></div>
+         <div className="skeleton h-4 w-20"></div>
+      </div>
+      <div className="flex gap-2">
+         <div className="skeleton h-8 w-8 rounded-lg"></div>
+         <div className="skeleton h-8 w-24 rounded-lg"></div>
+      </div>
+    </div>
+  </div>
+);
 
 export default function PostsList({ posts, isLoading, isLoadingMore, hasMore, loadMoreRef }) {
   if (isLoading) {
     return (
-      <div className="text-center rounded-xl bg-white border border-gray-200 p-12 lg:p-16">
-        <span className="loading loading-spinner loading-lg text-custom-blue"></span>
-        <p className="text-gray-600 text-sm lg:text-lg mt-4">
-          Loading surveys...
-        </p>
+      <div>
+        {[...Array(3)].map((_, i) => (
+          <PostSkeleton key={i} />
+        ))}
       </div>
     );
   }
@@ -29,17 +62,16 @@ export default function PostsList({ posts, isLoading, isLoadingMore, hasMore, lo
   return (
     <div>
       {posts.map((post) => (
-        <PostCard key={post.pk_survey_id} post={post} />
+        <Suspense key={post.pk_survey_id} fallback={<PostSkeleton />}>
+          <PostCard post={post} />
+        </Suspense>
       ))}
       
       {/* Load More Trigger / Loading Indicator */}
       <div ref={loadMoreRef} className="min-h-[20px] mt-4">
         {isLoadingMore && (
-          <div className="text-center rounded-xl bg-white border border-gray-200 p-6 lg:p-8">
-            <span className="loading loading-spinner loading-md text-custom-blue"></span>
-            <p className="text-gray-600 text-xs lg:text-sm mt-2">
-              Loading more surveys...
-            </p>
+          <div>
+             <PostSkeleton />
           </div>
         )}
         

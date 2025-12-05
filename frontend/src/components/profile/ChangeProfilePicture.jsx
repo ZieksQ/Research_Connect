@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { DndContext, useDroppable } from "@dnd-kit/core";
 import { postProfilePicture } from "../../services/user";
 
-export default function ChangeProfilePicture() {
+export default function ChangeProfilePicture({ className = "" }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -60,7 +60,7 @@ export default function ChangeProfilePicture() {
       {/* Button to open modal */}
       <button 
         onClick={() => setIsOpen(true)} 
-        className="btn bg-custom-blue text-white hover:bg-blue-800 border-none btn-sm"
+        className={`btn bg-custom-blue text-white hover:bg-blue-800 border-none btn-sm ${className}`}
       >
         Change Profile Picture
       </button>

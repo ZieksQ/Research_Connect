@@ -1,8 +1,37 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { deleteSurvey } from '../../services/survey/survey.service'
 import { useNavigate } from 'react-router-dom'
 import { MdAccessTime, MdPeople, MdMoreVert, MdShare, MdDelete, MdCheck } from 'react-icons/md'
+
+const ProfilePostSkeleton = () => (
+  <div className="rounded-xl shadow-sm bg-white border border-gray-200 p-5 lg:p-6 mb-4">
+    <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start gap-3 flex-1">
+        <div className="skeleton w-10 h-10 lg:w-12 lg:h-12 rounded-full shrink-0"></div>
+        <div className="flex-1">
+          <div className="skeleton h-4 w-32 mb-2"></div>
+          <div className="skeleton h-3 w-24"></div>
+        </div>
+      </div>
+    </div>
+    <div className="mb-4 lg:mb-5">
+      <div className="skeleton h-4 w-3/4 mb-2"></div>
+      <div className="skeleton h-4 w-1/2 mb-4"></div>
+      <div className="flex gap-2">
+        <div className="skeleton h-6 w-16 rounded-full"></div>
+        <div className="skeleton h-6 w-16 rounded-full"></div>
+      </div>
+    </div>
+    <div className="flex items-center justify-between">
+      <div className="flex gap-4">
+         <div className="skeleton h-4 w-20"></div>
+         <div className="skeleton h-4 w-20"></div>
+      </div>
+      <div className="skeleton h-8 w-24 rounded-lg"></div>
+    </div>
+  </div>
+);
 
 // Posts section in Profile Page
 const ProfilePostsPage = () => {
@@ -80,8 +109,10 @@ const ProfilePostsPage = () => {
 
   if (!userInfo) {
     return (
-      <section className="py-6">
-        <div className="text-center text-text-secondary">User data not loaded yet.</div>
+      <section className="space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <ProfilePostSkeleton key={i} />
+        ))}
       </section>
     );
   }
@@ -96,8 +127,8 @@ const ProfilePostsPage = () => {
           </div>
         ) : (
           userPosts.map((post) => (
+            <Suspense key={post.pk_survey_id} fallback={<ProfilePostSkeleton />}>
             <article
-              key={post.pk_survey_id}
               className="rounded-xl shadow-sm hover:shadow-md transition-shadow bg-white border border-gray-200 p-5 lg:p-6"
             >
               {/* Header */}
@@ -209,21 +240,24 @@ const ProfilePostsPage = () => {
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <MdPeople className="text-base lg:text-lg text-custom-blue" />
-                    <span className="text-gray-500 text-xs lg:text-sm" title={post.survey_target_audience?.join(', ')}>
-                      {post.survey_target_audience?.join(', ')}
-                    </span>
+                    <MdPeople className="text-base lg:text-lg text-custom-blue shrink-0" />
+                    <div className="tooltip" data-tip={post.survey_target_audience?.join(', ')}>
+                      <span className="text-gray-500 text-xs lg:text-sm block max-w-[150px] truncate text-left">
+                        {post.survey_target_audience?.join(', ')}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
                 <button
                   onClick={() => navigate(`/form/result/${post.pk_survey_id}`)}
-                  className="btn btn-sm bg-custom-blue border-custom-blue text-white text-xs lg:text-sm px-4 lg:px-6 font-semibold h-auto min-h-[2rem] lg:min-h-[2.5rem] rounded-lg hover:bg-blue-800 hover:border-blue-800"
+                  className="btn btn-sm bg-custom-blue border-custom-blue text-white text-xs lg:text-sm px-4 lg:px-6 font-semibold h-auto min-h-[2rem] lg:min-h-[2.5rem] rounded-lg hover:bg-blue-800 hover:border-blue-800 ml-auto"
                 >
                   View Results
                 </button>
               </div>
             </article>
+            </Suspense>
           ))
         )}
       </section>

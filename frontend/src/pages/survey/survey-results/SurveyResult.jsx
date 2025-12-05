@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getComputedResults } from '../../../services/survey/results.service';
-import { MdClose, MdExpandMore, MdExpandLess, MdTextFields, MdRadioButtonChecked, MdCheckBox, MdArrowDropDown, MdStar, MdCalendarToday, MdEmail } from 'react-icons/md';
+import { MdClose, MdExpandMore, MdExpandLess, MdTextFields, MdRadioButtonChecked, MdCheckBox, MdArrowDropDown, MdStar, MdCalendarToday, MdEmail, MdArrowBack } from 'react-icons/md';
 
 // Modal component for displaying text responses
 const TextResponsesModal = ({ isOpen, onClose, questionText, responses, type }) => {
@@ -218,6 +218,7 @@ const QuestionCard = ({ questionId, questionText, type, answerData, onViewRespon
 
 const SurveyResult = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [resultsData, setResultsData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -339,6 +340,15 @@ const SurveyResult = () => {
   return (
     <section className="min-h-screen py-8 px-4 bg-gray-50">
       <div className="max-w-4xl mx-auto">
+        {/* Back Button */}
+        <button 
+          onClick={() => navigate(-1)} 
+          className="btn btn-ghost btn-sm gap-2 mb-4 text-gray-600 hover:bg-gray-200 pl-0"
+        >
+          <MdArrowBack size={20} />
+          Back
+        </button>
+
         {/* Survey Header */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6 border border-gray-200">
           <h1 className="text-2xl font-bold text-custom-blue mb-2">

@@ -1,4 +1,5 @@
 data_user = [
+  {"username": "Acoblaren", "password": "@Acob12345"},
   {"username": "Acoblaren01", "password": "@Acob01Pass!"},
   {"username": "Brixton88", "password": "@Bri88Strong"},
   {"username": "CaldwellX", "password": "@CalX2025"},

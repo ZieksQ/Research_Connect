@@ -50,7 +50,7 @@ def get_posts():
     user_id = get_jwt_identity()
 
     page = request.args.get("page", 1)
-    per_page = request.args.get("per_page", 1000)
+    per_page = request.args.get("per_page", 50)
 
     try:
         page = int(page)

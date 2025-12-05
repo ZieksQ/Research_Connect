@@ -4,7 +4,7 @@ from App import bcrypt
 from App.database import Base
 from sqlalchemy import String, Integer, ForeignKey, Boolean, DateTime
 
-default_profile_pic = "https://siqejctaztvawzceuhrw.supabase.co/storage/v1/object/public/profile_pic/GigiMurin2.png"
+default_profile_pic = "https://siqejctaztvawzceuhrw.supabase.co/storage/v1/object/public/profile_pic/Windows_10_Default_Profile_Picture.svg.png"
 
 # To unifiy both user since i have two way to log in
 class Root_User(Base):
@@ -101,6 +101,8 @@ class Oauth_Users(Root_User):
     email: Mapped[str] = mapped_column(String(256), nullable=False)
     school: Mapped[str] = mapped_column(String(256), nullable=True)
     program: Mapped[str] = mapped_column(String(256), nullable=True)
+
+    num_of_answered_survey: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     __mapper_args__ = {"polymorphic_identity": "oauth"}
 

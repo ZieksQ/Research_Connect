@@ -237,8 +237,13 @@ def get_user_data():
 
     posts = db.scalars(stmt2).all()
 
+    total_num_of_responses = 0
+
     user_info = who_user.get_user()
-    user_posts = [{
+    user_posts = []
+    
+    for post in posts:
+        user_posts.append({
             "pk_survey_id": post.id,
             "survey_title": post.title,
             "survey_content": post.content,
@@ -255,7 +260,10 @@ def get_user_data():
             "num_of_responses": post.num_of_responses,
             "num_of_likes": len(post.link_user_liked),
             "is_liked": post.id in list_of_post_liked
-        } for post in posts]
+        })
+        total_num_of_responses += post.num_of_responses
+    
+    user_info.update({"total_num_of_responses": total_num_of_responses})
 
     data = {"user_info": user_info, 
             "user_posts": user_posts}

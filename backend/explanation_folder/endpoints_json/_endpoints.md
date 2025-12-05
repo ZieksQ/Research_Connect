@@ -90,6 +90,13 @@ PATCH - http://127.0.0.1:5000/api/admin/post/reject
 GET - http://127.0.0.1:5000/api/admin/code/get
 ```
 
+## /api/mass
+
+```bash
+GET - http://127.0.0.1:5000/api/mass/account
+GET - http://127.0.0.1:5000/api/mass/posts
+```
+
 ## JSON
 
 ```JS

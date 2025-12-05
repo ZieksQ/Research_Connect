@@ -4,11 +4,6 @@ from sqlalchemy import DateTime, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
-# rootUser_survey = Table("rootUser_survey", Base.metadata, 
-#                         Column("root_user_ID", ForeignKey("users_root.id"), primary_key=True),
-#                         Column("svy_surveys_ID", ForeignKey("svy_surveys.id"), primary_key=True),
-# )
-
 class RootUser_Survey(Base):
     __tablename__ = "rootUser_survey"
 

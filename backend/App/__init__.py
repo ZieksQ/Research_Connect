@@ -65,12 +65,14 @@ def run_app():
     from .routes.route_oauth import oauth_me
     from .routes.route_otp import otp_route
     from .routes.route_admin import admin
+    from .routes.route_mass_produce_data import mass_data
 
     app.register_blueprint( user_auth, url_prefix="/api/user" )         # Registers each route for different file for more organized project
     app.register_blueprint( survey_posting, url_prefix="/api/survey" )
     app.register_blueprint( oauth_me, url_prefix="/api/oauth" )
     app.register_blueprint( otp_route, url_prefix="/api/otp")
     app.register_blueprint( admin, url_prefix="/api/admin")
+    app.register_blueprint( mass_data, url_prefix="/api/mass")
 
     CORS(app, supports_credentials=True)                                # Enables CORS and lets you send JWT through cookie
 

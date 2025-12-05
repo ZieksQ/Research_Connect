@@ -54,12 +54,6 @@ class Posts(Base):
             "approx_time": self.survey_posts.approx_time,
             "num_of_responses": self.num_of_responses
         }
-    
-class Category(Base):
-    __tablename__ = "users_posts_category"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    category_text: Mapped[str] = mapped_column(String(64), nullable=False)
 
 class Rejected_Post(Base):
     __tablename__ = "rejected_post"
@@ -69,3 +63,9 @@ class Rejected_Post(Base):
     post_id: Mapped[int] = mapped_column(Integer, ForeignKey("users_posts.id"), nullable=False)
 
     post_reject: Mapped["Posts"] = relationship("Posts", back_populates="reject_post")
+    
+class Category(Base):
+    __tablename__ = "users_posts_category"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    category_text: Mapped[str] = mapped_column(String(64), nullable=False)

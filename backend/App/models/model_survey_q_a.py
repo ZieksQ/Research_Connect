@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from App.database import Base
 from sqlalchemy import String, Integer, ForeignKey, Text, Boolean, JSON
-from App.models.model_enums import QuestionType
 
 CHOICES_TYPE = ("radioButton", "checkBox", "dropdown")
 

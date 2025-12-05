@@ -50,7 +50,7 @@ def get_posts():
     user_id = get_jwt_identity()
 
     page = request.args.get("page", 1)
-    per_page = request.args.get("per_page", 1000)
+    per_page = request.args.get("per_page", 50)
 
     try:
         page = int(page)
@@ -266,8 +266,8 @@ def search():
                     cast(Posts.target_audience, String).ilike(f"%{query}%"),
                     Posts.content.ilike(f"%{query}%")), 
                 Posts.status == PostStatus.OPEN.value,
+                Posts.archived == False,
                 Posts.approved == True,
-                Posts.archived == False
             ))
         .order_by(post_order)
         .limit(100)
@@ -663,6 +663,7 @@ def survey_responses(id):
                     "question_text": q_text,
                     "type": q_type,
                     "answer_data": q_options_data,
+                    "max_rating": question.max_rating
                     }
 
             else:                
@@ -824,6 +825,7 @@ def send_post_survey_web():
 
     # data: dict = request.get_json(silent=True) or {} # Gets the JSON from the frontend, returns None if its not JSON or in this case an empty dict
 
+    post_caption: str = data.get("surveyContent", "")
     survey_title: str = data.get("surveyTitle", "")
     survey_content: str = data.get("surveyDescription", "")
 
@@ -834,6 +836,16 @@ def send_post_survey_web():
     post_code: str = data.get("post_code") or None
     svy_questions: list[dict[str, Any]] = data.get("data", {})
 
+    post_input_validate, post_exist_flag = handle_post_input_exist(survey_title, post_caption)
+    if post_exist_flag:
+        logger.error(post_input_validate)
+        return jsonify_template_user(400, False, post_input_validate)
+    
+    post_requirements, post_req_flag = handle_post_requirements(survey_title, post_caption)
+    if post_req_flag:
+        logger.error(post_requirements)
+        return jsonify_template_user(422, False, post_requirements)
+        
     survey_input_validate, survey_exist_flag = handle_post_input_exist(survey_title, survey_content, False)
     if survey_exist_flag:
         logger.error(survey_input_validate)
@@ -867,7 +879,7 @@ def send_post_survey_web():
         logger.info(svy_misc_msg_req)
         return jsonify_template_user(422, False, svy_misc_msg_req)
 
-    post = Posts( title=survey_title, content=survey_content, 
+    post = Posts( title=survey_title, content=post_caption, 
                  user=user, category=tags, target_audience = target_audience )
     
     survey = Surveys( title=survey_title, content=survey_content, tags=tags,

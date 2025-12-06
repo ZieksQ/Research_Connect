@@ -63,7 +63,7 @@ def get_posts():
     stmt = select(Posts.category
                   ).join(RootUser_Post_Liked, RootUser_Post_Liked.post_id == Posts.id
                          ).where( RootUser_Post_Liked.root_user_id == int(user_id)
-                                 ).order_by( Posts.date_updated.desc())
+                                 ).order_by( Posts.date_created.desc())
     posts_tags = db.scalars(stmt).all()
 
     sorted_tags, occurence_tags = get_top_tags(posts_tags)
@@ -96,12 +96,12 @@ def get_posts():
     if seen_ids:
         extra_posts = select(Posts).where(
             and_( Posts.id.notin_(seen_ids), base_filter )
-            ).order_by(Posts.date_updated.desc())
+            ).order_by(Posts.date_created.desc()).limit(per_page)
         
         posts.extend( db.scalars(extra_posts).all() )
     else:
         extra_posts = select(Posts).where(base_filter
-                        ).order_by(Posts.date_updated.desc())
+                        ).order_by(Posts.date_created.desc()).limit(per_page * 50)
         
         posts.extend( db.scalars(extra_posts).all() )
     
@@ -256,7 +256,7 @@ def search():
 
     user_id = get_jwt_identity()
 
-    post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
+    post_order = Posts.date_updated.desc() if order == "asc" else Posts.date_updated.asc()
 
     stmt = (
         select(Posts)
@@ -270,7 +270,7 @@ def search():
                 Posts.approved == True,
             ))
         .order_by(post_order)
-        .limit(100)
+        .limit(30)
         .offset(0)
         )
     posts = db.scalars(stmt).all()
@@ -314,7 +314,7 @@ def search_category_audience():
 
     user_id = get_jwt_identity()
 
-    post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
+    post_order = Posts.date_updated.desc() if order == "asc" else Posts.date_updated.asc()
 
     stmt = (
         select(Posts)
@@ -327,7 +327,7 @@ def search_category_audience():
             Posts.archived == False
             ))
         .order_by(post_order)
-        .limit(100)
+        .limit(30)
         .offset(0)
         )
     posts = db.scalars(stmt).all()
@@ -369,7 +369,7 @@ def search_by_title():
     query = request.args.get("query", "").strip().lower()
     order = request.args.get("order", "asc").strip().lower()
 
-    post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
+    post_order = Posts.date_updated.desc() if order == "asc" else Posts.date_updated.asc()
 
     stmt = (
         select(Posts)
@@ -602,6 +602,7 @@ def survey_responses(id):
     choice_data = {}
     dates_data = {}
     rating_data = {}
+    number_data = {}
 
     stmt = select(func.count(RootUser_Survey.id)
                   ).where(
@@ -649,6 +650,22 @@ def survey_responses(id):
                     "answer_data": q_options_data,
                     }
                 
+            elif q_type == QuestionType.NUMBER.value:
+
+                stmt = select( Answers.answer_text, func.count(Answers.id)
+                                ).where(
+                                    Answers.question_id == q_id
+                                    ).group_by( Answers.answer_text )
+                
+                datas = db.execute(stmt).all()
+                q_options_data = {data[0]: data[1] for data in datas}
+
+                number_data[q_another_id] = {
+                    "question_text": q_text,
+                    "type": q_type,
+                    "answer_data": q_options_data,
+                    }
+
             elif q_type == QuestionType.RATING.value:
 
                 stmt = select( Answers.answer_text, func.count(Answers.id)
@@ -689,6 +706,7 @@ def survey_responses(id):
         "choices_data": choice_data if choice_data else None,
         "dates_data": dates_data if dates_data else None,
         "rating_data": rating_data if rating_data else None,
+        "number_data": number_data if number_data else None,
         "text_data": text_data if text_data else None,
     }
 

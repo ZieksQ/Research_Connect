@@ -6,7 +6,7 @@ from App.models.model_survey_q_a import Surveys, Section, Question, Choice
 from App.models.model_enums import Question_type_inter 
 from App.dummy_data import data_user, programs
 from App.dummy_data_posts_disect import (titles, descriptions, times, questions,
-                                         sections1, sections2, sections3)
+                                         sections1, sections2, sections3, target_audience_post, caategory_post)
 from typing import Any
 from flask import Blueprint
 from sqlalchemy import select
@@ -62,6 +62,9 @@ def create_post():
         seciton2_index = data + 1 & (len(sections2) - 1)
         seciton3_index = data + 4 & (len(sections3) - 1)
 
+        category_index = data & (len(caategory_post) - 1)
+        target_audience_index = data & (len(target_audiences) - 1)
+
         title = titles[title_index]
         caption = descriptions[content_index]
         content = descriptions[caption_index]
@@ -71,6 +74,8 @@ def create_post():
             sections2[seciton2_index],
             sections3[seciton3_index],
         ]
+        category = caategory_post[category_index]
+        target_audiences = target_audience_post[target_audience_index]
         '''
         # -------------------------------------
 
@@ -86,6 +91,8 @@ def create_post():
             random.choice(sections2),
             random.choice(sections3),
         ]
+        category = random.choice(caategory_post)
+        target_audiences = random.choice(target_audience_post)
         # --------------------------------------
 
         stmt = select(Users.id).order_by(Users.id)
@@ -97,14 +104,8 @@ def create_post():
         post_caption = caption
         survey_content = content
 
-        tags = ["Academic", "Health", "Technology"]
-        target_audience = [
-            "business-students",
-            "engineering-students",
-            "all-students",
-            "medical-students",
-            "general-public",
-        ]
+        tags = category
+        target_audience =target_audiences
         approx_time = approx
 
         svy_questions = sections

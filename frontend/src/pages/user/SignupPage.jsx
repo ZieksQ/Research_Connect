@@ -27,7 +27,7 @@ const SignupPage = () => {
     e.preventDefault(); // prevents page to reload everytime you submit
     setLoading(true); // loading...
 
-    const payload = { username_, password }; // stores username, password value to send
+    const payload = { username, password }; // stores username, password value to send
 
     // confirm password validation
     if (password != confirmPassword) {

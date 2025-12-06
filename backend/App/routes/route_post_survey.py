@@ -96,12 +96,12 @@ def get_posts():
     if seen_ids:
         extra_posts = select(Posts).where(
             and_( Posts.id.notin_(seen_ids), base_filter )
-            ).order_by(Posts.date_updated.desc())
+            ).order_by(Posts.date_updated.desc()).limit(per_page)
         
         posts.extend( db.scalars(extra_posts).all() )
     else:
         extra_posts = select(Posts).where(base_filter
-                        ).order_by(Posts.date_updated.desc())
+                        ).order_by(Posts.date_updated.desc()).limit(per_page * 50)
         
         posts.extend( db.scalars(extra_posts).all() )
     
@@ -256,7 +256,7 @@ def search():
 
     user_id = get_jwt_identity()
 
-    post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
+    post_order = Posts.date_updated.desc() if order == "asc" else Posts.date_updated.asc()
 
     stmt = (
         select(Posts)
@@ -270,7 +270,7 @@ def search():
                 Posts.approved == True,
             ))
         .order_by(post_order)
-        .limit(100)
+        .limit(30)
         .offset(0)
         )
     posts = db.scalars(stmt).all()
@@ -314,7 +314,7 @@ def search_category_audience():
 
     user_id = get_jwt_identity()
 
-    post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
+    post_order = Posts.date_updated.desc() if order == "asc" else Posts.date_updated.asc()
 
     stmt = (
         select(Posts)
@@ -327,7 +327,7 @@ def search_category_audience():
             Posts.archived == False
             ))
         .order_by(post_order)
-        .limit(100)
+        .limit(30)
         .offset(0)
         )
     posts = db.scalars(stmt).all()
@@ -369,7 +369,7 @@ def search_by_title():
     query = request.args.get("query", "").strip().lower()
     order = request.args.get("order", "asc").strip().lower()
 
-    post_order = Posts.id.asc() if order == "asc" else Posts.id.desc()
+    post_order = Posts.date_updated.desc() if order == "asc" else Posts.date_updated.asc()
 
     stmt = (
         select(Posts)

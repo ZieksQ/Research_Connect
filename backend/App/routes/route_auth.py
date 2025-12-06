@@ -232,7 +232,8 @@ def get_user_data():
     stmt2 = select(Posts).where(
         and_(Posts.user_id == int(user_id),
              Posts.archived == False,
-             Posts.status != PostStatus.REJECTED.value)
+             Posts.status != PostStatus.REJECTED.value
+             )
              ).order_by(Posts.date_updated.desc())
 
     posts = db.scalars(stmt2).all()
@@ -313,7 +314,7 @@ def get_liked_post():
             "num_of_likes": len(post.link_user_liked),
             "is_liked": post.id in list_of_post_liked
         } for post in posts]
-    
+
     return jsonify_template_user(200, True, data)
 
 @user_auth.route("/post/rejected", methods=['GET'])

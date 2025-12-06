@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { deleteSurvey } from '../../services/survey/survey.service'
 import { useNavigate } from 'react-router-dom'
-import { MdAccessTime, MdPeople, MdMoreVert, MdShare, MdDelete, MdCheck } from 'react-icons/md'
+import { MdAccessTime, MdPeople, MdMoreVert, MdShare, MdDelete, MdCheck, MdArchive } from 'react-icons/md'
 
 const ProfilePostSkeleton = () => (
   <div className="rounded-xl shadow-sm bg-white border border-gray-200 p-5 lg:p-6 mb-4">
@@ -196,10 +196,10 @@ const ProfilePostsPage = () => {
                         <div className="h-px bg-gray-200 my-1" />
                         <button
                           onClick={() => handleDeleteClick(post)}
-                          className="w-full flex items-center gap-3 hover:bg-red-50 transition-colors text-sm p-3 text-red-600"
+                          className="w-full flex items-center gap-3 hover:bg-yellow-50 transition-colors text-sm p-3 text-yellow-600"
                         >
-                          <MdDelete className="text-xl" />
-                          Delete Post
+                          <MdArchive className="text-xl" />
+                          Archive Post
                         </button>
                       </div>
                     </div>
@@ -274,10 +274,10 @@ const ProfilePostsPage = () => {
           {/* Modal */}
           <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 animate-[fadeIn_0.2s_ease-out]">
             <h3 className="text-lg font-semibold mb-2 text-gray-900">
-              Delete Post
+              Archive Post
             </h3>
             <p className="mb-6 text-gray-600">
-              Are you sure you want to delete "<strong>{postToDelete?.survey_title}</strong>"? This action cannot be undone.
+              Are you sure you want to archive "<strong>{postToDelete?.survey_title}</strong>"? It will be moved to your archived posts.
             </p>
             
             <div className="flex justify-end gap-3">
@@ -290,13 +290,13 @@ const ProfilePostsPage = () => {
               </button>
               <button
                 onClick={handleConfirmDelete}
-                className="btn bg-red-600 border-red-600 text-white hover:bg-red-700 hover:border-red-700"
+                className="btn bg-yellow-600 border-yellow-600 text-white hover:bg-yellow-700 hover:border-yellow-700"
                 disabled={isDeleting}
               >
                 {isDeleting ? (
                   <span className="loading loading-spinner loading-sm"></span>
                 ) : (
-                  'Delete'
+                  'Archive'
                 )}
               </button>
             </div>

@@ -69,6 +69,24 @@ export const filteredSurvey = async (query, order) =>
     method: "GET",
   })
 
+// get archived post
+export const getArchivedPosts = async () =>
+  await apiFetch(`/api/user/post/archived`, {
+    method: "GET",
+  })
+
+// get rejected post
+export const getRejectedPosts = async () =>
+  await apiFetch(`/api/user/post/rejected`, {
+    method: "GET",
+  })
+
+// get liked posts
+export const getLikedPosts = async () =>
+  await apiFetch(`/api/user/post/liked`, {
+    method: "GET",
+  })
+
 // ---------------------------------
 // ============ PATCH ==============
 // ---------------------------------
@@ -76,6 +94,12 @@ export const filteredSurvey = async (query, order) =>
 // delete post
 export const deleteSurvey = async (id) => 
   await apiFetch(`/api/survey/post/archive`, {
+    method: "PATCH",
+    body: JSON.stringify(id),
+  })
+
+export const unarchivedPost = async (id) =>
+  await apiFetch(`/api/survey/post/unarchive`, {
     method: "PATCH",
     body: JSON.stringify(id),
   })

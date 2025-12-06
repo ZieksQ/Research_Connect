@@ -92,6 +92,12 @@ const ProfilePage = () => {
                 Posts
               </NavLink>
               <NavLink 
+                to="/profile/liked" 
+                className={({ isActive }) => `flex-1 sm:flex-none text-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${isActive ? 'bg-custom-blue text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'}`}
+              >
+                Liked
+              </NavLink>
+              <NavLink 
                 to="/profile/about" 
                 className={({ isActive }) => `flex-1 sm:flex-none text-center px-6 py-2 rounded-xl text-sm font-medium transition-all ${isActive ? 'bg-custom-blue text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'}`}
               >

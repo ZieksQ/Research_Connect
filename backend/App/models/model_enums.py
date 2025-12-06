@@ -18,6 +18,7 @@ class QuestionType(Enum):
     RATING = "rating"
     DATE = "date"
     EMAIL = "email"
+    NUMBER = "number"
 
 class PostStatus(Enum):
     OPEN = "open"

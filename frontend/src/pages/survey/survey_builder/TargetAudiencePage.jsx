@@ -9,16 +9,16 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
   const [showCustomInput, setShowCustomInput] = useState(false);
 
   const audiences = [
-    { id: 'students', label: 'Students', icon: MdSchool },
-    { id: 'businessStudents', label: 'Business Students', icon: MdBusiness },
-    { id: 'generalPublic', label: 'General Public', icon: MdPeople },
-    { id: 'professionals', label: 'Professionals', icon: MdWork },
-    { id: 'educators', label: 'Educators', icon: MdSchool },
-    { id: 'healthcareWorkers', label: 'Healthcare Workers', icon: MdLocalHospital },
-    { id: 'itProfessionals', label: 'IT Professionals', icon: MdComputer },
-    { id: 'researchers', label: 'Researchers', icon: MdScience },
-    { id: 'parents', label: 'Parents', icon: MdFamilyRestroom },
-    { id: 'seniorCitizens', label: 'Senior Citizens', icon: MdElderly }
+    { id: 'Students', label: 'Students', icon: MdSchool },
+    { id: 'Business Students', label: 'Business Students', icon: MdBusiness },
+    { id: 'General Public', label: 'General Public', icon: MdPeople },
+    { id: 'Professionals', label: 'Professionals', icon: MdWork },
+    { id: 'Educators', label: 'Educators', icon: MdSchool },
+    { id: 'Healthcare Workers', label: 'Healthcare Workers', icon: MdLocalHospital },
+    { id: 'IT Professionals', label: 'IT Professionals', icon: MdComputer },
+    { id: 'Researchers', label: 'Researchers', icon: MdScience },
+    { id: 'Parents', label: 'Parents', icon: MdFamilyRestroom },
+    { id: 'Senior Citizens', label: 'Senior Citizens', icon: MdElderly }
   ];
 
   const handleAudienceToggle = (audienceId) => {

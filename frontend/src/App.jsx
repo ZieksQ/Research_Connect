@@ -18,6 +18,7 @@ import LoginPage from "./pages/user/LoginPage.jsx";
 import SignupPage from "./pages/user/SignupPage.jsx";
 import ProtectedLayout from "./layout/ProtectedLayout.jsx";
 import RootLayout from "./layout/RootLayout.jsx";
+import PublicLayout from "./layout/PublicLayout.jsx";
 
 // Lazy loaded components - loaded on demand
 const SurveyPage = lazy(() => import("./pages/survey/survey_respondent/SurveyPage.jsx"));
@@ -33,6 +34,9 @@ const AdminGenerateCode = lazy(() => import("./pages/admin/AdminGenerateCode.jsx
 const NotFoundPage = lazy(() => import("./pages/error/NotFoundPage.jsx"));
 const AdminLayout = lazy(() => import("./layout/AdminLayout.jsx"));
 const HomePage = lazy(() => import("./pages/home/HomePage.jsx"));
+const ArchivedPage = lazy(() => import("./pages/home/ArchivedPage.jsx"));
+const RejectedPage = lazy(() => import("./pages/home/RejectedPage.jsx"));
+const LikedPostsPage = lazy(() => import("./pages/profile/LikedPostsPage.jsx"));
 const Settings = lazy(() => import("./components/settings/Settings.jsx"));
 
 // Loading fallback component
@@ -49,10 +53,12 @@ const App = () => {
       <>
         {/* Root Path */}
         <Route path="/">
-          {/* Register User Path */}
-          <Route index element={<LandingPage />} />
-          <Route path="login" element={<LoginPage />} />
-          <Route path="signup" element={<SignupPage />} />
+          {/* Public routes - redirect to /home if logged in */}
+          <Route element={<PublicLayout />}>
+            <Route index element={<LandingPage />} />
+            <Route path="login" element={<LoginPage />} />
+            <Route path="signup" element={<SignupPage />} />
+          </Route>
 
           {/* Home Path */}
           <Route element={<ProtectedLayout />}>
@@ -61,10 +67,15 @@ const App = () => {
                 <Route index element={<HomePage />} />
               </Route>
 
+              {/* Archived and Rejected routes */}
+              <Route path="archived" element={<ArchivedPage />} />
+              <Route path="rejected" element={<RejectedPage />} />
+
               {/* Profile section (inherits RootRoute) */}
               <Route path="profile" element={<ProfilePage />}>
                 <Route index element={<Navigate to="posts" replace />} />
                 <Route path="posts" element={<ProfilePostsPage />} />
+                <Route path="liked" element={<LikedPostsPage />} />
                 <Route path="about" element={<ProfileAboutPage />} />
               </Route>
 
@@ -88,10 +99,6 @@ const App = () => {
               <Route path="settings" element={<Settings />} />
             </Route>
           </Route>
-
-          {/* Auth routes (no RootRoute layout) */}
-          <Route path="login" element={<LoginPage />} />
-          <Route path="signup" element={<SignupPage />} />
 
           {/* Admin routes */}
           <Route path="admin" element={<AdminLayout />}>

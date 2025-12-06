@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate, Link, useBlocker } from 'react-router-dom';
-import SurveyDetailsPage from './SurveyDetailsPage';
-import TargetAudiencePage from './TargetAudiencePage';
-import SortableForm from './SortableForm';
-import SurveyPreviewPage from './SurveyPreviewPage';
 import { publishSurvey } from '../../../services/survey/survey.service';
 import { MdCheckCircle, MdError, MdClose, MdVpnKey, MdArrowBack } from 'react-icons/md';
 // import { MdCheck } from 'react-icons/md';
 // import { log } from 'three';
+
+// Lazy load survey builder components
+const SurveyDetailsPage = lazy(() => import('./SurveyDetailsPage'));
+const TargetAudiencePage = lazy(() => import('./TargetAudiencePage'));
+const SortableForm = lazy(() => import('./SortableForm'));
+const SurveyPreviewPage = lazy(() => import('./SurveyPreviewPage'));
 
 export default function SurveyWizard() {
   const navigate = useNavigate();
@@ -273,16 +275,22 @@ export default function SurveyWizard() {
         </div>
 
         {/* Current Step Content */}
-        <CurrentStepComponent
-          data={surveyData}
-          onNext={handleNext}
-          onBack={handleBack}
-          updateData={updateSurveyData}
-          onPublish={handlePublishClick}
-          isPublishing={isPublishing}
-          isLastStep={currentStep === steps.length - 1}
-          isFirstStep={currentStep === 0}
-        />
+        <Suspense fallback={
+          <div className="flex justify-center py-12">
+            <span className="loading loading-spinner loading-lg text-custom-blue"></span>
+          </div>
+        }>
+          <CurrentStepComponent
+            data={surveyData}
+            onNext={handleNext}
+            onBack={handleBack}
+            updateData={updateSurveyData}
+            onPublish={handlePublishClick}
+            isPublishing={isPublishing}
+            isLastStep={currentStep === steps.length - 1}
+            isFirstStep={currentStep === 0}
+          />
+        </Suspense>
       </div>
 
       {/* Publishing Loading Overlay */}

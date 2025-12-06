@@ -1,7 +1,8 @@
-import { MdMoreVert, MdAccessTime, MdPeople, MdBookmarkBorder, MdShare, MdFlag, MdCheck, MdFavorite, MdFavoriteBorder } from 'react-icons/md';
+import { MdMoreVert, MdAccessTime, MdPeople, MdBookmarkBorder, MdShare, MdFlag, MdCheck, MdFavorite, MdFavoriteBorder, MdArchive } from 'react-icons/md';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { likePost } from '../../../services/survey/survey.service';
+import { likePost, deleteSurvey } from '../../../services/survey/survey.service';
+import { useAuth } from '../../../hooks/useAuth';
 
 export default function PostCard({ post }) {
   const [showMenu, setShowMenu] = useState(false);
@@ -9,6 +10,10 @@ export default function PostCard({ post }) {
   const [isLiked, setIsLiked] = useState(post.is_liked || false);
   const [isLiking, setIsLiking] = useState(false);
   const [likeCount, setLikeCount] = useState(post.num_of_likes || 0);
+  const [archiveModalOpen, setArchiveModalOpen] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
+  const { userInfo } = useAuth();
+  const isOwner = userInfo?.message?.user_info?.username === post.user_username;
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
@@ -43,10 +48,6 @@ export default function PostCard({ post }) {
     }
   };
 
-  const handleTakeSurvey = () => {
-    navigate(`/form/response/${post.pk_survey_id}`);
-  };
-
   const handleLike = async () => {
     if (isLiking) return;
     setIsLiking(true);
@@ -58,6 +59,24 @@ export default function PostCard({ post }) {
       console.error('Failed to like/unlike post:', err);
     } finally {
       setIsLiking(false);
+    }
+  };
+
+  const handleArchiveClick = () => {
+    setArchiveModalOpen(true);
+    setShowMenu(false);
+  };
+
+  const handleConfirmArchive = async () => {
+    setIsArchiving(true);
+    try {
+      await deleteSurvey({ id: post.pk_survey_id });
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to archive post:', err);
+    } finally {
+      setIsArchiving(false);
+      setArchiveModalOpen(false);
     }
   };
 
@@ -92,19 +111,25 @@ export default function PostCard({ post }) {
                 </span>
               )}
             </div>
-            <p className="text-gray-500 text-[11px] lg:text-[13px] uppercase tracking-wide mt-1">
-              {post.user_program || 'None'}
+
+            {/* Timestamp */}
+            <p className="text-gray-400 text-xs lg:text-sm mt-1">
+              {new Date(post.survey_date_created).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              })}
             </p>
           </div>
         </div>
 
-        {/* Three Dots Menu */}
+        {/* Menu Button */}
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setShowMenu(!showMenu)}
-            className="btn btn-ghost btn-sm btn-circle text-gray-500 w-8 h-8 lg:w-10 lg:h-10 min-h-0"
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <MdMoreVert className="text-xl lg:text-2xl" />
+            <MdMoreVert className="text-xl lg:text-2xl text-gray-500" />
           </button>
 
           {/* Dropdown Menu */}
@@ -127,6 +152,15 @@ export default function PostCard({ post }) {
                     </>
                   )}
                 </button>
+                {isOwner && (
+                  <button 
+                    onClick={handleArchiveClick}
+                    className="w-full flex items-center gap-3 hover:bg-yellow-50 transition-colors text-sm p-3 text-yellow-600"
+                  >
+                    <MdArchive className="text-xl" />
+                    Archive
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -189,7 +223,9 @@ export default function PostCard({ post }) {
           <button
             onClick={handleLike}
             disabled={isLiking}
-            className={`btn btn-sm btn-ghost flex items-center gap-1 text-xs lg:text-sm px-2 lg:px-3 h-auto min-h-[2rem] lg:min-h-[2.5rem] rounded-lg transition-all ${isLiked ? 'text-red-500' : 'text-gray-500'}`}
+            className={`flex items-center gap-1 transition-colors px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg ${
+              isLiked ? 'text-custom-green hover:text-green-700' : 'text-gray-500 hover:text-custom-green'
+            }`}
           >
             {isLiked ? (
               <MdFavorite className="text-xl lg:text-2xl" />
@@ -210,13 +246,46 @@ export default function PostCard({ post }) {
           </div>
 
           <button
-            onClick={handleTakeSurvey}
+            onClick={() => navigate(`/form/response/${post.pk_survey_id}`)}
             className="btn btn-sm bg-custom-blue border-custom-blue text-white text-xs lg:text-sm px-4 lg:px-6 font-semibold h-auto min-h-[2rem] lg:min-h-[2.5rem] rounded-lg hover:bg-blue-800 hover:border-blue-800"
           >
             Take Survey
           </button>
         </div>
       </div>
+
+      {/* Archive Confirmation Modal */}
+      {archiveModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-[scaleIn_0.2s_ease-out]">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MdArchive className="text-3xl text-yellow-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Archive Post?</h3>
+              <p className="text-gray-500 text-sm mb-6">
+                Are you sure you want to archive this post? It will be moved to your archived posts and hidden from the feed.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => setArchiveModalOpen(false)}
+                  className="btn btn-ghost text-gray-500 hover:bg-gray-100"
+                  disabled={isArchiving}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmArchive}
+                  className="btn bg-yellow-600 hover:bg-yellow-700 text-white border-none px-6"
+                  disabled={isArchiving}
+                >
+                  {isArchiving ? 'Archiving...' : 'Archive'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

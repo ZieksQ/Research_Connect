@@ -6,6 +6,18 @@
 
 import { refreshUser } from "./auth";
 
+// Function to get CSRF token from cookie (Flask-JWT-Extended sets csrf_access_token cookie)
+const getCsrfToken = () => {
+  const cookies = document.cookie.split(';');
+  for (let cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'csrf_access_token') {
+      return decodeURIComponent(value);
+    }
+  }
+  return null;
+};
+
 export const apiFetch = async (url, options = {}) => {
   try {
     const headers = options.headers || {};
@@ -13,6 +25,14 @@ export const apiFetch = async (url, options = {}) => {
     // Only set Content-Type if body is NOT FormData
     if (!(options.body instanceof FormData)) {
       headers["Content-Type"] = "application/json";
+    }
+
+    // Add CSRF token for state-changing requests (Flask-JWT-Extended CSRF protection)
+    if (options.method && options.method !== "GET") {
+      const csrfToken = getCsrfToken();
+      if (csrfToken) {
+        headers["X-CSRF-TOKEN"] = csrfToken;
+      }
     }
 
     let res = await fetch(url, {

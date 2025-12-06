@@ -228,9 +228,9 @@ export default function SurveyPage() {
         responses: responsesBySection
       };
       
-      console.log('=== SURVEY SUBMISSION ===');
-      console.log(JSON.stringify(submissionData, null, 2));
-      console.log('=== END ===');
+      // console.log('=== SURVEY SUBMISSION ===');
+      // console.log(JSON.stringify(submissionData, null, 2));
+      // console.log('=== END ===');
       
       try {
         const res = await submitSurveyResponse(surveyData.pk_survey_id, submissionData);

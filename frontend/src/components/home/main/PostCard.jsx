@@ -29,7 +29,7 @@ export default function PostCard({ post }) {
   }, []);
 
   const handleMenuClick = (action) => {
-    console.log(`${action} clicked for post ${post.pk_survey_id}`);
+    // console.log(`${action} clicked for post ${post.pk_survey_id}`);
     setShowMenu(false);
   };
 

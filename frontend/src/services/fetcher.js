@@ -48,10 +48,10 @@ export const apiFetch = async (url, options = {}) => {
       console.warn("Access token expired. Refreshing...");
 
       const refresh = await refreshUser();
-      console.log("Refresh response:", refresh);
+      // console.log("Refresh response:", refresh);
 
-      if (refresh.ok) {
-        console.log("Token refreshed! Retrying request...");
+      if (refresh?.ok) {
+        // console.log("Token refreshed! Retrying request...");
         res = await fetch(url, {
           credentials: "include",
           ...options,

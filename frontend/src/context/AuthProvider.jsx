@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   }, [fetchUserData]);
 
   useEffect(() => {
-    console.log(userInfo);
+    // console.log(userInfo);
   }, [userInfo]);
 
   return (

@@ -168,18 +168,18 @@ export default function SurveyWizard() {
     });
 
     // Log what we're sending
-    console.log("=== SURVEY PUBLISHED WITH FORMDATA ===");
-    console.log("\nSurvey JSON Data:");
-    console.log(JSON.stringify(surveyDataForJson, null, 2));
-    console.log("\nFormData Contents:");
-    for (let [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`${key}: [File] ${value.name} (${value.type}, ${value.size} bytes)`);
-      } else {
-        console.log(`${key}: ${value}`);
-      }
-    }
-    console.log("=== END ===");
+    // console.log("=== SURVEY PUBLISHED WITH FORMDATA ===");
+    // console.log("\nSurvey JSON Data:");
+    // console.log(JSON.stringify(surveyDataForJson, null, 2));
+    // console.log("\nFormData Contents:");
+    // for (let [key, value] of formData.entries()) {
+    //   if (value instanceof File) {
+    //     console.log(`${key}: [File] ${value.name} (${value.type}, ${value.size} bytes)`);
+    //   } else {
+    //     console.log(`${key}: ${value}`);
+    //   }
+    // }
+    // console.log("=== END ===");
 
     setIsPublishing(true);
     try {

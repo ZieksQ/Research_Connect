@@ -24,6 +24,8 @@ const ChangePassword = () => {
   const [timer, setTimer] = useState(0);
 
   const userEmail = userInfo?.message?.user_info?.email || null;
+  const userType = userInfo?.message?.user_info?.user_type || null;
+  const isOAuthUser = userType === 'oauth';
 
   // Initialize timer from localStorage
   useEffect(() => {
@@ -184,11 +186,17 @@ const ChangePassword = () => {
     }
   };
 
-  const isDisabled = !userEmail;
+  const isDisabled = !userEmail || isOAuthUser;
+  
+  const getTooltipMessage = () => {
+    if (isOAuthUser) return 'Cannot change password for OAuth accounts';
+    if (!userEmail) return 'Add an email first to change password';
+    return '';
+  };
 
   return (
     <>
-      <div className="tooltip" data-tip={isDisabled ? 'Add an email first to change password' : ''}>
+      <div className="tooltip" data-tip={getTooltipMessage()}>
         <button
           className="btn btn-outline btn-sm"
           onClick={openModal}

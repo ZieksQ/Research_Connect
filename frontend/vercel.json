@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "http://localhost:5000/api/:path*"
+    },
+    {
+      "source": "/user/:path*",
+      "destination": "http://localhost:5000/user/:path*"
+    },
+    {
+      "source": "/survey/:path*",
+      "destination": "http://localhost:5000/survey/:path*"
+    },
+    {
+      "source": "/oauth/:path*",
+      "destination": "http://localhost:5000/oauth/:path*"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { FiLogOut, FiSettings, FiUser, FiX, FiArchive, FiFileText, FiChevronDown, FiChevronRight, FiXCircle } from "react-icons/fi";
 import { logoutUser } from "../../services/auth";
@@ -7,10 +7,14 @@ import { logoutUser } from "../../services/auth";
 const Sidebar = ({ onClose, navLinks = [] }) => {
   const { userInfo, setUserInfo } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [postsExpanded, setPostsExpanded] = useState(false);
   const profile_pic_url = userInfo?.message?.user_info?.profile_pic_url;
   const username = userInfo?.message?.user_info?.username;
   const school = userInfo?.message?.user_info?.school;
+
+  // Check if we're in admin mode by checking the current path
+  const isAdminMode = location.pathname.startsWith('/admin');
 
   const handleLogout = async () => {
     // Add your logout logic here
@@ -62,75 +66,79 @@ const Sidebar = ({ onClose, navLinks = [] }) => {
           );
         })}
         
-        {/* Profile NavLink */}
-        <li>
-          <NavLink
-            to="/profile"
-            className={({ isActive }) =>
-              `flex items-center gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] rounded-lg transition-colors ${
-                isActive 
-                  ? 'bg-custom-blue text-white shadow-md hover:bg-blue-700' 
-                  : 'hover:bg-blue-50 hover:text-custom-blue'
-              }`
-            }
-          >
-            <FiUser className="w-[clamp(18px,1.2vw,22px)] h-[clamp(18px,1.2vw,22px)]" />
-            <span>Profile</span>
-          </NavLink>
-        </li>
+        {/* Profile NavLink - Only show in non-admin mode */}
+        {!isAdminMode && (
+          <li>
+            <NavLink
+              to="/profile"
+              className={({ isActive }) =>
+                `flex items-center gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] rounded-lg transition-colors ${
+                  isActive 
+                    ? 'bg-custom-blue text-white shadow-md hover:bg-blue-700' 
+                    : 'hover:bg-blue-50 hover:text-custom-blue'
+                }`
+              }
+            >
+              <FiUser className="w-[clamp(18px,1.2vw,22px)] h-[clamp(18px,1.2vw,22px)]" />
+              <span>Profile</span>
+            </NavLink>
+          </li>
+        )}
 
-        {/* Collapsible Posts Section */}
-        <li>
-          <button
-            onClick={() => setPostsExpanded(!postsExpanded)}
-            className="flex items-center justify-between w-full gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] rounded-lg transition-colors hover:bg-blue-50 hover:text-custom-blue"
-          >
-            <div className="flex items-center gap-[clamp(10px,1.5vw,14px)]">
-              <FiFileText className="w-[clamp(18px,1.2vw,22px)] h-[clamp(18px,1.2vw,22px)]" />
-              <span>Posts</span>
-            </div>
-            {postsExpanded ? (
-              <FiChevronDown className="w-[clamp(16px,1vw,20px)] h-[clamp(16px,1vw,20px)]" />
-            ) : (
-              <FiChevronRight className="w-[clamp(16px,1vw,20px)] h-[clamp(16px,1vw,20px)]" />
+        {/* Collapsible Posts Section - Only show in non-admin mode */}
+        {!isAdminMode && (
+          <li>
+            <button
+              onClick={() => setPostsExpanded(!postsExpanded)}
+              className="flex items-center justify-between w-full gap-[clamp(10px,1.5vw,14px)] p-[clamp(10px,1vw,14px)] rounded-lg transition-colors hover:bg-blue-50 hover:text-custom-blue"
+            >
+              <div className="flex items-center gap-[clamp(10px,1.5vw,14px)]">
+                <FiFileText className="w-[clamp(18px,1.2vw,22px)] h-[clamp(18px,1.2vw,22px)]" />
+                <span>Posts</span>
+              </div>
+              {postsExpanded ? (
+                <FiChevronDown className="w-[clamp(16px,1vw,20px)] h-[clamp(16px,1vw,20px)]" />
+              ) : (
+                <FiChevronRight className="w-[clamp(16px,1vw,20px)] h-[clamp(16px,1vw,20px)]" />
+              )}
+            </button>
+            
+            {postsExpanded && (
+              <ul className="ml-[clamp(20px,2vw,28px)] mt-[clamp(4px,0.5vw,8px)] space-y-[clamp(4px,0.5vw,8px)]">
+                <li>
+                  <NavLink
+                    to="/archived"
+                    className={({ isActive }) =>
+                      `flex items-center gap-[clamp(8px,1vw,12px)] p-[clamp(8px,0.8vw,12px)] rounded-lg transition-colors ${
+                        isActive 
+                          ? 'bg-custom-blue text-white shadow-md' 
+                          : 'hover:bg-blue-50 hover:text-custom-blue'
+                      }`
+                    }
+                  >
+                    <FiArchive className="w-[clamp(16px,1vw,20px)] h-[clamp(16px,1vw,20px)]" />
+                    <span>Archived</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/rejected"
+                    className={({ isActive }) =>
+                      `flex items-center gap-[clamp(8px,1vw,12px)] p-[clamp(8px,0.8vw,12px)] rounded-lg transition-colors ${
+                        isActive 
+                          ? 'bg-custom-blue text-white shadow-md' 
+                          : 'hover:bg-blue-50 hover:text-custom-blue'
+                      }`
+                    }
+                  >
+                    <FiXCircle className="w-[clamp(16px,1vw,20px)] h-[clamp(16px,1vw,20px)]" />
+                    <span>Rejected</span>
+                  </NavLink>
+                </li>
+              </ul>
             )}
-          </button>
-          
-          {postsExpanded && (
-            <ul className="ml-[clamp(20px,2vw,28px)] mt-[clamp(4px,0.5vw,8px)] space-y-[clamp(4px,0.5vw,8px)]">
-              <li>
-                <NavLink
-                  to="/archived"
-                  className={({ isActive }) =>
-                    `flex items-center gap-[clamp(8px,1vw,12px)] p-[clamp(8px,0.8vw,12px)] rounded-lg transition-colors ${
-                      isActive 
-                        ? 'bg-custom-blue text-white shadow-md' 
-                        : 'hover:bg-blue-50 hover:text-custom-blue'
-                    }`
-                  }
-                >
-                  <FiArchive className="w-[clamp(16px,1vw,20px)] h-[clamp(16px,1vw,20px)]" />
-                  <span>Archived</span>
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/rejected"
-                  className={({ isActive }) =>
-                    `flex items-center gap-[clamp(8px,1vw,12px)] p-[clamp(8px,0.8vw,12px)] rounded-lg transition-colors ${
-                      isActive 
-                        ? 'bg-custom-blue text-white shadow-md' 
-                        : 'hover:bg-blue-50 hover:text-custom-blue'
-                    }`
-                  }
-                >
-                  <FiXCircle className="w-[clamp(16px,1vw,20px)] h-[clamp(16px,1vw,20px)]" />
-                  <span>Rejected</span>
-                </NavLink>
-              </li>
-            </ul>
-          )}
-        </li>
+          </li>
+        )}
       </ul>
 
       {/* Profile Section at Bottom */}

@@ -27,7 +27,6 @@ const ProfileAboutPage = lazy(() => import("./pages/profile/ProfileAboutPage.jsx
 const ProfilePostsPage = lazy(() => import("./pages/profile/ProfilePostsPage.jsx"));
 const SurveyBuilder = lazy(() => import("./pages/survey/survey_builder/SurveyWizard.jsx"));
 const SurveyResult = lazy(() => import("./pages/survey/survey-results/SurveyResult.jsx"));
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
 const AdminRequest = lazy(() => import("./pages/admin/AdminRequest.jsx"));
 const AdminReviewPosts = lazy(() => import("./pages/admin/AdminReviewPosts.jsx"));
 const AdminGenerateCode = lazy(() => import("./pages/admin/AdminGenerateCode.jsx"));
@@ -102,7 +101,7 @@ const App = () => {
 
           {/* Admin routes */}
           <Route path="admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
+            <Route index element={<Navigate to="request" replace />} />
             <Route path="request" element={<AdminRequest />} />
             <Route path="request/review/:id" element={<AdminReviewPosts />} />
             <Route path="generate-code" element={<AdminGenerateCode />} />

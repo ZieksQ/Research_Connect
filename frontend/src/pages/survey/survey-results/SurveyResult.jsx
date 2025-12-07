@@ -100,6 +100,7 @@ const QuestionCard = ({ questionId, questionText, type, answerData, onViewRespon
       checkBox: <MdCheckBox size={20} />,
       dropdown: <MdArrowDropDown size={20} />,
       rating: <MdStar size={20} />,
+      number: <MdTextFields size={20} />,
     };
     return icons[type] || <MdTextFields size={20} />;
   };
@@ -114,6 +115,7 @@ const QuestionCard = ({ questionId, questionText, type, answerData, onViewRespon
       checkBox: 'Checkbox',
       dropdown: 'Dropdown',
       rating: 'Rating',
+      number: 'Number',
     };
     return labels[type] || type;
   };
@@ -125,12 +127,13 @@ const QuestionCard = ({ questionId, questionText, type, answerData, onViewRespon
       dropdown: '#6A3B29', // custom-maroon
       rating: '#f59e0b',
       date: '#6A3B29', // custom-maroon
+      number: '#1447E6', // custom-blue
     };
     return colors[type] || '#52B244';
   };
 
   const isTextType = ['shortText', 'longText', 'email'].includes(type);
-  const isChoiceType = ['radioButton', 'checkBox', 'dropdown', 'rating', 'date'].includes(type);
+  const isChoiceType = ['radioButton', 'checkBox', 'dropdown', 'rating', 'date', 'number'].includes(type);
 
   // Calculate total responses for choice types
   const getTotalResponses = () => {
@@ -308,6 +311,13 @@ const SurveyResult = () => {
       });
     }
     
+    // Number data
+    if (resultsData.number_data) {
+      Object.entries(resultsData.number_data).forEach(([id, data]) => {
+        questions.push({ id, ...data, category: 'number' });
+      });
+    }
+    
     return questions;
   };
 
@@ -369,6 +379,7 @@ const SurveyResult = () => {
           <div className="flex items-center gap-4 text-sm text-gray-500">
             <span>📝 {questions.length} Questions</span>
             <span>⏱️ {resultsData?.survey_approx_time}</span>
+            <span>👥 {resultsData?._total_peeps_who_answered || 0} Total Responses</span>
           </div>
         </div>
 

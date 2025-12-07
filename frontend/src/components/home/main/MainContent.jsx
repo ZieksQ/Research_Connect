@@ -16,6 +16,7 @@ export default function MainContent() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState(null);
   
   const { searchResults, isSearching, searchQuery } = useSearch();
   const navigate = useNavigate();
@@ -69,6 +70,7 @@ export default function MainContent() {
   const fetchPosts = async (pageNum = 1, isInitial = false) => {
     if (isInitial) {
       setIsLoading(true);
+      setError(null);
     }
     try {
       const data = await getPaginationSurvey(pageNum, POSTS_PER_PAGE);
@@ -89,6 +91,7 @@ export default function MainContent() {
       console.error('Error fetching posts:', error);
       if (isInitial) {
         setPosts([]);
+        setError(error);
       }
       setHasMore(false);
     } finally {
@@ -176,6 +179,7 @@ export default function MainContent() {
           isLoadingMore={isLoadingMore}
           hasMore={hasMore && searchResults === null}
           loadMoreRef={loadMoreRef}
+          error={error}
         />
       </div>
     </div>

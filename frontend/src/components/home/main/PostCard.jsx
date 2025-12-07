@@ -29,7 +29,7 @@ export default function PostCard({ post }) {
   }, []);
 
   const handleMenuClick = (action) => {
-    console.log(`${action} clicked for post ${post.pk_survey_id}`);
+    // console.log(`${action} clicked for post ${post.pk_survey_id}`);
     setShowMenu(false);
   };
 
@@ -99,17 +99,15 @@ export default function PostCard({ post }) {
                 {post.user_username}
               </h3>
               {/* Status Badge */}
-              {post.status && (
-                <span 
-                  className={`badge badge-sm text-white border-none text-[10px] lg:text-xs capitalize ${
-                    post.status === 'approved' ? 'bg-custom-green' : 
-                    post.status === 'pending' ? 'bg-yellow-500' : 
-                    post.status === 'rejected' ? 'bg-red-600' : 'bg-gray-500'
-                  }`}
-                >
-                  {post.status}
-                </span>
-              )}
+              <span 
+                className={`badge badge-sm text-white border-none text-[10px] lg:text-xs capitalize ${
+                  !post['approved`'] ? 'bg-gray-500' : 
+                  post.status === 'open' ? 'bg-custom-blue' : 
+                  post.status === 'close' ? 'bg-red-600' : 'bg-gray-500'
+                }`}
+              >
+                {!post['approved`'] ? 'pending' : post.status}
+              </span>
             </div>
 
             {/* Timestamp */}

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { FiInbox, FiCheckCircle } from 'react-icons/fi';
+import { FiInbox, FiCheckCircle, FiWifiOff } from 'react-icons/fi';
 
 const PostCard = lazy(() => import('./PostCard'));
 
@@ -35,13 +35,27 @@ const PostSkeleton = () => (
   </div>
 );
 
-export default function PostsList({ posts, isLoading, isLoadingMore, hasMore, loadMoreRef }) {
+export default function PostsList({ posts, isLoading, isLoadingMore, hasMore, loadMoreRef, error }) {
   if (isLoading) {
     return (
       <div>
         {[...Array(3)].map((_, i) => (
           <PostSkeleton key={i} />
         ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center rounded-xl bg-white border border-gray-200 p-12 lg:p-16">
+        <div className="text-6xl lg:text-7xl mb-4 lg:mb-6 text-red-500 opacity-50 flex justify-center">
+          <FiWifiOff />
+        </div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">Network Error</h3>
+        <p className="text-gray-600 text-sm lg:text-lg">
+          Unable to connect to the server. Please check your internet connection or try again later.
+        </p>
       </div>
     );
   }

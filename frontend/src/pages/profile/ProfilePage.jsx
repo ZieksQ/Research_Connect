@@ -54,7 +54,7 @@ const ProfilePage = () => {
                 <ProfileInfo data={userData} isLoading={isLoading} />
               </div>
               <div className="mb-1">
-                <ChangeProfilePicture />
+                <ChangeProfilePicture onUploadSuccess={fetchUserData} />
               </div>
             </div>
           </div>

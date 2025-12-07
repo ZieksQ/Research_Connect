@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { likePost, deleteSurvey } from '../../../services/survey/survey.service';
 import { useAuth } from '../../../hooks/useAuth';
 
-export default function PostCard({ post }) {
+export default function PostCard({ post, onArchive }) {
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isLiked, setIsLiked] = useState(post.is_liked || false);
@@ -34,7 +34,7 @@ export default function PostCard({ post }) {
   };
 
   const handleShare = async () => {
-    const shareUrl = `http://localhost:5173/form/response/${post.pk_survey_id}`;
+    const shareUrl = `${window.location.origin}/form/response/${post.pk_survey_id}`;
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
@@ -71,12 +71,16 @@ export default function PostCard({ post }) {
     setIsArchiving(true);
     try {
       await deleteSurvey({ id: post.pk_survey_id });
-      window.location.reload();
+      setArchiveModalOpen(false);
+      // Call callback to refresh posts instead of reloading
+      if (onArchive) {
+        onArchive();
+      }
     } catch (err) {
       console.error('Failed to archive post:', err);
+      alert('Failed to archive post. Please try again.');
     } finally {
       setIsArchiving(false);
-      setArchiveModalOpen(false);
     }
   };
 

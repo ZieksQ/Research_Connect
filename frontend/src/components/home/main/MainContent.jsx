@@ -180,6 +180,7 @@ export default function MainContent() {
           hasMore={hasMore && searchResults === null}
           loadMoreRef={loadMoreRef}
           error={error}
+          onRefresh={() => fetchPosts(1, true)}
         />
       </div>
     </div>

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { DndContext, useDroppable } from "@dnd-kit/core";
 import { postProfilePicture } from "../../services/user";
 
-export default function ChangeProfilePicture({ className = "" }) {
+export default function ChangeProfilePicture({ className = "", onUploadSuccess }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -45,14 +45,19 @@ export default function ChangeProfilePicture({ className = "" }) {
   };
 
   const handleUpload = async () => {
-    // Add your upload logic here
-    const response = await postProfilePicture(file);
     setIsLoading(true);
-    // console.log(response.data)
-    // console.log("Uploading file:", file);
-    
-    handleClose();
-    window.location.reload();
+    try {
+      await postProfilePicture(file);
+      handleClose();
+      // Call the callback to refresh user data instead of reloading
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
+    } catch (error) {
+      console.error("Upload failed:", error);
+      alert("Failed to upload profile picture. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   return (

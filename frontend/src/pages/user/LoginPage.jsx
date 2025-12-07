@@ -46,7 +46,7 @@ const LoginPage = () => {
     }
 
     // Refresh user data after successful login
-    await refreshUser();
+    await refreshUser(); 
     setLoading(false);
     navigate('/home'); // if data status is ok then navigate to / homepage
   };

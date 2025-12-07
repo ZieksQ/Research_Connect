@@ -12,6 +12,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false); // loading state 
   const navigate = useNavigate(); // for navigation react-router-dom
   const { refreshUser } = useAuth();
+  const API = import.meta.env.VITE_API_URL;
 
   // Remove Error after 3 seconds
   useEffect(() => {
@@ -51,7 +52,7 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "https://inquira-backend-render.onrender.com/api/oauth/login?redirect_url=react";
+    window.location.href = `${API}/api/oauth/login?redirect_url=react;`
   }
 
   return (

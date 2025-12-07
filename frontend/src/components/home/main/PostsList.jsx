@@ -35,7 +35,7 @@ const PostSkeleton = () => (
   </div>
 );
 
-export default function PostsList({ posts, isLoading, isLoadingMore, hasMore, loadMoreRef, error }) {
+export default function PostsList({ posts, isLoading, isLoadingMore, hasMore, loadMoreRef, error, onRefresh }) {
   if (isLoading) {
     return (
       <div>
@@ -77,7 +77,7 @@ export default function PostsList({ posts, isLoading, isLoadingMore, hasMore, lo
     <div>
       {posts.map((post) => (
         <Suspense key={post.pk_survey_id} fallback={<PostSkeleton />}>
-          <PostCard post={post} />
+          <PostCard post={post} onArchive={onRefresh} />
         </Suspense>
       ))}
       

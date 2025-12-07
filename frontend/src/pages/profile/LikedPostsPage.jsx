@@ -44,7 +44,8 @@ const LikedPostsPage = () => {
           {posts.map(post => (
             <PostCard 
               key={post.pk_survey_id} 
-              post={post} 
+              post={post}
+              onArchive={fetchLikedPosts}
             />
           ))}
         </div>

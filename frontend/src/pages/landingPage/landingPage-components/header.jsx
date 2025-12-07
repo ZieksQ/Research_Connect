@@ -10,14 +10,15 @@ export default function Header() {
   const { userInfo } = useAuth();
 
   const handleHomeClick = () => {
-    // If user is logged in, navigate to /home
+    setIsOpen(false);
+
+    // If user is logged in (auth has been checked and confirmed), go to /home
     if (userInfo && !userInfo.not_logged_in) {
       navigate("/home");
     } else {
-      // Otherwise, scroll to top of landing page
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // Otherwise, go to /login (which will redirect to /home if already logged in)
+      navigate("/login");
     }
-    setIsOpen(false);
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/navigation/Navbar';
 import Sidebar from '../components/navigation/Sidebar';
 import { Outlet } from 'react-router-dom';
@@ -14,8 +14,12 @@ const adminNavLinks = [
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const { userInfo } = useAuth();
+  const { userInfo, refreshUser } = useAuth();
   const userRole = userInfo?.message?.user_info?.role;
+
+  useEffect(() => {
+    refreshUser();
+  }, []);
 
   const closeSidebar = () => setIsSidebarOpen(false);
 

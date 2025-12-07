@@ -52,7 +52,7 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${API}/api/oauth/login?redirect_url=react;`
+    window.location.href = `${API}/api/oauth/login?redirect_url=react`
   }
 
   return (

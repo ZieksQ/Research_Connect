@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Login from "../../components/user/Login.jsx";
 import InquiraIcon from "../../assets/icons/Inquira.svg";
 import { loginUser } from "../../services/auth.js";
-import { useAuth } from "../../hooks/useAuth.jsx";
+import { getUserData } from "../../services/user.js";
+import { AuthContext } from "../../context/AuthProvider.jsx";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -11,7 +12,7 @@ const LoginPage = () => {
   const [error, setError] = useState(""); // shows message error
   const [loading, setLoading] = useState(false); // loading state
   const navigate = useNavigate(); // for navigation react-router-dom
-  const { refreshUser } = useAuth();
+  const { setUserInfo } = React.useContext(AuthContext);
   const API = import.meta.env.VITE_API_URL;
 
   // Remove Error after 3 seconds
@@ -44,7 +45,10 @@ const LoginPage = () => {
     }
 
     // Refresh user data after successful login
-    await refreshUser();
+    const userData = await getUserData();
+    if (userData && !userData.not_logged_in) {
+      setUserInfo(userData);
+    }
     setLoading(false);
     navigate("/home"); // if data status is ok then navigate to / homepage
   };

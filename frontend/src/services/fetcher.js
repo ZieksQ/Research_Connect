@@ -1,19 +1,18 @@
 // reusable api fetcher function
-// it works like a normal fetch api 
+// it works like a normal fetch api
 // but it automatically requires credentials and headers content-type as application/json
-// you may include other headers 
+// you may include other headers
 // then this returns data so you can do other validation on your handler code
 
 import { refreshUser } from "./auth";
 
 // Function to get CSRF token from cookie (Flask-JWT-Extended sets csrf_access_token cookie)
-const getCsrfToken = () => {
-  const cookies = document.cookie.split(';');
+const getCsrfToken = (cookieName = "csrf_access_token") => {
+  const cookies = document.cookie.split(";");
   for (let cookie of cookies) {
-    const [name, value] = cookie.trim().split('=');
-    if (name === 'csrf_access_token') {
-      return decodeURIComponent(value);
-    }
+    const [name, ...rest] = cookie.trim().split("=");
+    const value = rest.join("="); // handles "=" in cookie values
+    if (name === cookieName) return decodeURIComponent(value);
   }
   return null;
 };
@@ -28,13 +27,21 @@ export const apiFetch = async (url, options = {}) => {
     }
 
     // Add CSRF token for state-changing requests (Flask-JWT-Extended CSRF protection)
-    if (options.method && options.method !== "GET") {
-      const csrfToken = getCsrfToken();
+    if (options.method && options.method.toUpperCase() !== "GET") {
+      let csrfToken;
+
+      // Use refresh token CSRF for refresh/logout endpoints
+      if (url.includes("/api/user/refresh")) {
+        csrfToken = getCsrfToken("csrf_refresh_token");
+      } else {
+        csrfToken = getCsrfToken("csrf_access_token");
+      }
+
       if (csrfToken) {
         headers["X-CSRF-TOKEN"] = csrfToken;
       }
     }
-
+    
     let res = await fetch(url, {
       credentials: "include", // send cookies
       ...options,
@@ -43,7 +50,7 @@ export const apiFetch = async (url, options = {}) => {
 
     let data = await res.json();
 
-     // If token expired — refresh & retry once
+    // If token expired — refresh & retry once
     if (data?.token_expired) {
       console.warn("Access token expired. Refreshing...");
 
@@ -62,12 +69,15 @@ export const apiFetch = async (url, options = {}) => {
         console.error("Token refresh failed.");
       }
     }
-    
+
     console.log(data);
 
     return data;
   } catch (err) {
     console.error("API Fetch Error:", err);
-    return { ok: false, message: "Network error. Please check your connection." };
+    return {
+      ok: false,
+      message: "Network error. Please check your connection.",
+    };
   }
 };

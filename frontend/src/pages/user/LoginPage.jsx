@@ -55,7 +55,7 @@ const LoginPage = () => {
 
   const handleGoogleLogin = () => {
     window.location.href =
-      `http://${API}/api/oauth/login?redirect_url=react`;
+      `${API}/api/oauth/login?redirect_url=react`;
   };
 
   return (

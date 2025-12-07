@@ -17,16 +17,17 @@ const Sidebar = ({ onClose, navLinks = [] }) => {
   const isAdminMode = location.pathname.startsWith('/admin');
 
   const handleLogout = async () => {
-    // Add your logout logic here
-    const data = await logoutUser();
-    
-    if (!data) {
-        console.error("Error", data.message);
-        return;
+    try {
+      // Attempt to logout on the backend
+      await logoutUser();
+    } catch (error) {
+      // If backend logout fails (e.g., 401), log it but continue with local logout
+      console.warn("Backend logout failed, proceeding with local logout:", error);
+    } finally {
+      // Always clear local state and redirect, regardless of backend response
+      setUserInfo(null);
+      navigate("/login");
     }
-
-    setUserInfo(null);
-    navigate("/login");
   };
 
   return (

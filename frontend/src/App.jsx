@@ -52,9 +52,11 @@ const App = () => {
       <>
         {/* Root Path */}
         <Route path="/">
+          {/* Landing page - accessible to everyone */}
+          <Route index element={<LandingPage />} />
+          
           {/* Public routes - redirect to /home if logged in */}
           <Route element={<PublicLayout />}>
-            <Route index element={<LandingPage />} />
             <Route path="login" element={<LoginPage />} />
             <Route path="signup" element={<SignupPage />} />
           </Route>

@@ -1,10 +1,25 @@
 // src/pages/landingPage-components/header.jsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../../../hooks/useAuth";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const { userInfo } = useAuth();
+
+  const handleHomeClick = () => {
+    setIsOpen(false);
+
+    // If user is logged in (auth has been checked and confirmed), go to /home
+    if (userInfo && !userInfo.not_logged_in) {
+      navigate("/home");
+    } else {
+      // Otherwise, go to /login (which will redirect to /home if already logged in)
+      navigate("/login");
+    }
+  };
 
   return (
     <>
@@ -16,7 +31,10 @@ export default function Header() {
         className="fixed top-6 left-1/2 z-50 hidden w-[90%] max-w-[1200px] -translate-x-1/2 items-center justify-center rounded-full bg-transparent lg:flex"
       >
         <nav className="even-shadow flex items-center justify-center gap-4 rounded-full bg-white px-4 py-2">
-          <button className="rounded-full px-4 py-3 text-sm font-semibold text-gray-900 transition-all hover:bg-blue-50 hover:text-custom-blue">
+          <button 
+            onClick={handleHomeClick}
+            className="rounded-full px-4 py-3 text-sm font-semibold text-gray-900 transition-all hover:bg-blue-50 hover:text-custom-blue"
+          >
             Home
           </button>
 
@@ -75,7 +93,7 @@ export default function Header() {
 
               <button
                 className="text-lg font-semibold text-gray-900 hover:text-custom-blue"
-                onClick={() => setIsOpen(false)}
+                onClick={handleHomeClick}
               >
                 Home
               </button>

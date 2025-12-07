@@ -4,7 +4,14 @@ import { useAuth } from "../hooks/useAuth";
 
 const PublicLayout = () => {
   const navigate = useNavigate();
-  const { userInfo, loading } = useAuth();
+  const { userInfo, refreshUser, loading, hasChecked } = useAuth();
+
+  useEffect(() => {
+    // Fetch user data to check if already logged in
+    if (!hasChecked && !loading) {
+      refreshUser();
+    }
+  }, [hasChecked, loading, refreshUser]);
 
   useEffect(() => {
     // If user is logged in (userInfo exists and doesn't have not_logged_in flag), redirect to home

@@ -2,6 +2,7 @@ import json
 from App import limiter, supabase_client
 from flask import Blueprint, request
 from sqlalchemy import select, and_, or_, func, cast, String
+from sqlalchemy.orm import joinedload
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from functools import wraps
 from datetime import datetime, timezone
@@ -78,7 +79,7 @@ def get_posts():
     posts: list[Posts] = []
 
     for k, v in sorted_tags.items():
-        calc_percent = (v / occurence_tags) * 300
+        calc_percent = (v / occurence_tags) * 200
         limit = max(1, ceil(calc_percent))
 
         stmt_q = select(Posts
@@ -101,7 +102,7 @@ def get_posts():
         posts.extend( db.scalars(extra_posts).all() )
     else:
         extra_posts = select(Posts).where(base_filter
-                        ).order_by(Posts.date_created.desc()).limit(per_page * 50)
+                        ).order_by(Posts.date_created.desc()).limit(per_page * 35)
         
         posts.extend( db.scalars(extra_posts).all() )
     
@@ -197,6 +198,7 @@ def archive_post():
         return jsonify_template_user(404, False, "Post does not exists")
     
     post.archived = True
+    post.status = PostStatus.CLOSED.value
 
     success, error = commit_session()
     if not success:
@@ -221,6 +223,7 @@ def unarchive_post():
         return jsonify_template_user(404, False, "Post does not exists")
     
     post.archived = False
+    post.status = PostStatus.OPEN.value
 
     success, error = commit_session()
     if not success:

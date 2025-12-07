@@ -222,7 +222,7 @@ def enter_email():
     
     if otp != otp_db.otp_text:
         logger.error("User tampered with the session OTP")
-        return jsonify_template_user(400, False, "Look man, please dont tamper with the session's OTP")
+        return jsonify_template_user(400, False, "Wrong OTP code")
     
     if otp_db.is_used:
         logger.info("User tried to input a used OTP")

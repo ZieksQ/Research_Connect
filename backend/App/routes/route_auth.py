@@ -442,6 +442,12 @@ def update_data():
     school: str = data.get("school", None).strip()
     program: str = data.get("program", None).strip()
 
+    stmt = select(Users).where(Users.username == username)
+    if db.execute(stmt).scalar_one_or_none():
+        msg = "Username already exist"
+        logger.error(msg)
+        return jsonify_template_user(409, False, msg)
+
     info_validate, info_flag = handle_user_info_requirements(username, school, program)
     if info_flag:
         logger.info(f"{user.id} tried to change their info with missing requirements")

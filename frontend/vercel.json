@@ -6,15 +6,15 @@
     },
     {
       "source": "/user/:path*",
-      "destination": "http://localhost:5000/user/:path*"
+      "destination": "https://inquira-backend-render.onrender.com/user/:path*"
     },
     {
       "source": "/survey/:path*",
-      "destination": "http://localhost:5000/survey/:path*"
+      "destination": "https://inquira-backend-render.onrender.com/survey/:path*"
     },
     {
       "source": "/oauth/:path*",
-      "destination": "http://localhost:5000/oauth/:path*"
+      "destination": "https://inquira-backend-render.onrender.com/oauth/:path*"
     }
   ]
 }

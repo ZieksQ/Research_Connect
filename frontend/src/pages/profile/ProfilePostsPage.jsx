@@ -146,17 +146,15 @@ const ProfilePostsPage = () => {
                         {post.user_username}
                       </h3>
                       {/* Status Badge */}
-                      {post.status && (
-                        <span 
-                          className={`badge badge-sm text-white border-none text-[10px] lg:text-xs capitalize ${
-                            post.status === 'approved' ? 'bg-custom-green' : 
-                            post.status === 'pending' ? 'bg-yellow-500' : 
-                            post.status === 'rejected' ? 'bg-red-600' : 'bg-gray-500'
-                          }`}
-                        >
-                          {post.status}
-                        </span>
-                      )}
+                      <span 
+                        className={`badge badge-sm text-white border-none text-[10px] lg:text-xs capitalize ${
+                          !post['approved`'] ? 'bg-gray-500' : 
+                          post.status === 'open' ? 'bg-custom-blue' : 
+                          post.status === 'close' ? 'bg-red-600' : 'bg-gray-500'
+                        }`}
+                      >
+                        {!post['approved`'] ? 'pending' : post.status}
+                      </span>
                     </div>
                     <p className="text-gray-500 text-[11px] lg:text-[13px] uppercase tracking-wide mt-1">
                       {post.survey_category?.[0] || 'UNCATEGORIZED'}
@@ -249,12 +247,20 @@ const ProfilePostsPage = () => {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => navigate(`/form/result/${post.pk_survey_id}`)}
-                  className="btn btn-sm bg-custom-blue border-custom-blue text-white text-xs lg:text-sm px-4 lg:px-6 font-semibold h-auto min-h-[2rem] lg:min-h-[2.5rem] rounded-lg hover:bg-blue-800 hover:border-blue-800 ml-auto"
-                >
-                  View Results
-                </button>
+                <div className="flex items-center gap-2 ml-auto">
+                  {/* Responses Count */}
+                  <div className="flex items-center gap-1 text-gray-500 text-xs lg:text-sm px-2 lg:px-3">
+                    <MdPeople className="text-lg lg:text-xl" />
+                    <span>{post.num_of_responses || 0} responses</span>
+                  </div>
+
+                  <button
+                    onClick={() => navigate(`/form/result/${post.pk_survey_id}`)}
+                    className="btn btn-sm bg-custom-blue border-custom-blue text-white text-xs lg:text-sm px-4 lg:px-6 font-semibold h-auto min-h-[2rem] lg:min-h-[2.5rem] rounded-lg hover:bg-blue-800 hover:border-blue-800"
+                  >
+                    View Results
+                  </button>
+                </div>
               </div>
             </article>
             </Suspense>

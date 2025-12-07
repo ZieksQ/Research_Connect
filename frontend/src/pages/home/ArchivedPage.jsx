@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getArchivedPosts, unarchivedPost } from '../../services/survey/survey.service';
-import { MdAccessTime, MdPeople, MdUnarchive } from 'react-icons/md';
+import { MdAccessTime, MdPeople, MdUnarchive, MdBarChart } from 'react-icons/md';
 import { useAuth } from '../../hooks/useAuth';
 
 const ArchivedPostCard = ({ post, onUnarchive }) => {
+  const navigate = useNavigate();
   const [isUnarchiving, setIsUnarchiving] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
@@ -43,17 +45,15 @@ const ArchivedPostCard = ({ post, onUnarchive }) => {
                   {post.user_username}
                 </h3>
                 {/* Status Badge */}
-                {post.status && (
-                  <span 
-                    className={`badge badge-sm text-white border-none text-[10px] lg:text-xs capitalize ${
-                      post.status === 'approved' ? 'bg-custom-green' : 
-                      post.status === 'pending' ? 'bg-yellow-500' : 
-                      post.status === 'rejected' ? 'bg-red-600' : 'bg-gray-500'
-                    }`}
-                  >
-                    {post.status}
-                  </span>
-                )}
+                <span 
+                  className={`badge badge-sm text-white border-none text-[10px] lg:text-xs capitalize ${
+                    !post['approved`'] ? 'bg-gray-500' : 
+                    post.status === 'open' ? 'bg-custom-blue' : 
+                    post.status === 'close' ? 'bg-red-600' : 'bg-gray-500'
+                  }`}
+                >
+                  {!post['approved`'] ? 'pending' : post.status}
+                </span>
               </div>
               <p className="text-gray-500 text-[11px] lg:text-[13px] uppercase tracking-wide mt-1">
                 {post.user_program || 'None'}
@@ -114,6 +114,22 @@ const ArchivedPostCard = ({ post, onUnarchive }) => {
 
           {/* Unarchive Button */}
           <div className="flex items-center gap-2 ml-auto">
+            {/* Responses Count */}
+            <div className="flex items-center gap-1 text-gray-500 text-xs lg:text-sm px-2 lg:px-3">
+              <MdPeople className="text-lg lg:text-xl" />
+              <span>{post.num_of_responses || 0} responses</span>
+            </div>
+
+            {/* View Results Icon Button */}
+            <div className="tooltip" data-tip="View Results">
+              <button
+                onClick={() => navigate(`/form/result/${post.pk_survey_id}`)}
+                className="btn btn-ghost btn-sm btn-circle text-custom-green hover:bg-green-50"
+              >
+                <MdBarChart className="text-2xl" />
+              </button>
+            </div>
+
             <button
               onClick={handleUnarchiveClick}
               disabled={isUnarchiving}

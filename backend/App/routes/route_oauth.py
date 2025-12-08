@@ -84,13 +84,17 @@ def authorize():
         return redirect(f"{url_redirect}?msg=Database_error")
     
     # to pass data to the response you need to type a query params
-    resp = make_response(redirect(f"{url_redirect}?msg=Login_successful&login_type=google"))
-    set_access_cookies(resp, access_token)
-    set_refresh_cookies(resp, refresh_token)
+    resp = make_response("", 307)
+    resp.headers["Location"] = f"{url_redirect}?msg=Login_successful&login_type=google"
+
+    set_access_cookies(resp,
+                       access_token,
+                       max_age=current_app.config["JWT_ACCESS_TOKEN_EXPIRES"])
+    set_refresh_cookies(resp,
+                        refresh_token,
+                        max_age=current_app.config["JWT_REFRESH_TOKEN_EXPIRES"])
 
     logger.info(resp.headers)
-    
-    logger.info("User successfully logged in as google")
 
     return resp
 

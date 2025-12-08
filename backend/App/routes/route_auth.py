@@ -102,8 +102,12 @@ def user_login():
     
     response = jsonify_template_user(200, True, "Login successful", login_type="inquira")
 
-    set_access_cookies(response, access_token)
-    set_refresh_cookies(response, refresh_token)
+    set_access_cookies(response,
+                       access_token,
+                       max_age=current_app.config["JWT_ACCESS_TOKEN_EXPIRES"])
+    set_refresh_cookies(response,
+                        refresh_token,
+                        max_age=current_app.config["JWT_REFRESH_TOKEN_EXPIRES"])
 
     logger.info(response.headers)
     logger.info("Login Succesful")
@@ -442,11 +446,6 @@ def update_data():
     school: str = data.get("school", None).strip()
     program: str = data.get("program", None).strip()
 
-    stmt = select(Users).where(Users.username == username)
-    if db.execute(stmt).scalar_one_or_none():
-        msg = "Username already exist"
-        logger.error(msg)
-        return jsonify_template_user(409, False, msg)
 
     info_validate, info_flag = handle_user_info_requirements(username, school, program)
     if info_flag:
@@ -456,6 +455,12 @@ def update_data():
     
     who_user = who_user_query(user.id, user.user_type)
 
+    stmt = select(Users).where(Users.username == username)
+    if db.execute(stmt).scalar_one_or_none() and who_user.user_type != username:
+        msg = "Username already exist"
+        logger.error(msg)
+        return jsonify_template_user(409, False, msg)
+    
     who_user.username = username
     who_user.school = school
     who_user.program = program

@@ -1,0 +1,11 @@
+<svg width="1163" height="1066" viewBox="0 0 1163 1066" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Bigger blue circle -->
+  <circle cx="581" cy="533" r="500" fill="#2C5BED"/>
+
+  <!-- Bigger white bars -->
+  <rect x="300" y="520" width="140" height="280" rx="70" fill="white"/>
+  <rect x="510" y="300" width="140" height="460" rx="70" fill="white"/>
+  <rect x="720" y="430" width="140" height="350" rx="70" fill="white"/>
+
+</svg>

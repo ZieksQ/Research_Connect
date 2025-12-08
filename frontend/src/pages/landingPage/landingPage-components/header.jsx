@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../../hooks/useAuth";
 
-export default function Header() {
+export default function Header({ onScrollTo }) {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { userInfo } = useAuth();
@@ -38,12 +38,11 @@ export default function Header() {
             Home
           </button>
 
-          <button className="rounded-full px-4 py-3 text-sm font-semibold text-gray-900 transition-all hover:bg-blue-50 hover:text-custom-blue">
+          <button 
+            onClick={() => onScrollTo && onScrollTo('#features')}
+            className="rounded-full px-4 py-3 text-sm font-semibold text-gray-900 transition-all hover:bg-blue-50 hover:text-custom-blue"
+          >
             About
-          </button>
-
-          <button className="rounded-full px-4 py-3 text-sm font-semibold text-gray-900 transition-all hover:bg-blue-50 hover:text-custom-blue">
-            Socials
           </button>
 
           <Link to="/login">
@@ -70,7 +69,7 @@ export default function Header() {
           <span className="block h-1 w-full rounded bg-gray-900"></span>
           <span className="block h-1 w-full rounded bg-gray-900"></span>
         </button>
-        <h1 className="text-xl font-bold text-custom-blue">Inquira&trade;</h1>
+        <h1 className="text-xl font-bold text-custom-blue font-giaza">Inquira&trade;</h1>
       </div>
 
       {/* Sidebar overlay with AnimatePresence for exit animation */}
@@ -100,16 +99,12 @@ export default function Header() {
 
               <button
                 className="text-lg font-semibold text-gray-900 hover:text-custom-blue"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  if (onScrollTo) onScrollTo('#features');
+                }}
               >
                 About
-              </button>
-
-              <button
-                className="text-lg font-semibold text-gray-900 hover:text-custom-blue"
-                onClick={() => setIsOpen(false)}
-              >
-                Socials
               </button>
 
               <Link to="/login">

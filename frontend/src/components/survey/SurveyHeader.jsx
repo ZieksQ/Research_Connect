@@ -8,7 +8,7 @@
 export default function SurveyHeader({ title, description, approxTime }) {
   return (
     <div className="rounded-xl shadow-lg mb-6 border-t-8 border-custom-blue bg-white p-8 lg:p-14">
-      <h1 className="text-gray-900 text-2xl lg:text-4xl font-bold mb-4 lg:mb-6 font-giaza">
+      <h1 className="text-gray-900 text-2xl lg:text-4xl font-bold mb-4 lg:mb-6">
         {title}
       </h1>
       <p className="text-gray-600 text-sm lg:text-lg mb-4 lg:mb-6 leading-relaxed">

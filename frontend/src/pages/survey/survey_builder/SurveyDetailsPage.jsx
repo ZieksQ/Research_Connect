@@ -138,7 +138,7 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-12">
       <div className="mb-8 lg:mb-10">
-        <h2 className="text-2xl lg:text-3xl font-giaza text-custom-blue mb-2">
+        <h2 className="text-2xl lg:text-3xl text-custom-blue mb-2">
           Create Your Survey
         </h2>
         <p className="text-gray-500 text-base lg:text-lg">

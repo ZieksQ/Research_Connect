@@ -74,7 +74,7 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-8">
       <div className="mb-6">
-        <h2 className="text-2xl font-giaza text-custom-blue mb-2">Target Audience</h2>
+        <h2 className="text-2xl text-custom-blue mb-2">Target Audience</h2>
         <p className="text-sm text-gray-500">
           Select the audiences you want to target with this survey (max 5)
         </p>

@@ -43,7 +43,7 @@ export default function Loader({ onFinish }) {
         transition={{ duration: 0.8 }} // faster fade out
         className="fixed top-0 left-0 w-full h-full bg-black flex items-center justify-center z-50"
       >
-        <h1 className="text-white text-6xl md:text-8xl font-bold">
+        <h1 className="text-white text-6xl md:text-8xl font-bold font-giaza">
           {displayedText}
           <span className="animate-blink">|</span>
         </h1>

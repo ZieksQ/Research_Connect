@@ -13,6 +13,7 @@ import Footer from "./landingPage-components/footer";
 
 export default function LandingPage() {
   const scrollRef = useRef(null);
+  const scrollInstance = useRef(null);
   const scrollY = useMotionValue(0);
   const [loading, setLoading] = useState(true);
 
@@ -29,6 +30,7 @@ export default function LandingPage() {
         smartphone: { smooth: true },
         tablet: { smooth: true },
       });
+      scrollInstance.current = scroll;
 
       scroll.on("scroll", (args) => {
         scrollY.set(args.scroll.y);
@@ -39,9 +41,21 @@ export default function LandingPage() {
         scroll.update();
       }, 600);
 
-      return () => scroll.destroy();
+      return () => {
+        if (scroll) scroll.destroy();
+        scrollInstance.current = null;
+      };
     }
   }, [loading, scrollY]);
+
+  const handleScrollTo = (id) => {
+    if (scrollInstance.current) {
+      const target = document.querySelector(id);
+      if (target) {
+        scrollInstance.current.scrollTo(target);
+      }
+    }
+  };
 
   return (
     <>
@@ -51,7 +65,7 @@ export default function LandingPage() {
       {/* Main content, only rendered after loader */}
       {!loading && (
         <>
-          <Header />
+          <Header onScrollTo={handleScrollTo} />
           <main
             data-scroll-container
             ref={scrollRef}

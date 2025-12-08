@@ -13,25 +13,25 @@ const RejectedPostCard = ({ post }) => {
     <>
       <div className="rounded-xl shadow-sm hover:shadow-md transition-shadow bg-white border border-gray-200 p-5 lg:p-7 mb-4 lg:mb-5">
         {/* Header with Avatar, User Info - No Menu */}
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start justify-between mb-5">
           <div className="flex items-start gap-3 flex-1">
             {/* Avatar */}
             <div className="avatar">
-              <div className="rounded-full w-10 h-10 lg:w-12 lg:h-12">
+              <div className="rounded-full w-11 h-11 lg:w-14 lg:h-14">
                 <img src={post.user_profile} alt={post.user_username} />
               </div>
             </div>
 
             {/* User Info */}
             <div className="flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-gray-900 text-sm lg:text-lg font-semibold">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h3 className="text-gray-900 text-base lg:text-lg font-bold">
                   {post.user_username}
                 </h3>
                 {/* Status Badge */}
                 {post.status && (
                   <span 
-                    className={`badge badge-sm text-white border-none text-[10px] lg:text-xs capitalize ${
+                    className={`badge badge-sm text-white border-none text-[10px] lg:text-xs capitalize font-semibold ${
                       post.status === 'approved' ? 'bg-custom-green' : 
                       post.status === 'pending' ? 'bg-yellow-500' : 
                       post.status === 'rejected' ? 'bg-red-600' : 'bg-gray-500'
@@ -41,7 +41,7 @@ const RejectedPostCard = ({ post }) => {
                   </span>
                 )}
               </div>
-              <p className="text-gray-500 text-[11px] lg:text-[13px] uppercase tracking-wide mt-1">
+              <p className="text-gray-500 text-[11px] lg:text-[13px] uppercase tracking-wide mt-0.5 font-medium">
                 {post.user_program || 'None'}
               </p>
             </div>
@@ -49,14 +49,14 @@ const RejectedPostCard = ({ post }) => {
         </div>
 
         {/* Post Content */}
-        <div className="mb-4 lg:mb-5">
-          <p className="text-gray-900 text-sm lg:text-base leading-relaxed mb-2 lg:mb-3 font-medium">
+        <div className="mb-5 lg:mb-6">
+          <h2 className="text-gray-900 text-lg lg:text-xl leading-snug mb-2 lg:mb-2.5 font-bold tracking-tight">
             {post.survey_title}
-          </p>
+          </h2>
 
           {/* Survey Content */}
           {post.survey_content && (
-            <p className="text-gray-600 text-xs lg:text-sm leading-relaxed mb-3 lg:mb-4">
+            <p className="text-gray-600 text-sm lg:text-base leading-relaxed mb-4 lg:mb-5">
               {post.survey_content}
             </p>
           )}
@@ -75,22 +75,22 @@ const RejectedPostCard = ({ post }) => {
         </div>
 
         {/* Footer with Time, Audience, and Button */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-5 flex-wrap">
             {/* Approx Time */}
-            <div className="flex items-center gap-1">
-              <MdAccessTime className="text-base lg:text-lg text-custom-green" />
-              <span className="text-gray-500 text-xs lg:text-sm">
+            <div className="flex items-center gap-1.5">
+              <MdAccessTime className="text-lg lg:text-xl text-custom-green" />
+              <span className="text-gray-600 text-xs lg:text-sm font-medium">
                 {post.approx_time || 'N/A'}
               </span>
             </div>
 
             {/* Target Audience */}
-            <div className="flex items-center gap-1">
-              <MdPeople className="text-base lg:text-lg text-custom-blue shrink-0" />
+            <div className="flex items-center gap-1.5">
+              <MdPeople className="text-lg lg:text-xl text-custom-blue shrink-0" />
               <div className="tooltip" data-tip={post.survey_target_audience?.join(', ')}>
                 <span 
-                  className="text-gray-500 text-xs lg:text-sm block max-w-[150px] truncate text-left"
+                  className="text-gray-600 text-xs lg:text-sm font-medium block max-w-[150px] truncate text-left"
                 >
                   {post.survey_target_audience?.join(', ')}
                 </span>
@@ -99,7 +99,7 @@ const RejectedPostCard = ({ post }) => {
           </div>
 
           {/* Reject Reason Button */}
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex items-center gap-3 ml-auto">
             <button
               onClick={handleReasonClick}
               className="btn btn-sm bg-red-600 border-red-600 text-white text-xs lg:text-sm px-4 lg:px-6 font-semibold h-auto min-h-[2rem] lg:min-h-[2.5rem] rounded-lg hover:bg-red-700 hover:border-red-700 flex items-center gap-2"

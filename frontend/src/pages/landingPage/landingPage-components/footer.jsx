@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 
 const footerLinks = [
   { title: "Home", url: "/" },
-  { title: "Socials", url: "/socials" },
   { title: "About", url: "/about" },
 ];
 
@@ -47,7 +46,7 @@ const Footer = () => {
           className="flex-1 space-y-6 lg:max-w-md text-center lg:text-left"
         >
           <div>
-            <h1 className="font-extrabold text-4xl tracking-tight text-custom-blue">
+            <h1 className="font-extrabold text-4xl tracking-tight text-custom-blue font-giaza">
               Inquira<sup className="text-base">™</sup>
             </h1>
           </div>
@@ -102,26 +101,6 @@ const Footer = () => {
               More Links
             </h4>
             {footerLinks.map((link) => (
-              <motion.a
-                key={link.title}
-                href={link.url}
-                variants={linkHover}
-                whileHover="hover"
-                className="block mb-3 text-lg relative group transition"
-              >
-                <span className="group-hover:text-custom-blue transition-colors duration-300">
-                  {link.title}
-                </span>
-                <span className="absolute left-0 bottom-0 h-[1px] w-full bg-custom-blue scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
-              </motion.a>
-            ))}
-          </div>
-
-          <div>
-            <h4 className="mb-3 text-gray-500 uppercase font-semibold tracking-wide">
-              Contacts
-            </h4>
-            {contacts.map((link) => (
               <motion.a
                 key={link.title}
                 href={link.url}

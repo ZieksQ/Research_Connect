@@ -14,7 +14,7 @@ export default function HeroSection({ x1, x2, x3 }) {
     >
       {/* Fake header - visible on lg only */}
       <motion.h1
-        className="mb-6 hidden lg:block text-[clamp(1.5rem,4vw,2.5rem)] font-bold text-gray-900"
+        className="mb-6 hidden lg:block text-[clamp(1.5rem,4vw,2.5rem)] font-bold text-gray-900 font-giaza"
         initial="hidden"
         animate="visible"
         variants={textAnimation}

@@ -306,7 +306,7 @@ export default function SurveyWizard() {
 
         {/* Header */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-8 mb-8">
-          <h1 className="text-center text-3xl lg:text-4xl font-giaza text-custom-blue mb-2">
+          <h1 className="text-center text-3xl lg:text-4xl text-custom-blue mb-2">
             Create Survey
           </h1>
           <p className="text-center text-gray-500 text-lg">

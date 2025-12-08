@@ -660,23 +660,26 @@ def handle_user_info_requirements(username: str, school: str, program: str) -> t
         (lambda program: len(program) <= 256,   "Program must must not exceed 256 characters"),
     ]
 
-    for check, msg in useranme_rules:
-        if not check(username):
-            result["username"] = msg
-            flag.append(True)
-            break
+    if username:
+        for check, msg in useranme_rules:
+            if not check(username):
+                result["username"] = msg
+                flag.append(True)
+                break
 
-    for check, msg in school_rules:
-        if not check(school):
-            result["school"] = msg
-            flag.append(True)
-            break
+    if school:
+        for check, msg in school_rules:
+            if not check(school):
+                result["school"] = msg
+                flag.append(True)
+                break
 
-    for check, msg in program_rules:
-        if not check(program):
-            result["program"] = msg
-            flag.append(True)
-            break
+    if program:
+        for check, msg in program_rules:
+            if not check(program):
+                result["program"] = msg
+                flag.append(True)
+                break
 
     return result, any(flag)
 

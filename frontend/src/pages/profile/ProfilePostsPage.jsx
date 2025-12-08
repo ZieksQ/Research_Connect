@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { deleteSurvey, editPost } from '../../services/survey/survey.service'
 import { useNavigate } from 'react-router-dom'
-import { MdAccessTime, MdPeople, MdMoreVert, MdShare, MdDelete, MdCheck, MdArchive, MdEdit } from 'react-icons/md'
+import { MdAccessTime, MdPeople, MdMoreVert, MdShare, MdDelete, MdCheck, MdArchive, MdEdit, MdLockOpen, MdLock, MdCalendarToday } from 'react-icons/md'
 
 const ProfilePostSkeleton = () => (
   <div className="rounded-xl shadow-sm bg-white border border-gray-200 p-5 lg:p-6 mb-4">
@@ -272,8 +272,8 @@ const ProfilePostsPage = () => {
                         {!post['approved`'] ? 'pending' : post.status}
                       </span>
                     </div>
-                    <p className="text-gray-500 text-[11px] lg:text-[13px] uppercase tracking-wide mt-1">
-                      {post.survey_category?.[0] || 'UNCATEGORIZED'}
+                    <p className="text-gray-500 text-xs lg:text-sm mt-1">
+                      {post.user_program || 'None'}
                     </p>
                   </div>
                 </div>
@@ -354,13 +354,23 @@ const ProfilePostsPage = () => {
               {/* Footer */}
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-4 flex-wrap">
+                  {/* Date Created */}
                   <div className="flex items-center gap-1">
-                    <MdAccessTime className="text-base lg:text-lg text-custom-green" />
+                    <MdCalendarToday className="text-base lg:text-lg text-gray-500" />
                     <span className="text-gray-500 text-xs lg:text-sm">
-                      {post.survey_date_created ? new Date(post.survey_date_created).toLocaleDateString() : ''}
+                      {post.survey_date_created ? new Date(post.survey_date_created).toLocaleDateString() : 'N/A'}
                     </span>
                   </div>
 
+                  {/* Approx Time */}
+                  <div className="flex items-center gap-1">
+                    <MdAccessTime className="text-base lg:text-lg text-custom-green" />
+                    <span className="text-gray-500 text-xs lg:text-sm">
+                      {post.approx_time || 'N/A'}
+                    </span>
+                  </div>
+
+                  {/* Target Audience */}
                   <div className="flex items-center gap-1">
                     <MdPeople className="text-base lg:text-lg text-custom-blue shrink-0" />
                     <div className="tooltip" data-tip={post.survey_target_audience?.join(', ')}>
@@ -500,17 +510,80 @@ const ProfilePostsPage = () => {
               {/* Status - Only show if post is approved */}
               {postToEdit?.['approved`'] && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
                     Status
                   </label>
-                  <select
-                    value={editFormData.status}
-                    onChange={(e) => handleEditFormChange('status', e.target.value)}
-                    className="select select-bordered w-full"
-                  >
-                    <option value="open">Open</option>
-                    <option value="close">Close</option>
-                  </select>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Open Option */}
+                    <label
+                      className={`cursor-pointer border-2 rounded-lg p-4 transition-all ${
+                        editFormData.status === 'open'
+                          ? 'border-green-500 bg-green-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="status"
+                        value="open"
+                        checked={editFormData.status === 'open'}
+                        onChange={(e) => handleEditFormChange('status', e.target.value)}
+                        className="hidden"
+                      />
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                            editFormData.status === 'open'
+                              ? 'bg-green-500 text-white'
+                              : 'bg-gray-200 text-gray-500'
+                          }`}
+                        >
+                          <MdLockOpen className="text-2xl" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 mb-1">Open</h4>
+                          <p className="text-xs text-gray-600">
+                            Survey is active and accepting responses from participants
+                          </p>
+                        </div>
+                      </div>
+                    </label>
+
+                    {/* Close Option */}
+                    <label
+                      className={`cursor-pointer border-2 rounded-lg p-4 transition-all ${
+                        editFormData.status === 'close'
+                          ? 'border-red-500 bg-red-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="status"
+                        value="close"
+                        checked={editFormData.status === 'close'}
+                        onChange={(e) => handleEditFormChange('status', e.target.value)}
+                        className="hidden"
+                      />
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                            editFormData.status === 'close'
+                              ? 'bg-red-500 text-white'
+                              : 'bg-gray-200 text-gray-500'
+                          }`}
+                        >
+                          <MdLock className="text-2xl" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 mb-1">Close</h4>
+                          <p className="text-xs text-gray-600">
+                            Survey is closed and no longer accepting new responses
+                          </p>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
                 </div>
               )}
 

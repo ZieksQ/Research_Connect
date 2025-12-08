@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { MdPeople, MdBusiness, MdSchool, MdLocalHospital, MdEdit, MdCheck, MdWork, MdScience, MdComputer, MdFamilyRestroom, MdElderly } from 'react-icons/md';
+import { showToast } from '../../../utils/toast';
 
 export default function TargetAudiencePage({ data, onNext, onBack }) {
   const [selectedAudiences, setSelectedAudiences] = useState(
@@ -31,7 +32,7 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
         if (prev.length < 5) {
           return [...prev, audienceId];
         } else {
-          alert('You can select a maximum of 5 target audiences');
+          showToast('You can select a maximum of 5 target audiences', 'warning');
           return prev;
         }
       }
@@ -45,7 +46,7 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
         setShowCustomInput(false);
         setCustomAudience('');
       } else {
-        alert('You can select a maximum of 5 target audiences');
+        showToast('You can select a maximum of 5 target audiences', 'warning');
       }
     }
   };
@@ -56,7 +57,7 @@ export default function TargetAudiencePage({ data, onNext, onBack }) {
 
   const handleContinue = () => {
     if (selectedAudiences.length === 0) {
-      alert('Please select at least one target audience');
+      showToast('Please select at least one target audience', 'warning');
       return;
     }
 

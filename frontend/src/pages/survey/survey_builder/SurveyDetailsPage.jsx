@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MdAdd, MdClose } from 'react-icons/md';
+import { showToast } from '../../../utils/toast';
 
 export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
   const [title, setTitle] = useState(data.surveyTitle || '');
@@ -46,7 +47,7 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
     if (tags.includes(tag)) {
       setTags(tags.filter(t => t !== tag));
     } else if (tags.length >= 3) {
-      alert('You can only select up to 3 tags');
+      showToast('You can only select up to 3 tags', 'warning');
     } else {
       setTags([...tags, tag]);
     }
@@ -56,11 +57,11 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
     if (customTag.trim() && !tags.includes(customTag.trim())) {
       const trimmedTag = customTag.trim();
       if (trimmedTag.length > 16) {
-        alert('Custom tag must be 16 characters or less');
+        showToast('Custom tag must be 16 characters or less', 'warning');
         return;
       }
       if (tags.length >= 3) {
-        alert('You can only select up to 3 tags');
+        showToast('You can only select up to 3 tags', 'warning');
         return;
       }
       setTags([...tags, trimmedTag]);
@@ -111,7 +112,7 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
     }
 
     if (!selectedTime) {
-      alert('Please select approximate time');
+      showToast('Please select approximate time', 'warning');
       isValid = false;
     }
 

@@ -30,9 +30,9 @@ def run_app():
     # flask-jwt-extended config
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]                  # Sets the location where the JWT will be sent, default is headers
     app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY
-    app.config["JWT_COOKIE_CSRF_PROTECT"] = False                   # If True, requires the frontend to inlucde CSRF Token for every call
-    app.config["JWT_COOKIE_SECURE"] = False                         # Requires the cookie to be send thorugh HTTPS, sets to false so we can send both HTTP and HTTPS
-    app.config["JWT_COOKIE_SAMESITE"] = "Lax"                       # To allow cookies to be send on cross origins, use Lax for dev, use None for production
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = True                   # If True, requires the frontend to inlucde CSRF Token for every call
+    app.config["JWT_COOKIE_SECURE"] = True                         # Requires the cookie to be send thorugh HTTPS, sets to false so we can send both HTTP and HTTPS
+    app.config["JWT_COOKIE_SAMESITE"] = "None"                       # To allow cookies to be send on cross origins, use Lax for dev, use None for production
     app.config["JWT_ACCESS_COOKIE_PATH"] = "/"                      # sent with all requests to your API (/, /users, /posts, etc.)
     app.config["JWT_REFRESH_COOKIE_PATH"] = "/api/user/refresh"     # sent only to /api/user/refresh endpoint    
     app.config["JWT_SESSION_COOKIE"] = False                        # False to have persistent cookies intead of session one, see users_auth.log for cookies, it now has expiration

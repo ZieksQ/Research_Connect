@@ -84,7 +84,7 @@ def logger_setup_sqla():
 
 logger_setup_sqla()
 
-TESTING = True   # Used for unit testing
+TESTING = False   # Used for unit testing
 SQLDB = True     # If testing is True, decide if you want to switch to a sqlite(True) instead of memory 
 IPV4 = True      # True if you need IPv4 compatibility, however if not set it to false as it is recommended by Supabase
 TPOOLER = True   # If IPV4 is True, then decide if you need Transaction_Pooler(True) or Session_Pooler(False)

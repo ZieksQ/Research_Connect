@@ -354,14 +354,6 @@ const ProfilePostsPage = () => {
               {/* Footer */}
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-4 flex-wrap">
-                  {/* Date Created */}
-                  <div className="flex items-center gap-1">
-                    <MdCalendarToday className="text-base lg:text-lg text-gray-500" />
-                    <span className="text-gray-500 text-xs lg:text-sm">
-                      {post.survey_date_created ? new Date(post.survey_date_created).toLocaleDateString() : 'N/A'}
-                    </span>
-                  </div>
-
                   {/* Approx Time */}
                   <div className="flex items-center gap-1">
                     <MdAccessTime className="text-base lg:text-lg text-custom-green" />

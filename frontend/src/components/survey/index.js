@@ -9,6 +9,7 @@ export { default as SurveyLoadingModal } from './SurveyLoadingModal';
 export { default as SurveyNotFound } from './SurveyNotFound';
 export { default as SurveyQuestion } from './SurveyQuestion';
 export { default as SurveyCard } from './SurveyCard';
+export { default as ApproxTimeModal } from './ApproxTimeModal';
 
 // Re-export input components
 export * from './inputs';

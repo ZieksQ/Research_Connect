@@ -125,9 +125,9 @@ export default function PostCard({ post, onArchive }) {
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setShowMenu(!showMenu)}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="btn btn-ghost btn-sm btn-circle text-gray-500 w-8 h-8 lg:w-10 lg:h-10 min-h-0"
           >
-            <MdMoreVert className="text-xl lg:text-2xl text-gray-500" />
+            <MdMoreVert className="text-xl lg:text-2xl" />
           </button>
 
           {/* Dropdown Menu */}
@@ -194,14 +194,6 @@ export default function PostCard({ post, onArchive }) {
       {/* Footer with Time, Audience, and Button */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-4 flex-wrap">
-          {/* Date Created */}
-          <div className="flex items-center gap-1">
-            <MdCalendarToday className="text-base lg:text-lg text-gray-500" />
-            <span className="text-gray-500 text-xs lg:text-sm">
-              {new Date(post.survey_date_created).toLocaleDateString()}
-            </span>
-          </div>
-
           {/* Approx Time */}
           <div className="flex items-center gap-1">
             <MdAccessTime className="text-base lg:text-lg text-custom-green" />

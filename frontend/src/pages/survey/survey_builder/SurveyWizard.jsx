@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate, Link, useBlocker } from 'react-router-dom';
 import { publishSurvey } from '../../../services/survey/survey.service';
-import { MdCheckCircle, MdError, MdClose, MdVpnKey, MdArrowBack } from 'react-icons/md';
+import { MdCheckCircle, MdError, MdClose, MdVpnKey, MdArrowBack, MdSave, MdDeleteForever } from 'react-icons/md';
 // import { MdCheck } from 'react-icons/md';
 // import { log } from 'three';
 
@@ -10,6 +10,9 @@ const SurveyDetailsPage = lazy(() => import('./SurveyDetailsPage'));
 const TargetAudiencePage = lazy(() => import('./TargetAudiencePage'));
 const SortableForm = lazy(() => import('./SortableForm'));
 const SurveyPreviewPage = lazy(() => import('./SurveyPreviewPage'));
+const ApproxTimeModal = lazy(() => import('../../../components/survey/ApproxTimeModal'));
+
+const DRAFT_KEY = 'survey_draft';
 
 export default function SurveyWizard() {
   const navigate = useNavigate();
@@ -19,6 +22,8 @@ export default function SurveyWizard() {
   const [postCode, setPostCode] = useState('');
   const [publishModal, setPublishModal] = useState({ show: false, success: false, message: '' });
   const [isPublishing, setIsPublishing] = useState(false);
+  const [showDraftModal, setShowDraftModal] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
   const [surveyData, setSurveyData] = useState({
     surveyTitle: '',
     surveyContent: '',
@@ -35,6 +40,52 @@ export default function SurveyWizard() {
     { name: 'Survey Questions', component: SortableForm },
     { name: 'Review & Publish', component: SurveyPreviewPage }
   ];
+
+  // Check for existing draft on mount
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(DRAFT_KEY);
+    if (savedDraft) {
+      setShowDraftModal(true);
+    }
+  }, []);
+
+  // Save draft to localStorage whenever surveyData changes
+  useEffect(() => {
+    if (surveyData.surveyTitle || surveyData.surveyContent || surveyData.data.length > 0) {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        ...surveyData,
+        currentStep,
+        timestamp: new Date().toISOString()
+      }));
+    }
+  }, [surveyData, currentStep]);
+
+  const loadDraft = () => {
+    const savedDraft = localStorage.getItem(DRAFT_KEY);
+    if (savedDraft) {
+      const draft = JSON.parse(savedDraft);
+      setSurveyData({
+        surveyTitle: draft.surveyTitle || '',
+        surveyContent: draft.surveyContent || '',
+        surveyDescription: draft.surveyDescription || '',
+        surveyApproxTime: draft.surveyApproxTime || '',
+        surveyTags: draft.surveyTags || [],
+        target: draft.target || '',
+        data: draft.data || []
+      });
+      setCurrentStep(draft.currentStep || 0);
+    }
+    setShowDraftModal(false);
+  };
+
+  const discardDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+    setShowDraftModal(false);
+  };
+
+  const clearDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+  };
 
   const updateSurveyData = (newData) => {
     setSurveyData(prev => ({ ...prev, ...newData }));
@@ -72,6 +123,7 @@ export default function SurveyWizard() {
   // Auto-close modal and navigate on success
   useEffect(() => {
     if (publishModal.show && publishModal.success) {
+      clearDraft(); // Clear draft on successful publish
       const timer = setTimeout(() => {
         setPublishModal({ show: false, success: false, message: '' });
         navigate('/home');
@@ -440,25 +492,68 @@ export default function SurveyWizard() {
       {blocker.state === "blocked" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="p-8 rounded-xl shadow-xl bg-white max-w-md w-[90%]">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-50 flex items-center justify-center">
-              <MdError className="text-4xl text-red-500" />
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-50 flex items-center justify-center">
+              <MdSave className="text-4xl text-yellow-600" />
             </div>
-            <h2 className="text-xl font-bold mb-3 text-gray-900 text-center">Unsaved Changes</h2>
+            <h2 className="text-xl font-bold mb-3 text-gray-900 text-center">Save Your Progress?</h2>
             <p className="mb-6 text-gray-600 text-center">
-              You have unsaved changes. Are you sure you want to leave? Your progress will be lost.
+              Would you like to save your survey as a draft? You can continue working on it later.
             </p>
-            <div className="flex gap-3 justify-center">
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  // Draft is already saved automatically
+                  blocker.proceed();
+                }}
+                className="btn w-full bg-custom-blue hover:bg-blue-700 text-white border-none"
+              >
+                <MdSave className="text-lg" />
+                Save Draft & Exit
+              </button>
+              <button
+                onClick={() => {
+                  clearDraft();
+                  blocker.proceed();
+                }}
+                className="btn w-full btn-ghost text-red-500 hover:bg-red-50"
+              >
+                <MdDeleteForever className="text-lg" />
+                Exit Without Saving
+              </button>
               <button
                 onClick={() => blocker.reset()}
-                className="btn btn-ghost text-gray-500 hover:bg-gray-100"
+                className="btn w-full btn-ghost text-gray-500 hover:bg-gray-100"
               >
                 Cancel
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Load Draft Modal */}
+      {showDraftModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="p-8 rounded-xl shadow-xl bg-white max-w-md w-[90%]">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center">
+              <MdSave className="text-4xl text-custom-blue" />
+            </div>
+            <h2 className="text-xl font-bold mb-3 text-gray-900 text-center">Continue Previous Survey?</h2>
+            <p className="mb-6 text-gray-600 text-center">
+              We found a saved draft from your previous session. Would you like to continue where you left off?
+            </p>
+            <div className="flex flex-col gap-3">
               <button
-                onClick={() => blocker.proceed()}
-                className="btn bg-red-500 hover:bg-red-600 text-white border-none"
+                onClick={loadDraft}
+                className="btn w-full bg-custom-blue hover:bg-blue-700 text-white border-none"
               >
-                Leave
+                Continue Draft
+              </button>
+              <button
+                onClick={discardDraft}
+                className="btn w-full btn-ghost text-gray-500 hover:bg-gray-100"
+              >
+                Start New Survey
               </button>
             </div>
           </div>

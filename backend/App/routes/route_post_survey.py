@@ -1097,8 +1097,8 @@ def send_post_survey_mobile():
             )
         
         if svy_question.get("type") in Question_type_inter.CHOICES_TYPE_MOBILE:
-            question.min_choice = svy_question.get("minChoice", 1)
-            question.max_choice = svy_question.get("maxChoice", len(options))
+            question.min_choice = svy_question.get("minChoice", 1) or 1
+            question.max_choice = svy_question.get("maxChoice", len(options)) or len(options)
             for option in options:
                 choice = Choice(choice_text=option)
                 question.choices_question.append(choice)

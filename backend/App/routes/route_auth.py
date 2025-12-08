@@ -429,9 +429,9 @@ def login_success():
 
 @user_auth.route("/update_data", methods=["PATCH"])
 @jwt_required()
-@limiter.limit("2 per minute;100 per hour;500 per day")
+@limiter.limit("10 per minute;100 per hour;500 per day")
 def update_data():
-    data: dict = request.get_json()
+    data: dict = request.get_json(silent=True) or {}
 
     user_id = get_jwt_identity()
     user = db.get(Root_User, int(user_id))
@@ -442,10 +442,9 @@ def update_data():
         logger.info("User tried to change their info without logging in")
         return jsonify_template_user(401, False, "You need to log in to access this")
 
-    username: str = data.get("username", None).strip()
-    school: str = data.get("school", None).strip()
-    program: str = data.get("program", None).strip()
-
+    username: str = data.get("username", None).strip() or None
+    school: str = data.get("school", None).strip() or None
+    program: str = data.get("program", None).strip() or None
 
     info_validate, info_flag = handle_user_info_requirements(username, school, program)
     if info_flag:

@@ -84,8 +84,7 @@ def authorize():
         return redirect(f"{url_redirect}?msg=Database_error")
     
     # to pass data to the response you need to type a query params
-    resp = make_response("", 307)
-    resp.headers["Location"] = f"{url_redirect}?msg=Login_successful&login_type=google"
+    resp = make_response(redirect(f"{url_redirect}?msg=Login_successful&login_type=google"))
 
     set_access_cookies(resp,
                        access_token,

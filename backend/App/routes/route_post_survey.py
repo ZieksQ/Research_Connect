@@ -64,7 +64,7 @@ def get_posts():
     stmt = select(Posts.category
                   ).join(RootUser_Post_Liked, RootUser_Post_Liked.post_id == Posts.id
                          ).where( RootUser_Post_Liked.root_user_id == int(user_id)
-                                 ).order_by( Posts.date_created.desc())
+                                 ).order_by( Posts.date_created.desc()).limit(100)
     posts_tags = db.scalars(stmt).all()
 
     sorted_tags, occurence_tags = get_top_tags(posts_tags)
@@ -189,6 +189,7 @@ def get_posts_solo(id):
 @check_user
 @limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
 def archive_post():
+    user_id = get_jwt_identity()
     data: dict = request.get_json()
     post_id = data.get("id")
 
@@ -196,6 +197,10 @@ def archive_post():
     if not post:
         logger.info("User tried to archive as non exixtent post")
         return jsonify_template_user(404, False, "Post does not exists")
+    
+    if post.user.id != int(user_id):
+        logger.info(f"{user_id} tried to archive a post that is not theirs")
+        return jsonify_template_user(401, False, "You cant archive what you have not posted" )
     
     post.archived = True
     post.status = PostStatus.CLOSED.value
@@ -214,6 +219,8 @@ def archive_post():
 @check_user
 @limiter.limit("20 per minute;300 per hour;5000 per day", key_func=get_jwt_identity)
 def unarchive_post():
+
+    user_id = get_jwt_identity()
     data: dict = request.get_json()
     post_id = data.get("id")
 
@@ -221,6 +228,10 @@ def unarchive_post():
     if not post:
         logger.info("User tried to archive as non exixtent post")
         return jsonify_template_user(404, False, "Post does not exists")
+    
+    if post.user.id != int(user_id):
+        logger.info(f"{user_id} tried to archive a post that is not theirs")
+        return jsonify_template_user(401, False, "You cant archive what you have not posted" )
     
     post.archived = False
     post.status = PostStatus.OPEN.value
@@ -570,7 +581,7 @@ def post_update_data():
         logger.error(survey_requirements)
         return jsonify_template_user(422, False, survey_requirements)
     
-    if status not in (PostStatus.CLOSED.value, PostStatus.OPEN.value):
+    if status.lower() not in (PostStatus.CLOSED.value, PostStatus.OPEN.value):
         logger.info(f"{user_id} tampered with the JSON")
         return jsonify_template_user(422, False, "Please do not tamper with the status JSON (open, closed)")
     
@@ -600,6 +611,10 @@ def survey_responses(id):
     if not survey:
         logger.info(f"{user_id} tried to get the a non existent survey")
         return jsonify_template_user(404, False, "The survey does not exists")
+    
+    if survey.posts_survey.id != int(user_id):
+        logger.info(f"{user_id} tried to archive a post that is not theirs")
+        return jsonify_template_user(401, False, "You are not the owner of this survey" )
     
     text_data = {}
     choice_data = {}

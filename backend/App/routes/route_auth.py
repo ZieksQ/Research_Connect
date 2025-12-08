@@ -455,7 +455,7 @@ def update_data():
     who_user = who_user_query(user.id, user.user_type)
 
     stmt = select(Users).where(Users.username == username)
-    if db.execute(stmt).scalar_one_or_none() and who_user.user_type != username:
+    if db.execute(stmt).scalar_one_or_none() and who_user.username != username:
         msg = "Username already exist"
         logger.error(msg)
         return jsonify_template_user(409, False, msg)

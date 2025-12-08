@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { useAuth } from '../../hooks/useAuth'
-import { deleteSurvey } from '../../services/survey/survey.service'
+import { deleteSurvey, editPost } from '../../services/survey/survey.service'
 import { useNavigate } from 'react-router-dom'
-import { MdAccessTime, MdPeople, MdMoreVert, MdShare, MdDelete, MdCheck, MdArchive } from 'react-icons/md'
+import { MdAccessTime, MdPeople, MdMoreVert, MdShare, MdDelete, MdCheck, MdArchive, MdEdit } from 'react-icons/md'
 
 const ProfilePostSkeleton = () => (
   <div className="rounded-xl shadow-sm bg-white border border-gray-200 p-5 lg:p-6 mb-4">
@@ -43,6 +43,19 @@ const ProfilePostsPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [postToEdit, setPostToEdit] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    post_content: '',
+    post_description: '',
+    status: 'open'
+  });
+  const [confirmEditModalOpen, setConfirmEditModalOpen] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [validationErrors, setValidationErrors] = useState({});
   const menuRefs = useRef({});
 
   const userPosts = userInfo?.message?.user_posts || [];
@@ -81,6 +94,109 @@ const ProfilePostsPage = () => {
     setPostToDelete(post);
     setDeleteModalOpen(true);
     setOpenMenuId(null);
+  };
+
+  const handleEditClick = (post) => {
+    setPostToEdit(post);
+    setEditFormData({
+      title: post.survey_title || '',
+      post_content: post.survey_content || '',
+      post_description: post.survey_description || '',
+      status: post.status || 'open'
+    });
+    setEditModalOpen(true);
+    setOpenMenuId(null);
+  };
+
+  const handleEditFormChange = (field, value) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    // Clear validation error for this field when user starts typing
+    if (validationErrors[field]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [field]: ''
+      }));
+    }
+  };
+
+  const validateEditForm = () => {
+    const errors = {};
+    
+    // Count words in title
+    const titleWords = editFormData.title.trim().split(/\s+/).filter(word => word.length > 0);
+    if (titleWords.length < 5) {
+      errors.title = 'Title must contain at least 5 words';
+    }
+    
+    // Count words in content
+    const contentWords = editFormData.post_content.trim().split(/\s+/).filter(word => word.length > 0);
+    if (contentWords.length < 5) {
+      errors.post_content = 'Content must contain at least 5 words';
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSaveClick = (e) => {
+    e.preventDefault();
+    if (validateEditForm()) {
+      setConfirmEditModalOpen(true);
+    }
+  };
+
+  const handleConfirmEdit = async () => {
+    if (!postToEdit) return;
+    
+    setIsEditing(true);
+    setConfirmEditModalOpen(false);
+    
+    try {
+      const response = await editPost({
+        id: postToEdit.pk_survey_id,
+        title: editFormData.title,
+        post_content: editFormData.post_content,
+        post_description: editFormData.post_description,
+        status: editFormData.status
+      });
+      
+      // Check if there's an error in the response
+      if (response && response.ok === false) {
+        setErrorMessage(response.message || 'An error occurred while updating the post');
+        setErrorModalOpen(true);
+        setIsEditing(false);
+        return;
+      }
+      
+      // Refetch user data to update the posts list
+      if (refreshUser) {
+        await refreshUser();
+      }
+      setEditModalOpen(false);
+      setPostToEdit(null);
+      setValidationErrors({});
+    } catch (err) {
+      console.error('Error editing survey:', err);
+      setErrorMessage(err.message || 'An unexpected error occurred');
+      setErrorModalOpen(true);
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditModalOpen(false);
+    setPostToEdit(null);
+    setValidationErrors({});
+    setEditFormData({
+      title: '',
+      post_content: '',
+      post_description: '',
+      status: 'open'
+    });
   };
 
   const handleConfirmDelete = async () => {
@@ -190,6 +306,14 @@ const ProfilePostsPage = () => {
                               Copy Link
                             </>
                           )}
+                        </button>
+                        <div className="h-px bg-gray-200 my-1" />
+                        <button
+                          onClick={() => handleEditClick(post)}
+                          className="w-full flex items-center gap-3 hover:bg-blue-50 transition-colors text-sm p-3 text-custom-blue"
+                        >
+                          <MdEdit className="text-xl" />
+                          Edit Post
                         </button>
                         <div className="h-px bg-gray-200 my-1" />
                         <button
@@ -304,6 +428,192 @@ const ProfilePostsPage = () => {
                 ) : (
                   'Archive'
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Post Modal */}
+      {editModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50"
+            onClick={handleCancelEdit}
+          />
+          
+          {/* Modal */}
+          <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto animate-[fadeIn_0.2s_ease-out]">
+            <h3 className="text-xl font-semibold mb-4 text-gray-900">
+              Edit Post
+            </h3>
+            
+            <form onSubmit={handleSaveClick} className="space-y-4">
+              {/* Title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Survey Title
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.title}
+                  onChange={(e) => handleEditFormChange('title', e.target.value)}
+                  className={`input input-bordered w-full ${validationErrors.title ? 'border-red-500' : ''}`}
+                  placeholder="Enter survey title"
+                />
+                {validationErrors.title && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.title}</p>
+                )}
+              </div>
+
+              {/* Post Content */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Post Content
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.post_content}
+                  onChange={(e) => handleEditFormChange('post_content', e.target.value)}
+                  className={`input input-bordered w-full ${validationErrors.post_content ? 'border-red-500' : ''}`}
+                  placeholder="Enter post content"
+                />
+                {validationErrors.post_content && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.post_content}</p>
+                )}
+              </div>
+
+              {/* Post Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Post Description
+                </label>
+                <textarea
+                  value={editFormData.post_description}
+                  onChange={(e) => handleEditFormChange('post_description', e.target.value)}
+                  className="textarea textarea-bordered w-full h-32 resize-none"
+                  placeholder="Enter post description"
+                />
+              </div>
+
+              {/* Status - Only show if post is approved */}
+              {postToEdit?.['approved`'] && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    value={editFormData.status}
+                    onChange={(e) => handleEditFormChange('status', e.target.value)}
+                    className="select select-bordered w-full"
+                  >
+                    <option value="open">Open</option>
+                    <option value="close">Close</option>
+                  </select>
+                </div>
+              )}
+
+              {!postToEdit?.['approved`'] && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800">
+                    <strong>Note:</strong> Status cannot be edited while the post is pending approval.
+                  </p>
+                </div>
+              )}
+            
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="btn btn-ghost text-gray-600"
+                  disabled={isEditing}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn bg-custom-blue border-custom-blue text-white hover:bg-blue-800 hover:border-blue-800"
+                  disabled={isEditing}
+                >
+                  {isEditing ? (
+                    <span className="loading loading-spinner loading-sm"></span>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setConfirmEditModalOpen(false)}
+          />
+          
+          {/* Modal */}
+          <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 animate-[fadeIn_0.2s_ease-out]">
+            <h3 className="text-lg font-semibold mb-2 text-gray-900">
+              Confirm Changes
+            </h3>
+            <p className="mb-6 text-gray-600">
+              Are you sure you want to save the changes to "<strong>{editFormData.title}</strong>"?
+            </p>
+            
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmEditModalOpen(false)}
+                className="btn btn-ghost text-gray-600"
+                disabled={isEditing}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmEdit}
+                className="btn bg-custom-blue border-custom-blue text-white hover:bg-blue-800 hover:border-blue-800"
+                disabled={isEditing}
+              >
+                {isEditing ? (
+                  <span className="loading loading-spinner loading-sm"></span>
+                ) : (
+                  'Confirm'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Modal */}
+      {errorModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setErrorModalOpen(false)}
+          />
+          
+          {/* Modal */}
+          <div className="relative bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 animate-[fadeIn_0.2s_ease-out]">
+            <h3 className="text-lg font-semibold mb-2 text-red-600">
+              Error
+            </h3>
+            <p className="mb-6 text-gray-600">
+              {errorMessage}
+            </p>
+            
+            <div className="flex justify-end">
+              <button
+                onClick={() => setErrorModalOpen(false)}
+                className="btn bg-red-600 border-red-600 text-white hover:bg-red-700 hover:border-red-700"
+              >
+                Close
               </button>
             </div>
           </div>

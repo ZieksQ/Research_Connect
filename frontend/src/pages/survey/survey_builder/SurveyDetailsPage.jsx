@@ -45,6 +45,8 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
   const handleTagToggle = (tag) => {
     if (tags.includes(tag)) {
       setTags(tags.filter(t => t !== tag));
+    } else if (tags.length >= 3) {
+      alert('You can only select up to 3 tags');
     } else {
       setTags([...tags, tag]);
     }
@@ -55,6 +57,10 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
       const trimmedTag = customTag.trim();
       if (trimmedTag.length > 16) {
         alert('Custom tag must be 16 characters or less');
+        return;
+      }
+      if (tags.length >= 3) {
+        alert('You can only select up to 3 tags');
         return;
       }
       setTags([...tags, trimmedTag]);
@@ -94,8 +100,11 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
       setContentError('');
     }
 
-    if (description.trim() && countWords(description) < 5) {
-      setDescriptionError('Survey description must contain at least 5 words if provided');
+    if (!description.trim()) {
+      setDescriptionError('Please enter a survey description');
+      isValid = false;
+    } else if (countWords(description) < 5) {
+      setDescriptionError('Survey description must contain at least 5 words');
       isValid = false;
     } else {
       setDescriptionError('');
@@ -251,7 +260,7 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
       <div className="mb-10">
         <label className="label">
           <span className="label-text text-gray-700 font-medium text-base lg:text-lg">
-            Survey Tags
+            Survey Tags <span className="text-gray-500 text-sm">(Max 3)</span>
           </span>
         </label>
         <div className="flex flex-wrap gap-2 mb-3">

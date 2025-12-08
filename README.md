@@ -21,8 +21,7 @@ The project is a web and mobile app that serves as a platform for users to post 
 
 **Survey Application** - Users can answer and create survey using the application.
 
-**Google Forms API Integration** - Users can use Forms from Google Forms and Import using the application.
-
+**Google Login using Oauth** - Users can Login using thier Google Account.
 
 ## 💻 Mock-up Design
 

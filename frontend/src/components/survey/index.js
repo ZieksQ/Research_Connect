@@ -11,5 +11,13 @@ export { default as SurveyQuestion } from './SurveyQuestion';
 export { default as SurveyCard } from './SurveyCard';
 export { default as ApproxTimeModal } from './ApproxTimeModal';
 
+// Survey Builder Modals
+export { default as PublishConfirmModal } from './PublishConfirmModal';
+export { default as CodeInputModal } from './CodeInputModal';
+export { default as PublishResultModal } from './PublishResultModal';
+export { default as DraftModal } from './DraftModal';
+export { default as UnsavedChangesModal } from './UnsavedChangesModal';
+export { default as PublishingOverlay } from './PublishingOverlay';
+
 // Re-export input components
 export * from './inputs';

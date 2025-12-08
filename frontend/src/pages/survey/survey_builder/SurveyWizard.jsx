@@ -1,16 +1,22 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { useNavigate, Link, useBlocker } from 'react-router-dom';
+import { useNavigate, useBlocker } from 'react-router-dom';
 import { publishSurvey } from '../../../services/survey/survey.service';
-import { MdCheckCircle, MdError, MdClose, MdVpnKey, MdArrowBack, MdSave, MdDeleteForever } from 'react-icons/md';
-// import { MdCheck } from 'react-icons/md';
-// import { log } from 'three';
+import { MdArrowBack } from 'react-icons/md';
 
 // Lazy load survey builder components
 const SurveyDetailsPage = lazy(() => import('./SurveyDetailsPage'));
 const TargetAudiencePage = lazy(() => import('./TargetAudiencePage'));
 const SortableForm = lazy(() => import('./SortableForm'));
 const SurveyPreviewPage = lazy(() => import('./SurveyPreviewPage'));
+
+// Lazy load reusable modal components
 const ApproxTimeModal = lazy(() => import('../../../components/survey/ApproxTimeModal'));
+const PublishConfirmModal = lazy(() => import('../../../components/survey/PublishConfirmModal'));
+const CodeInputModal = lazy(() => import('../../../components/survey/CodeInputModal'));
+const PublishResultModal = lazy(() => import('../../../components/survey/PublishResultModal'));
+const DraftModal = lazy(() => import('../../../components/survey/DraftModal'));
+const UnsavedChangesModal = lazy(() => import('../../../components/survey/UnsavedChangesModal'));
+const PublishingOverlay = lazy(() => import('../../../components/survey/PublishingOverlay'));
 
 const DRAFT_KEY = 'survey_draft';
 
@@ -345,220 +351,54 @@ export default function SurveyWizard() {
         </Suspense>
       </div>
 
-      {/* Publishing Loading Overlay */}
-      {isPublishing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="p-8 rounded-xl shadow-xl text-center bg-white max-w-xs w-full">
-            <span className="loading loading-spinner loading-lg text-custom-blue"></span>
-            <p className="mt-4 font-medium text-gray-900">
-              Publishing your survey...
-            </p>
-            <p className="text-sm mt-2 text-gray-500">
-              Please wait
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Lazy loaded modal components */}
+      <Suspense fallback={null}>
+        {/* Publishing Loading Overlay */}
+        <PublishingOverlay isOpen={isPublishing} />
 
-      {/* Publish Result Modal */}
-      {publishModal.show && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="p-8 rounded-xl shadow-xl text-center bg-white max-w-md w-[90%]">
-            {publishModal.success ? (
-              <>
-                <MdCheckCircle className="mx-auto mb-4 text-6xl text-custom-green" />
-                <h2 className="text-xl font-bold mb-3 text-gray-900">
-                  Success!
-                </h2>
-                <p className="mb-4 text-gray-600">
-                  {publishModal.message}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Redirecting to home in 3 seconds...
-                </p>
-              </>
-            ) : (
-              <>
-                <MdError className="mx-auto mb-4 text-6xl text-red-600" />
-                <h2 className="text-xl font-bold mb-3 text-gray-900">
-                  Publishing Failed
-                </h2>
-                <p className="mb-4 text-gray-600">
-                  {publishModal.message}
-                </p>
-                <button
-                  onClick={() => setPublishModal({ show: false, success: false, message: '' })}
-                  className="btn bg-custom-blue hover:bg-blue-700 text-white border-none"
-                >
-                  <MdClose className="mr-1" /> Close
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+        {/* Publish Result Modal */}
+        <PublishResultModal
+          isOpen={publishModal.show}
+          success={publishModal.success}
+          message={publishModal.message}
+          onClose={() => setPublishModal({ show: false, success: false, message: '' })}
+        />
 
-      {/* Confirmation Modal */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="p-8 rounded-xl shadow-xl text-center bg-white max-w-md w-[90%]">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center">
-              <MdCheckCircle className="text-4xl text-custom-blue" />
-            </div>
-            <h2 className="text-xl font-bold mb-3 text-gray-900">
-              Publish Survey?
-            </h2>
-            <p className="mb-6 text-gray-600">
-              Are you sure you want to publish this survey? Once submitted, it will be sent for admin approval.
-            </p>
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className="btn btn-ghost text-gray-500 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmPublish}
-                className="btn bg-custom-blue hover:bg-blue-700 text-white border-none"
-              >
-                Yes, Continue
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        {/* Confirmation Modal */}
+        <PublishConfirmModal
+          isOpen={showConfirmModal}
+          onCancel={() => setShowConfirmModal(false)}
+          onConfirm={handleConfirmPublish}
+        />
 
-      {/* Code Input Modal */}
-      {showCodeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="p-8 rounded-xl shadow-xl bg-white max-w-md w-[90%]">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center">
-              <MdVpnKey className="text-3xl text-custom-blue" />
-            </div>
-            <h2 className="text-xl font-bold mb-2 text-center text-gray-900">
-              Have an Approval Code?
-            </h2>
-            <p className="mb-4 text-center text-sm text-gray-600">
-              If you have an approval code from an admin, enter it below to bypass the approval process. Otherwise, your survey will be sent for review.
-            </p>
-            
-            <div className="mb-6">
-              <label className="label">
-                <span className="label-text text-gray-600 font-medium">
-                  Approval Code (Optional)
-                </span>
-              </label>
-              <input
-                type="text"
-                value={postCode}
-                onChange={(e) => setPostCode(e.target.value)}
-                placeholder="Enter your code here..."
-                className="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-custom-blue text-gray-900"
-              />
-            </div>
+        {/* Code Input Modal */}
+        <CodeInputModal
+          isOpen={showCodeModal}
+          postCode={postCode}
+          onPostCodeChange={setPostCode}
+          onSubmitWithCode={handleSubmitWithCode}
+          onSubmitWithoutCode={handleSubmitWithoutCode}
+          cancelPath="/home"
+        />
 
-            <div className="flex flex-col gap-3">
-              {postCode.trim() && (
-                <button
-                  onClick={handleSubmitWithCode}
-                  className="btn w-full bg-custom-blue hover:bg-blue-700 text-white border-none"
-                >
-                  Submit with Code
-                </button>
-              )}
-              <button
-                onClick={handleSubmitWithoutCode}
-                className={`btn w-full ${
-                  postCode.trim() 
-                    ? 'btn-ghost text-gray-500 hover:bg-gray-100' 
-                    : 'bg-custom-blue hover:bg-blue-700 text-white border-none'
-                }`}
-              >
-                {postCode.trim() ? 'Submit without Code' : 'Submit for Review'}
-              </button>
-              <Link 
-                to="/home"
-                className="text-center text-sm text-custom-blue hover:underline mt-2"
-              >
-                Cancel and return to homepage
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+        {/* Unsaved Changes Modal */}
+        <UnsavedChangesModal
+          isOpen={blocker.state === "blocked"}
+          onSaveAndExit={() => blocker.proceed()}
+          onExitWithoutSaving={() => {
+            clearDraft();
+            blocker.proceed();
+          }}
+          onCancel={() => blocker.reset()}
+        />
 
-      {/* Unsaved Changes Modal */}
-      {blocker.state === "blocked" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="p-8 rounded-xl shadow-xl bg-white max-w-md w-[90%]">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-50 flex items-center justify-center">
-              <MdSave className="text-4xl text-yellow-600" />
-            </div>
-            <h2 className="text-xl font-bold mb-3 text-gray-900 text-center">Save Your Progress?</h2>
-            <p className="mb-6 text-gray-600 text-center">
-              Would you like to save your survey as a draft? You can continue working on it later.
-            </p>
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={() => {
-                  // Draft is already saved automatically
-                  blocker.proceed();
-                }}
-                className="btn w-full bg-custom-blue hover:bg-blue-700 text-white border-none"
-              >
-                <MdSave className="text-lg" />
-                Save Draft & Exit
-              </button>
-              <button
-                onClick={() => {
-                  clearDraft();
-                  blocker.proceed();
-                }}
-                className="btn w-full btn-ghost text-red-500 hover:bg-red-50"
-              >
-                <MdDeleteForever className="text-lg" />
-                Exit Without Saving
-              </button>
-              <button
-                onClick={() => blocker.reset()}
-                className="btn w-full btn-ghost text-gray-500 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Load Draft Modal */}
-      {showDraftModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="p-8 rounded-xl shadow-xl bg-white max-w-md w-[90%]">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center">
-              <MdSave className="text-4xl text-custom-blue" />
-            </div>
-            <h2 className="text-xl font-bold mb-3 text-gray-900 text-center">Continue Previous Survey?</h2>
-            <p className="mb-6 text-gray-600 text-center">
-              We found a saved draft from your previous session. Would you like to continue where you left off?
-            </p>
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={loadDraft}
-                className="btn w-full bg-custom-blue hover:bg-blue-700 text-white border-none"
-              >
-                Continue Draft
-              </button>
-              <button
-                onClick={discardDraft}
-                className="btn w-full btn-ghost text-gray-500 hover:bg-gray-100"
-              >
-                Start New Survey
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        {/* Load Draft Modal */}
+        <DraftModal
+          isOpen={showDraftModal}
+          onLoadDraft={loadDraft}
+          onDiscardDraft={discardDraft}
+        />
+      </Suspense>
     </div>
   );
 }

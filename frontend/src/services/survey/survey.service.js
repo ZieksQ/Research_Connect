@@ -103,3 +103,9 @@ export const unarchivedPost = async (id) =>
     method: "PATCH",
     body: JSON.stringify(id),
   })
+
+export const editPost = async (data) =>
+  await apiFetch(`/api/survey/post/update_data`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  })

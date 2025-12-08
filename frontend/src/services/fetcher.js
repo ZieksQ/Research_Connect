@@ -6,6 +6,10 @@
 
 import { refreshUser } from "./auth";
 
+// Guard to prevent multiple simultaneous refresh attempts
+let isRefreshing = false;
+let refreshPromise = null;
+
 // Function to get CSRF token from cookie (Flask-JWT-Extended sets csrf_access_token cookie)
 const getCsrfToken = (cookieName = "csrf_access_token") => {
   const cookies = document.cookie.split(";");
@@ -39,6 +43,8 @@ export const apiFetch = async (url, options = {}) => {
 
       if (csrfToken) {
         headers["X-CSRF-TOKEN"] = csrfToken;
+      } else {
+        console.warn(`CSRF token not found for ${url}`);
       }
     }
     
@@ -50,23 +56,39 @@ export const apiFetch = async (url, options = {}) => {
 
     let data = await res.json();
 
-    // If token expired — refresh & retry once
-    if (data?.token_expired) {
-      console.warn("Access token expired. Refreshing...");
+    // If not logged in OR token expired — try to refresh
+    if (data?.not_logged_in || data?.token_expired) {
+      console.warn(data?.token_expired ? "Access token expired. Refreshing..." : "No access token. Attempting refresh...");
 
-      const refresh = await refreshUser();
-      // console.log("Refresh response:", refresh);
+      // Use the existing refresh promise if one is in progress, otherwise create a new one
+      if (!isRefreshing) {
+        isRefreshing = true;
+        refreshPromise = refreshUser().finally(() => {
+          isRefreshing = false;
+          refreshPromise = null;
+        });
+      }
+
+      const refresh = await refreshPromise;
 
       if (refresh?.ok) {
-        // console.log("Token refreshed! Retrying request...");
+        console.log("Token refreshed successfully! Retrying request...");
+        
+        // Get the NEW CSRF token after refresh
+        const newCsrfToken = getCsrfToken("csrf_access_token");
+        if (newCsrfToken && options.method && options.method.toUpperCase() !== "GET") {
+          headers["X-CSRF-TOKEN"] = newCsrfToken;
+        }
+        
         res = await fetch(url, {
           credentials: "include",
           ...options,
-          headers,
+          headers, // Use updated headers with new CSRF token
         });
         data = await res.json();
       } else {
-        console.error("Token refresh failed.");
+        console.error("Token refresh failed. User needs to log in.");
+        return data; // Return the not_logged_in response
       }
     }
 

@@ -34,6 +34,7 @@ import {
   MdNumbers,
 } from 'react-icons/md';
 import { FaLink } from 'react-icons/fa';
+import { showToast } from '../../../utils/toast';
 
 export default function SortableForm({ data, onNext, onBack, updateData }) {
   const [sections, setSections] = useState(data.data || [
@@ -430,7 +431,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
         updateQuestion(currentSectionId, currentQuestionId, 'video', mediaLink);
         closeMediaModal();
       } else {
-        alert('Please enter a valid YouTube or Google Drive link');
+        showToast('Please enter a valid YouTube or Google Drive link', 'warning');
       }
     }
   };
@@ -440,7 +441,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
     const hasQuestions = sections.some(section => section.questions.length > 0);
     
     if (!hasQuestions) {
-      alert('Please add at least one question to your survey');
+      showToast('Please add at least one question to your survey', 'warning');
       return;
     }
 
@@ -457,7 +458,7 @@ export default function SortableForm({ data, onNext, onBack, updateData }) {
     });
 
     if (invalidRatingQuestions.length > 0) {
-      alert(`Please fix the rating value (must be between 1-10) for: ${invalidRatingQuestions.join(', ')}`);
+      showToast(`Please fix the rating value (must be between 1-10) for: ${invalidRatingQuestions.join(', ')}`, 'error');
       return;
     }
 

@@ -91,11 +91,11 @@ const ArchivedPostCard = ({ post, onUnarchive }) => {
         {/* Footer with Time, Audience, and Button */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-4 flex-wrap">
-            {/* Time Approx */}
+            {/* Approx Time */}
             <div className="flex items-center gap-1">
               <MdAccessTime className="text-base lg:text-lg text-custom-green" />
               <span className="text-gray-500 text-xs lg:text-sm">
-                {new Date(post.survey_date_created).toLocaleDateString()}
+                {post.approx_time || 'N/A'}
               </span>
             </div>
 

@@ -1,5 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { MdAdd, MdClose } from 'react-icons/md';
+import { showToast } from '../../../utils/toast';
+
+const ApproxTimeModal = lazy(() => import('../../../components/survey/ApproxTimeModal'));
 
 export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
   const [title, setTitle] = useState(data.surveyTitle || '');
@@ -8,6 +11,7 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
   const [selectedTime, setSelectedTime] = useState(data.surveyApproxTime || '');
   const [customTime, setCustomTime] = useState('');
   const [showCustomTime, setShowCustomTime] = useState(false);
+  const [showTimeModal, setShowTimeModal] = useState(false);
   const [tags, setTags] = useState(data.surveyTags || []);
   const [customTag, setCustomTag] = useState('');
   const [showCustomTag, setShowCustomTag] = useState(false);
@@ -42,9 +46,16 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
     }
   };
 
+  const handleTimeModalSave = (timeString) => {
+    setSelectedTime(timeString);
+    setShowTimeModal(false);
+  };
+
   const handleTagToggle = (tag) => {
     if (tags.includes(tag)) {
       setTags(tags.filter(t => t !== tag));
+    } else if (tags.length >= 3) {
+      showToast('You can only select up to 3 tags', 'warning');
     } else {
       setTags([...tags, tag]);
     }
@@ -54,7 +65,11 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
     if (customTag.trim() && !tags.includes(customTag.trim())) {
       const trimmedTag = customTag.trim();
       if (trimmedTag.length > 16) {
-        alert('Custom tag must be 16 characters or less');
+        showToast('Custom tag must be 16 characters or less', 'warning');
+        return;
+      }
+      if (tags.length >= 3) {
+        showToast('You can only select up to 3 tags', 'warning');
         return;
       }
       setTags([...tags, trimmedTag]);
@@ -94,15 +109,18 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
       setContentError('');
     }
 
-    if (description.trim() && countWords(description) < 5) {
-      setDescriptionError('Survey description must contain at least 5 words if provided');
+    if (!description.trim()) {
+      setDescriptionError('Please enter a survey description');
+      isValid = false;
+    } else if (countWords(description) < 5) {
+      setDescriptionError('Survey description must contain at least 5 words');
       isValid = false;
     } else {
       setDescriptionError('');
     }
 
     if (!selectedTime) {
-      alert('Please select approximate time');
+      showToast('Please select approximate time', 'warning');
       isValid = false;
     }
 
@@ -220,29 +238,24 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
             </button>
           ))}
           <button
-            onClick={() => setShowCustomTime(!showCustomTime)}
-            className="badge badge-lg h-auto py-3 px-4 cursor-pointer transition-all border-none bg-gray-100 text-custom-blue hover:bg-gray-200 font-medium"
+            onClick={() => setShowTimeModal(true)}
+            className={`badge badge-lg h-auto py-3 px-4 cursor-pointer transition-all border-none font-medium ${
+              selectedTime && !timeOptions.includes(selectedTime)
+                ? 'bg-custom-blue text-white shadow-md'
+                : 'bg-gray-100 text-custom-blue hover:bg-gray-200'
+            }`}
           >
             + More
           </button>
         </div>
         
-        {showCustomTime && (
-          <div className="flex gap-2 mt-3">
-            <input
-              type="text"
-              value={customTime}
-              onChange={(e) => setCustomTime(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleCustomTimeAdd()}
-              className="input input-sm flex-1 bg-gray-50 border-gray-300 focus:border-custom-blue text-gray-900"
-              placeholder="Enter custom time (e.g., 20-30 min)"
-            />
-            <button
-              onClick={handleCustomTimeAdd}
-              className="btn btn-sm bg-custom-blue hover:bg-blue-700 text-white border-none"
-            >
-              Add
-            </button>
+        {/* Display custom time if selected */}
+        {selectedTime && !timeOptions.includes(selectedTime) && (
+          <div className="mt-2 mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
+              <span className="text-sm text-gray-600">Custom time:</span>
+              <span className="text-sm font-semibold text-custom-blue">{selectedTime}</span>
+            </div>
           </div>
         )}
       </div>
@@ -251,7 +264,7 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
       <div className="mb-10">
         <label className="label">
           <span className="label-text text-gray-700 font-medium text-base lg:text-lg">
-            Survey Tags
+            Survey Tags <span className="text-gray-500 text-sm">(Max 3)</span>
           </span>
         </label>
         <div className="flex flex-wrap gap-2 mb-3">
@@ -329,6 +342,15 @@ export default function SurveyDetailsPage({ data, onNext, isFirstStep }) {
       >
         Continue
       </button>
+
+      {/* Approx Time Modal */}
+      <Suspense fallback={null}>
+        <ApproxTimeModal
+          isOpen={showTimeModal}
+          onClose={() => setShowTimeModal(false)}
+          onSave={handleTimeModalSave}
+        />
+      </Suspense>
     </div>
   );
 }

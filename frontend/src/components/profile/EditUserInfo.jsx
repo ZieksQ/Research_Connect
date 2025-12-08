@@ -15,22 +15,30 @@ const EditUserInfo = ({ userData }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { refreshUser } = useAuth();
 
-  const handleSave = async () => {
-    // TODO: Add fetch request here to update user info
-    // Example:
-    // await updateUserInfo({ username, program, school });
-    setIsLoading(true)
-    const data = await patchUserInfo({ username, school, program });
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      const data = await patchUserInfo({ username, school, program });
 
-    if (!data.ok) {
+      if (!data.ok) {
         setIsLoading(false);
         return;
-    }
+      }
 
-    setIsLoading(false);
-    await refreshUser();
-    // Close modal after successful update
-    document.getElementById("edit_user_info_modal").close();
+      await refreshUser();
+      setIsLoading(false);
+      
+      // Close modal after successful update
+      const modal = document.getElementById("edit_user_info_modal");
+      if (modal) {
+        modal.close();
+      }
+    } catch (error) {
+      console.error('Error updating user info:', error);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -98,7 +106,11 @@ const EditUserInfo = ({ userData }) => {
             <form method="dialog">
               <button className="btn btn-ghost mr-2">Cancel</button>
             </form>
-            <button className="btn btn-primary w-34" onClick={handleSave}>
+            <button 
+              className="btn btn-primary w-34" 
+              onClick={handleSave}
+              disabled={isLoading}
+            >
               {isLoading ? <span className="loading loading-dots loading-md"></span> : "Save Changes"}
             </button>
           </div>

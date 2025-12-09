@@ -581,7 +581,7 @@ def post_update_data():
         logger.error(survey_requirements)
         return jsonify_template_user(422, False, survey_requirements)
     
-    if status.lower() not in (PostStatus.CLOSED.value, PostStatus.OPEN.value):
+    if status.lower() not in (PostStatus.CLOSED.value, PostStatus.OPEN.value, "close"):
         logger.info(f"{user_id} tampered with the JSON")
         return jsonify_template_user(422, False, "Please do not tamper with the status JSON (open, closed)")
     
@@ -612,7 +612,7 @@ def survey_responses(id):
         logger.info(f"{user_id} tried to get the a non existent survey")
         return jsonify_template_user(404, False, "The survey does not exists")
     
-    if survey.posts_survey.id != int(user_id):
+    if survey.posts_survey.user_id != int(user_id):
         logger.info(f"{user_id} tried to archive a post that is not theirs")
         return jsonify_template_user(401, False, "You are not the owner of this survey" )
     
